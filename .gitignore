@@ -1,0 +1,19 @@
+# general
+hs_err_pid*
+
+# Idea
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# maven
+target/
+
+# java
+*.jar
+*.war
+*.ear
