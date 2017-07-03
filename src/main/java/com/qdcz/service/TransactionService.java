@@ -1,12 +1,11 @@
 package com.qdcz.service;
 
-import com.qdcz.Tools.BuildReresult;
+import com.qdcz.tools.BuildReresult;
 import com.qdcz.neo4jkernel.ExpanderService;
 import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
-import com.qdcz.service.BankLawService;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -134,6 +133,8 @@ public class TransactionService {
 //        long id=2686l;
 
         _Vertex vertex = bankLawService.checkVertexById(id);
+        if(vertex==null)
+            return ;
         BuildReresult buildReresult = new BuildReresult();
         Traverser traverser = loopDataService.loopDataByLoopApi(vertex.getId(),1);
         JSONObject jsonObject = buildReresult.graphResult(traverser);
@@ -159,10 +160,13 @@ public class TransactionService {
         bankLawService.deleteVertex(vertex);
     }
     @Transactional
-    public void changeVertex(long id,_Vertex newVertex){
+    public long changeVertex(long id,_Vertex newVertex){
         //1.预处理
         //2.获取要删除点的相关信息
         _Vertex vertex = bankLawService.checkVertexById(id);
+        if(vertex ==null){
+            return 0l;
+        }
         Traverser traverser = loopDataService.loopDataByLoopApi(vertex.getId(),1);
         ResourceIterable<Node> nodes = traverser.nodes();
         Node targetNode=null;
@@ -215,7 +219,7 @@ public class TransactionService {
             legacyIndexService.createFullTextIndex(edgeid,propKeys,"edge");
         }
 
-
+        return l;
     }
     @Transactional
     public JSONObject check(String keyword){//索引匹配查询
@@ -226,7 +230,7 @@ public class TransactionService {
        // String keyword="银行创新指引";
         String[] fields={"root","name","relation"};
         JSONArray resultArray=new JSONArray();
-        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, keyword,"vertex");
+            List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, keyword,"vertex");
         BuildReresult buildReresult = new BuildReresult();
         //4.各个节点广搜路径
         for(Map<String, Object> map:maps){
@@ -313,7 +317,6 @@ public class TransactionService {
             }
         }
         JSONObject result= buildReresult.cleanRestult(merge);
-        System.out.println(result);
         return result;
     }
     @Transactional
@@ -363,11 +366,11 @@ public class TransactionService {
 
         //3.结果组织返回
         JSONObject jsonObject = buildReresult.graphResult(traverser);
-
+        System.out.println(jsonObject.toString());
         return jsonObject;
     }
     @Transactional
-    public void addEgde(long fromId,long toid,String relation){//插入关系
+    public long addEgde(long fromId,long toid,String relation){//插入关系
         //1.预处理
 
         //2.建立关系
@@ -384,9 +387,11 @@ public class TransactionService {
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
+        return id;
+
     }
     @Transactional
-    public void addEgde(_Vertex from,_Vertex to,String relation){//插入关系
+    public long addEgde(_Vertex from,_Vertex to,String relation){//插入关系
         //1.预处理
 
         //2.建立关系
@@ -403,6 +408,7 @@ public class TransactionService {
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
+        return id;
     }
     @Transactional
     public _Edge deleteEgde(Long id){
@@ -424,17 +430,18 @@ public class TransactionService {
         return edge;
     }
     @Transactional
-    public void changeEgde(Long id,Long fromId,Long toId,JSONObject newEgdeInfo){
+    public long changeEgde(Long id,Long fromId,Long toId,JSONObject newEgdeInfo){
         deleteEgde(id);
+        long newId=0l;
         try {
             String relation=newEgdeInfo.getString("relation");
             _Vertex from = bankLawService.checkVertexById(fromId);
             _Vertex to = bankLawService.checkVertexById(toId);
-            addEgde(from,to,relation);
+            newId=addEgde(from,to,relation);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        return  newId;
     }
     @Transactional
     public void threadB(){
@@ -474,6 +481,7 @@ public class TransactionService {
         john.setProperty("age", 38);
         System.out.println(john.getProperty("age"));
     }
+
 
 
 }

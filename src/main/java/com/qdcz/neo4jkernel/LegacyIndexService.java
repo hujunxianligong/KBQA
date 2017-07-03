@@ -124,10 +124,11 @@ public class LegacyIndexService {
                 for (org.neo4j.graphdb.Node n : foundNodes) {
                     tx.acquireReadLock(n);
                     Map<String, Object> m = n.getAllProperties();
-                    if (!Float.isNaN(foundNodes.currentScore())) {
-                        m.put("score", foundNodes.currentScore() + "");
 
-                    }
+                    m.put("score", foundNodes.currentScore());
+//                    if (!Float.isNaN(foundNodes.currentScore())) {
+//                        m.put("score", foundNodes.currentScore() + "");
+//                    }
                     m.put("id", n.getId());
                     // log.info("method[selectByIndex] score<"+foundNodes.currentScore()+">");
                     ret.add(m);

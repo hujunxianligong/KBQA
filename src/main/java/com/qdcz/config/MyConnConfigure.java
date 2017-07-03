@@ -11,6 +11,7 @@ public class MyConnConfigure extends Properties {
     public static String driver;
     public static String db;
     public static int port;
+
     @Override
     public synchronized void load(InputStream inStream) throws IOException {
         super.load(inStream);

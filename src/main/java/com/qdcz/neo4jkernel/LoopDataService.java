@@ -1,6 +1,7 @@
 package com.qdcz.neo4jkernel;
 
 import com.qdcz.neo4jkernel.evaluator.CustomNodeFilteringEvaluator;
+import com.qdcz.neo4jkernel.evaluator.InstrNodeFilteringEvaluator;
 import com.qdcz.neo4jkernel.generic.MyRelationshipTypes;
 import com.qdcz.neo4jkernel.generic.PathPrinter;
 import org.neo4j.graphalgo.GraphAlgoFactory;
@@ -84,7 +85,7 @@ public class LoopDataService {
         try(Transaction tx= graphDatabaseService.beginTx()) {
             Node userJohn = graphDatabaseService.getNodeById(id);
             tx.acquireReadLock(userJohn);
-            TraversalDescription traversalMoviesFriendsLike = graphDatabaseService.traversalDescription()
+            TraversalDescription traversal = graphDatabaseService.traversalDescription()
                     //      .relationships(MyRelationshipTypes.IS_FRIEND_OF)
                     //    .relationships(MyRelationshipTypes.gra, Direction.OUTGOING)
                     .relationships(MyRelationshipTypes.gra)
@@ -92,7 +93,7 @@ public class LoopDataService {
                     .evaluator(Evaluators.toDepth(depth))
                     .evaluator(new CustomNodeFilteringEvaluator(userJohn));
 
-             traverser = traversalMoviesFriendsLike.traverse(userJohn);
+             traverser = traversal.traverse(userJohn);
             tx.success();
         }
         /*
@@ -132,6 +133,27 @@ public class LoopDataService {
             }
         }
         */
+        return  traverser;
+    }
+    @Transactional
+    public Traverser associatedNodeSearch(Long id){
+        Traverser traverser =null;
+        try(Transaction tx= graphDatabaseService.beginTx()) {
+            Node node = graphDatabaseService.getNodeById(id);
+            tx.acquireReadLock(node);
+            TraversalDescription traversal = graphDatabaseService.traversalDescription()
+                    .relationships(MyRelationshipTypes.EXTRACT)
+                    .relationships(MyRelationshipTypes.FOR_EXAMPLE)
+                    .relationships(MyRelationshipTypes.INVOLVED)
+                    .relationships(MyRelationshipTypes.SHOW)
+                    .relationships(MyRelationshipTypes.MAINLY_INVOLVED)
+                    .uniqueness(Uniqueness.NODE_PATH)
+                    .evaluator(Evaluators.toDepth(2))
+                    .evaluator(new InstrNodeFilteringEvaluator(node)).breadthFirst();
+
+            traverser = traversal.traverse(node);
+            tx.success();
+        }
         return  traverser;
     }
 

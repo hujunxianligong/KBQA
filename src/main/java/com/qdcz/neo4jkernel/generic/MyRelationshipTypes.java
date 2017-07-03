@@ -12,5 +12,10 @@ public enum MyRelationshipTypes implements RelationshipType {
     WORK_WITH,
     LIKES,
     KNOWS,
-    gra
+    gra,
+    EXTRACT,
+    FOR_EXAMPLE,
+    INVOLVED,
+    MAINLY_INVOLVED,
+    SHOW
 }

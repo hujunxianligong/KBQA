@@ -11,24 +11,24 @@ import org.neo4j.ogm.annotation.*;
 @Data
 @RelationshipEntity(type="gra")
 public class _Edge {
-    public Long getNodeId() {
-        return nodeId;
+    public Long getEdgeId() {
+        return edgeId;
     }
 
-    public void setNodeId(Long nodeId) {
-        this.nodeId = nodeId;
+    public void setEdgeId(Long edgeId) {
+        this.edgeId = edgeId;
     }
 
     @GraphId
-    private Long nodeId;
+    private Long edgeId;
     @Relationship(type = "gra", direction=Relationship.OUTGOING)
     public String relation;
     @Property(name="from")
-    public String from_name;
+    public Long from_id;
     @StartNode
     public _Vertex from;
     @Property(name="to")
-    public String to_name;
+    public Long to_id;
 
     @EndNode
     public _Vertex to;
@@ -48,8 +48,8 @@ public class _Edge {
         this.to = to;
         this.name = from+"-"+to;
         this.root =null ;
-        this.from_name=this.from.name;
-        this.to_name=this.to.name;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
     }
     @JsonCreator
     public _Edge(@JsonProperty("relation") String relation,
@@ -61,8 +61,8 @@ public class _Edge {
         this.to = to;
         this.name = from.name+"-"+to.name;
         this.root = root;
-        this.from_name=this.from.name;
-        this.to_name=this.to.name;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
     }
     @Override
     public String toString() {

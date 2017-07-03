@@ -25,6 +25,7 @@ public class TransServiceTest {
     @Test
     public void testshow(){
         transactionService.check("监督管理");
+//        transactionService.getGraphById(2358l,1);
         System.out.println();
     }
     @Test
@@ -43,6 +44,7 @@ public class TransServiceTest {
 //        transactionService.addEgde();
 //        transactionService.deleteEgde(1848l);
         transactionService.show("浩哥");
+
         System.out.println();
     }
     @Test

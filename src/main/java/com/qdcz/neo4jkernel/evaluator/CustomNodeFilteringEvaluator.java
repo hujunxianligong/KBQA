@@ -13,10 +13,10 @@ import org.neo4j.graphdb.traversal.Evaluator;
 
 public class CustomNodeFilteringEvaluator implements Evaluator{
 
-    private final Node userNode;
+    private final Node node;
 
-    public CustomNodeFilteringEvaluator(Node userNode) {
-        this.userNode = userNode;
+    public CustomNodeFilteringEvaluator(Node node) {
+        this.node = node;
     }
 
     @Override
@@ -28,12 +28,12 @@ public class CustomNodeFilteringEvaluator implements Evaluator{
             return Evaluation.EXCLUDE_AND_CONTINUE;
         }
         //遍历指向当前节点的gra关系
-        for(Relationship r : currentNode.getRelationships(Direction.INCOMING, MyRelationshipTypes.gra)){
-            //获取gra关系的源头，即law节点，如果节点是给定的目标节点（John），则丢弃
-//            if(r.getStartNode().equals(userNode)){
+//        for(Relationship r : currentNode.getRelationships(Direction.INCOMING, MyRelationshipTypes.gra)){
+//            //获取gra关系的源头，即law节点，如果节点是给定的目标节点（John），则丢弃
+//            if(r.getStartNode().equals(node)){
 //                return Evaluation.EXCLUDE_AND_CONTINUE;
 //            }
-        }
+//        }
         return Evaluation.INCLUDE_AND_CONTINUE;
     }
 }

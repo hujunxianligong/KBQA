@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 //启动类的@SpringBootApplication会自动扫描同级包以及子包，所以下面的@ComponentScan不加应该没关系
 //@ComponentScan("cn.didadu.sdn")
-@EnableNeo4jRepositories("com.qdcz.sdn.repository")
+@EnableNeo4jRepositories({"com.qdcz.sdn.repository","com.qdcz.sdn.repository.instruments"})
 @EnableTransactionManagement
 public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletContainerCustomizer {
     /**
@@ -42,7 +42,7 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
          * 如果不指定节点映射的java bean路径，保存时会报如下警告，导致无法将节点插入Neo4j中
          * ... is not an instance of a persistable class
          */
-        return new SessionFactory(getEmbeddedConfiguration(), "com.qdcz.sdn.entity");
+        return new SessionFactory(getEmbeddedConfiguration(), "com.qdcz.sdn.entity","com.qdcz.sdn.entity.instruments");
     }
 
     @Bean

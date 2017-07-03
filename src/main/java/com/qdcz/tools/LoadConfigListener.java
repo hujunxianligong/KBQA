@@ -1,5 +1,6 @@
-package com.qdcz.Tools;
+package com.qdcz.tools;
 
+import com.qdcz.config.MongoConfigure;
 import com.qdcz.config.MyConnConfigure;
 
 import javax.servlet.ServletContextEvent;
@@ -26,6 +27,12 @@ public class LoadConfigListener implements ServletContextListener {
             MyConnConfigure myConnConfigure = new MyConnConfigure();
             //System.out.println(LoadConfigListener.class.getResource("/com/wfxl/common/myconfig.properties"));
             myConnConfigure.load(LoadConfigListener.class.getResourceAsStream("/neo4j.properties"));
+            System.out.println("------------加载MongoDB配置文件------------");
+            MongoConfigure mongoConf = new MongoConfigure();
+            mongoConf.load(LoadConfigListener.class.getResourceAsStream("/mongo.properties"));
+
+
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

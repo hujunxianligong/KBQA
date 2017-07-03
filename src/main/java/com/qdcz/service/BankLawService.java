@@ -37,7 +37,7 @@ public class BankLawService {
     @Transactional
     public long addEdge(_Edge egde){
         _Edge save = edgeRepository.save(egde);
-        return save.getNodeId();
+        return save.getEdgeId();
 
     }
     @Transactional

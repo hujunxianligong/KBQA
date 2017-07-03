@@ -1,4 +1,4 @@
-package com.qdcz.Tools;
+package com.qdcz.tools;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -23,7 +23,9 @@ public class BuildReresult {
             if(merge.has("nodes")){
                 JSONArray jsonArray = reDuplicatesArray(merge.getJSONArray("nodes"));
                 result.put("nodes",jsonArray);
-                result.put("root",jsonArray.getJSONObject(0).getString("root"));
+                if(jsonArray.getJSONObject(0).has("root")) {
+                    result.put("root", jsonArray.getJSONObject(0).getString("root"));
+                }
             }
             if(merge.has("edges")) {
                 JSONArray jsonArray1 = reDuplicatesArray(merge.getJSONArray("edges"));
