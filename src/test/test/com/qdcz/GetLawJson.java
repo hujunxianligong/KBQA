@@ -25,7 +25,6 @@ public class GetLawJson {
         FileReader re =  new FileReader(filePath);
         BufferedReader read = new BufferedReader(re );
         String str = null;
-        JSONArray result=new JSONArray();
         while((str=read.readLine())!=null){
             JSONObject obj=new JSONObject();
             JSONObject oneScenes=new JSONObject();
@@ -37,32 +36,42 @@ public class GetLawJson {
                 oneScenes.put("name",nodeName);
                 String attributes=split[1];
                 String[] split1 = attributes.split("；");
-                String identity=split1[0];
-                oneScenes.put("identity",identity.split("：")[1]);
-                String  type=split1[1];
-                oneScenes.put("type",type.split("：")[1]);
+                if(split1.length>1){//场景
+                    String identity=split1[0];
+                    oneScenes.put("identity",identity.split("：")[1]);
+                    String  type=split1[1];
+                    oneScenes.put("type",type.split("：")[1]);
 
-                String contract =split1[2];
-                oneScenes.put("contract",contract.split("：")[1]);
-                String[] split3 = split1[3].split("：")[1].split("），（");
-                JSONArray jsonArray=new JSONArray();
-                for(int i=0;i<split3.length;i++){
-                    jsonArray.put(split3[i].replace("（","").replace("）",""));
-                }
-                oneScenes.put("showKeyWord",jsonArray);
-                String[] split2 = split1[4].split("：")[1].split("），（");
-                JSONArray jsonArray1=new JSONArray();
-                for(int i=0;i<split2.length;i++){
-                    jsonArray1.put(split2[i].replace("（","").replace("）",""));
-                }
-                oneScenes.put("resultKeyWord",jsonArray1);
+                    String contract =split1[2];
+                    oneScenes.put("contract",contract.split("：")[1]);
+                    String[] split3 = split1[3].split("：")[1].split("）（");
+                    JSONArray jsonArray=new JSONArray();
+                    for(int i=0;i<split3.length;i++){
+                        jsonArray.put(split3[i].replace("（","").replace("）",""));
+                    }
+                    oneScenes.put("showKeyWord",jsonArray);
+                    String[] split2 = split1[4].split("：")[1].split("）（");
+                    JSONArray jsonArray1=new JSONArray();
+                    for(int i=0;i<split2.length;i++){
+                        jsonArray1.put(split2[i].replace("（","").replace("）",""));
+                    }
+                    oneScenes.put("resultKeyWord",jsonArray1);
+                    obj.put("type","lawScenes");
+                    obj.put("lawScenes",oneScenes);
+                }else{//问题
+                    String[] split2 = split1[0].split("回答：");
+                    if(split2.length==2){
 
+                        oneScenes.put("problem",   split2[0].replace("问题：","").trim());
+                        oneScenes.put("answer",split2[1].trim());
+                    }
+                    obj.put("type","lawQuestion");
+                    obj.put("lawQuestion",oneScenes);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            result.put(oneScenes);
-            obj.put("type","lawScenes");
-            obj.put("lawScenes",oneScenes);
+
             System.out.println(obj);
         }
         read.close();
@@ -126,6 +135,9 @@ public class GetLawJson {
             JSONObject object1= new JSONObject();
             String[] split = str1.replace("《", "").split("》");
             object1.put("code",split[0]);
+            if(split.length==1)
+                object1.put("provisions","");
+                else
             object1.put("provisions",split[1]);
             object.put("regulations",object1);
             System.out.println(object);

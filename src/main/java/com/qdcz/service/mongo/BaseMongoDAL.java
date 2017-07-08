@@ -258,9 +258,6 @@ public abstract class BaseMongoDAL {
         return all;
     }
 
-    public static void main(String[] args) {
-
-    }
 
     /**
      * 移除一条记录

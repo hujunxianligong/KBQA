@@ -135,6 +135,12 @@ public class LoopDataService {
         */
         return  traverser;
     }
+
+    /**
+     * 根据场景的id返回相关联的节点（根据业务需求返回的是直系关联的信息，简介关联如场景１涉及法令２　法令２被场景２涉及　　此时场景２不会包含且继续扩展）
+     * @param id
+     * @return
+     */
     @Transactional
     public Traverser associatedNodeSearch(Long id){
         Traverser traverser =null;

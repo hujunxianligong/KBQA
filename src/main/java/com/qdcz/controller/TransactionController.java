@@ -164,6 +164,9 @@ public class TransactionController {
             }else if("checkById".equals(type)){
                 result=transactionService.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth"))).toString();
             }
+            else if("checkByKeyword".equals(type)){
+                result=instrDemandService.queryF(obj.getString("keyword"));
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

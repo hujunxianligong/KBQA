@@ -25,8 +25,11 @@ public class InstrNodeFilteringEvaluator implements Evaluator {
 
         //遍历路径中的最后一个节点，当前例子中是所有的law节点
         Node currentNode = path.endNode();
-        if(currentNode.hasLabel(MyLabels.REASON)||currentNode.hasLabel(MyLabels.QUESTION)){
+        if(currentNode.hasLabel(MyLabels.REASON)){
             return Evaluation.INCLUDE_AND_PRUNE;
+        }
+        if(currentNode.hasLabel(MyLabels.QUESTION)){
+            return Evaluation.INCLUDE_AND_CONTINUE;
         }
         if(currentNode.hasLabel(MyLabels.CASE)){
             //遍历指向当前节点的gra关系
@@ -58,6 +61,9 @@ public class InstrNodeFilteringEvaluator implements Evaluator {
             if(currentNode.equals(node)) {
                 return Evaluation.INCLUDE_AND_CONTINUE;
             }
+//            else if(node.hasLabel(MyLabels.QUESTION)){
+//                return Evaluation.INCLUDE_AND_CONTINUE;
+//            }
             else{
                 return Evaluation.EXCLUDE_AND_PRUNE;
             }

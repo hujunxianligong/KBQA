@@ -98,7 +98,15 @@ public class InstrDemandService {
                 String[] split = str.split("\t");
                 CaseExample expByName = refereeInstrService.getExpByName(split[0]);
                 String[] split1 = split[1].replace("《", "").split("》");
-                String name = split1[0]+"-"+split1[1];
+                String name = null;
+                if(split1.length==2) {
+                    name = split1[0] + "-" + split1[1];
+                }else{
+                    name = split1[0] + "-" +"";
+                }
+                if(name.contains("关于适用〈中华人")) {
+                    System.out.println();
+                }
                 Regulations regByName = refereeInstrService.getRegByName(name);
                 Involved involved=new Involved(expByName,regByName,split[2]);
                 refereeInstrService.addInvloved(involved);
@@ -107,14 +115,60 @@ public class InstrDemandService {
                 String[] split = str.split("\t");
                 LawScenes scenByName = refereeInstrService.getScenByName(split[0]);
                 String[] split1 = split[1].replace("《", "").split("》");
-                String name = split1[0]+"-"+split1[1];
+                String name = null;
+                if(split1.length==2) {
+                    name = split1[0] + "-" + split1[1];
+                }else{
+                    name = split1[0] + "-" +"";
+                }
                 Regulations regByName = refereeInstrService.getRegByName(name);
                 MainlyInvolved mainlyInvolved=new MainlyInvolved(scenByName,regByName,split[2]);
                 refereeInstrService.addMainlyInvolved(mainlyInvolved);
             }
         }
     }
-
+    @Transactional
+    public void delVertex(JSONObject object) throws JSONException {
+        String type=object.getString("type");
+        JSONObject obj=null;
+        if("lawScenes".equals(type)){
+            obj = object.getJSONObject("lawScenes");
+            LawScenes lawScenes =new LawScenes(obj);
+            LawScenes scenByName = refereeInstrService.getScenByName(lawScenes.getName());
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("resultKeyWord");
+            propKeys.add("showKeyWord");
+            propKeys.add("problem");
+            legacyIndexService.deleteFullTextIndex(scenByName.getId(),propKeys,"vertex");
+            refereeInstrService.deleteLawScenes(scenByName);
+        }else if("caseExample".equals(type)){
+            obj=object.getJSONObject("caseExample");
+            CaseExample caseExample=new CaseExample(obj);
+            CaseExample expByName = refereeInstrService.getExpByName(caseExample.mongo_id);
+            refereeInstrService.deleteCaseExample(expByName);
+        }else if("lawQuestion".equals(type)){
+            obj=object.getJSONObject("lawQuestion");
+            LawQuestion lawQuestion=new LawQuestion(obj);
+            LawQuestion quesByName = refereeInstrService.getQuesByName(lawQuestion.name);
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("resultKeyWord");
+            propKeys.add("showKeyWord");
+            propKeys.add("problem");
+            legacyIndexService.deleteFullTextIndex(quesByName.getId(),propKeys,"vertex");
+            refereeInstrService.deleteLawQuestion(quesByName);
+        }else if("caseReason".equals(type)){
+            obj=object.getJSONObject("caseReason");
+            CaseReason caseReason=new CaseReason(obj);
+            CaseReason reasByName = refereeInstrService.getReasByName(caseReason.name);
+            refereeInstrService.deleteCaseReason(reasByName);
+        }else if("regulations".equals(type)){
+            obj=object.getJSONObject("regulations");
+            Regulations regulations=new Regulations(obj);
+            Regulations regByName = refereeInstrService.getRegByName(regulations.getName());
+            refereeInstrService.deleteRegulations(regByName);
+        }
+        System.out.println("end");
+    }
     @Transactional
     public void addVertex(JSONObject object) throws JSONException {//创建节点
         String type=object.getString("type");
@@ -124,7 +178,6 @@ public class InstrDemandService {
             LawScenes lawScenes =new LawScenes(obj);
             long l = refereeInstrService.addLawScenes(lawScenes);
             System.out.println();
-            List<String> resultKeyWord = lawScenes.getResultKeyWord();
             List<String > propKeys=new ArrayList<>();
             propKeys.add("resultKeyWord");
             propKeys.add("showKeyWord");
@@ -154,24 +207,27 @@ public class InstrDemandService {
         }
     }
     @Transactional
-    public void queryF(String question){
+    public String queryF(String question){
         LoadConfigListener loadConfigListener=new LoadConfigListener();//测试使用
         loadConfigListener.contextInitialized(null);
         String[] fields={"problem"};
 
-        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question, "vertex");
-        for(Map<String, Object> map:maps){
+        List<Map<String, Object>> problemMaps = legacyIndexService.selectByFullTextIndex(fields, question, "vertex");
+        for(Map<String, Object> map:problemMaps){
             System.out.println((Long) map.get("id")+"\t"+map.get("score"));
         }
         fields= new String[]{"resultKeyWord", "showKeyWord"};
-        maps = legacyIndexService.selectByFullTextIndex(fields, question, "vertex");
-        for(Map<String, Object> map:maps){
+        List<Map<String, Object>> keyWordmaps = legacyIndexService.selectByFullTextIndex(fields, question, "vertex");
+        for(Map<String, Object> map:keyWordmaps){
             System.out.println((Long) map.get("id")+"\t"+map.get("score"));
         }
+        problemMaps.addAll(keyWordmaps);
+        List<Map<String, Object>> maps= problemMaps;
         MyComparetor mc = new MyComparetor();
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         mc=null;
+
         //取最高相似度的场景进行遍历
         int num=1;
         if(num>maps.size())
@@ -205,16 +261,11 @@ public class InstrDemandService {
         } catch (JSONException e) {
             e.printStackTrace();
         }finally {
-//            try {
-//                result.put("CaseExample",newCaseExamples);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
+
             if(mongo!=null){
                 mongo.close();
             }
         }
-
         //去ＥＬＫ拿法令内容
         JSONArray newRegulations= new JSONArray();
         try {
@@ -225,8 +276,12 @@ public class InstrDemandService {
                     if(jsonObject.has("code")){
                         String code=jsonObject.getString("code");
                         String provisions=jsonObject.getString("provisions");
-                        String query = CommonTool.query(code+"-" + provisions, "http://h133:12000/api/shitcheck");
-                        jsonObject.put("title",new JSONArray(query));
+                        if(provisions.length()==0){
+                            jsonObject.put("title", "无条款并未查询");
+                        }else {
+                            String query = CommonTool.query(code + "-" + provisions, "http://h133:12000/api/shitcheck");
+                            jsonObject.put("title", new JSONArray(query));
+                        }
                         newRegulations.put(jsonObject);
                     }
                 }catch (ClientProtocolException e) {
@@ -238,9 +293,8 @@ public class InstrDemandService {
         }catch (IOException e) {
             e.printStackTrace();
         }
-
         System.out.println(result);
-
+        return  result.toString();
     }
     class MyComparetor implements Comparator
     {

@@ -38,7 +38,7 @@ public class RefereeInstrTest {
     }
     @Test
     public void testQuey(){
-        instrDemandService.queryF("归还借款本金");//未进行抵押登记//抵押担保//归还借款本金
+        instrDemandService.queryF("未进行抵押登记");//与银行签订抵押合同//未进行抵押登记//抵押担保//归还借款本金归还借款本金//注销抵押登记//抵押物未进行抵押登记
     }
 
 }
