@@ -1,5 +1,6 @@
 package com.qdcz;
 
+import com.qdcz.tools.CommonTool;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
@@ -18,7 +19,8 @@ public class GetLawJson {
     public static void main(String[] args) throws Exception {
         GetLawJson test=new GetLawJson();
 //        test.getLawScenesJson("/home/hadoop/wnd/usr/leagal/建新/场景属性");
-        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
+//        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
+        test.test();
     }
 
     public  void getLawScenesJson(String filePath) throws Exception{
@@ -151,4 +153,76 @@ public class GetLawJson {
             System.out.println(object);
         }
     }
+
+    public  void test() throws Exception{
+        String str = new String(CommonTool.readFileOneTime("/home/hadoop/wnd/usr/leagal/建新/银团贷款知识图谱.pos"));
+        JSONObject obj = new JSONObject(str);
+        JSONObject elements = obj.getJSONObject("diagram").getJSONObject("elements").getJSONObject("elements");
+        Set<String> set = elements.toMap().keySet();
+        JSONArray nodes = new JSONArray();
+        JSONArray edges = new JSONArray();
+        String root = "银团贷款业务";
+        for (String key:set){
+            JSONObject one = elements.getJSONObject(key);
+            String name = one.getString("name");
+//            System.out.println(one);
+            if("linker".equals(name)){
+                //边
+                try {
+                    String text = one.getString("text");
+                    String from_text = elements.getJSONObject(one.getJSONObject("from").getString("id")).getJSONArray("textBlock").getJSONObject(0).getString("text");
+                    String to_text = elements.getJSONObject(one.getJSONObject("to").getString("id")).getJSONArray("textBlock").getJSONObject(0).getString("text");
+                    String[] from_splits = from_text.split("\n");
+                    for(String from_split:from_splits){
+                        String[] to_splits = to_text.split("\n");
+                        for(String to_split:to_splits){
+                            JSONObject tmp = new JSONObject();
+                            tmp.put("root", root);
+                            tmp.put("from", from_split);
+                            tmp.put("to", to_split);
+                            tmp.put("relation", text);
+                            edges.put(tmp);
+                        }
+
+                    }
+
+
+//                    System.out.println(text);
+                }catch (Exception e){
+                    System.out.println("error:"+one);
+//                    System.out.println(elements.getJSONObject(one.getJSONObject("from").getString("id")).getJSONArray("textBlock").getJSONObject(0).getString("text"));
+                }
+            }else{
+                //点
+                String text = one.getJSONArray("textBlock").getJSONObject(0).getString("text");
+                String[] splits = text.split("\n");
+                for(String split:splits){
+                    JSONObject tmp = new JSONObject();
+                    tmp.put("identity","");
+                    tmp.put("root",root);
+                    tmp.put("name",split);
+                    tmp.put("type","");
+                    nodes.put(tmp);
+                }
+
+//                System.out.println(tmp);
+
+
+//                System.out.println(one);
+            }
+        }
+
+
+        for (int i=0;i<nodes.length();i++){
+            System.out.println(nodes.getJSONObject(i));
+        }
+
+        System.out.println("\n\n\n");
+
+        for (int i=0;i<edges.length();i++){
+            System.out.println(edges.getJSONObject(i));
+        }
+
+    }
+
 }

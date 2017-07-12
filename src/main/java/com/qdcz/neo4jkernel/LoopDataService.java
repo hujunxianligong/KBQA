@@ -204,7 +204,7 @@ public class LoopDataService {
     }
 
     @Transactional
-    public void loopDataByDoublePath(Long startId, Long endId){
+    public String loopDataByDoublePath(Long startId, Long endId){
         //获取目标起始节点和目标节点
         Node jane = graphDatabaseService.getNodeById(startId);
         Node leeo = graphDatabaseService.getNodeById(endId);
@@ -224,9 +224,9 @@ public class LoopDataService {
                                 .uniqueness(Uniqueness.NODE_PATH)
                 )
                 //设置碰撞评估函数为包含找到的所有碰撞点
-                .collisionEvaluator(path -> Evaluation.INCLUDE_AND_CONTINUE)
+                .collisionEvaluator(path -> Evaluation.INCLUDE_AND_CONTINUE).collisionEvaluator(Evaluators.toDepth(2));
                 //设置侧选择器为在两个遍历方向交替变换
-                .sideSelector(SideSelectorPolicies.ALTERNATING, 100);
+//                .sideSelector(SideSelectorPolicies.ALTERNATING, 100);
 
         PathPrinter pathPrinter = new PathPrinter( "name" );
         String output = "";
@@ -235,10 +235,11 @@ public class LoopDataService {
             output += "\n";
         }
         System.out.println(output);
+        return output;
     }
 
     @Transactional
-    public void loopDataByNodeLevel(Long startNodeId, Long endNodeId){
+    public String loopDataByNodeLevel(Long startNodeId, Long endNodeId){
         //获取目标起始节点和目标节点
         Node jane = graphDatabaseService.getNodeById(startNodeId);
         Node leeo = graphDatabaseService.getNodeById(endNodeId);
@@ -261,6 +262,7 @@ public class LoopDataService {
                     }else{
                         //当前节点不能直接达到目标节点，丢弃该节点并继续遍历
                         return Evaluation.EXCLUDE_AND_CONTINUE;
+
                     }
                 })
                 .uniqueness(Uniqueness.NODE_PATH);
@@ -277,5 +279,6 @@ public class LoopDataService {
             output += "\n";
         }
         System.out.println(output);
+        return output;
     }
 }

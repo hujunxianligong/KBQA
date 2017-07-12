@@ -16,19 +16,19 @@ public class PathPrinter implements Paths.PathDescriptor<Path>{
 
     @Override
     public String nodeRepresentation(Path path, Node node){
-        return "("+node.getAllProperties().toString()+")";
+        return "("+node.getProperty("name").toString()+")";
 //        return "(" + node.getProperty( nodePropertyKey, "" ) + ")";
     }
 
     @Override
     public String relationshipRepresentation(Path path, Node from, Relationship relationship){
-        String prefix = "--", suffix = "--";
+        String prefix = "的", suffix = "--";
         if (from.equals( relationship.getEndNode())){
-            prefix = "<--";
+            prefix = "<--";//<--
         } else {
-            suffix = "-->";
+            suffix = "为";
         }
         //relationship.getType().toString()
-        return prefix + "[" +relationship.getAllProperties()+ "]" + suffix;
+        return prefix + "[" +relationship.getProperty("relation")+ "]" + suffix;
     }
 }

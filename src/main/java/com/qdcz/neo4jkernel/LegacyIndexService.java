@@ -174,6 +174,7 @@ public class LegacyIndexService {
                     // log.info("method[createFullTextIndex] index prop<"+property.getKey()+":"+property.getValue()+">");
                     entityIndex.remove(node, property.getKey(), property.getValue());
                 }
+
                 tx.success();
             }
         }
@@ -188,6 +189,7 @@ public class LegacyIndexService {
                 for (Map.Entry<String, Object> entry : entries) {
                     edgeIndex.remove(relationship, entry.getKey(), entry.getValue());
                 }
+
                 tx.success();
             }
         }
@@ -196,35 +198,82 @@ public class LegacyIndexService {
     /**
      * 更新索引--还未完成
      */
-    public  void updateFullTextIndex(long id, List<String> propKeys,String updateContent) {
-        Index<Node> entityIndex = null;
+    public  void updateFullTextIndex(long id, List<String> propKeys,String type,String updateContent) {
+        if("vertex".equals(type)){
+            Index<Node> entityIndex = null;
+            try (Transaction tx =graphDatabaseService.beginTx()) {
+                entityIndex = graphDatabaseService.index().forNodes("NodeFullTextIndex",
+                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+                String[] fields=new String[propKeys.size()];
+                int i=0;
+                for(String proKey:propKeys){
+                    fields[i] = proKey;
+                }
+                BooleanQuery q = (BooleanQuery) IKQueryParser.parseMultiField(fields, updateContent);
+                for(int c=0;c<q.clauses().size();c++){
+                    System.out.println( q.clauses().get(c).getOccur()+"\t"+q.clauses().get(c).getQuery()+"");
+                }
+                Node node = graphDatabaseService.getNodeById(id);
+                tx.acquireWriteLock(node);
+                /**获取node详细信息*/
+                Set<Map.Entry<String, Object>> properties = node.getProperties(propKeys.toArray(new String[0]))
+                        .entrySet();
+                for (Map.Entry<String, Object> property : properties) {
+                    entityIndex.remove(node, property.getKey(), property.getValue());
+                }
+                tx.success();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else if("edge".equals(type)){
+            Index<Relationship> edgeIndex = null;
+            try (Transaction tx =graphDatabaseService.beginTx()) {
+                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
+                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+                String[] fields=new String[propKeys.size()];
+                int i=0;
+                for(String proKey:propKeys){
+                    fields[i] = proKey;
+                }
+                BooleanQuery q = (BooleanQuery) IKQueryParser.parseMultiField(fields, updateContent);
+                for(int c=0;c<q.clauses().size();c++){
+                    System.out.println( q.clauses().get(c).getOccur()+"\t"+q.clauses().get(c).getQuery()+"");
+                }
+                Relationship relationship = graphDatabaseService.getRelationshipById(id);
+                tx.acquireWriteLock(relationship);
+                Set<Map.Entry<String, Object>> entries = relationship.getProperties(propKeys.toArray(new String[0])).entrySet();
+                for (Map.Entry<String, Object> entry : entries) {
+                    edgeIndex.remove(relationship, entry.getKey(), entry.getValue());
+                    if("relation".equals(entry.getKey().toString())){
+                        edgeIndex.add(relationship, entry.getKey(), updateContent);
+                    }
+                }
+                tx.success();
 
-        try (Transaction tx =graphDatabaseService.beginTx()) {
-            entityIndex = graphDatabaseService.index().forNodes("NodeFullTextIndex",
-                    MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
-            String[] fields=new String[propKeys.size()];
-            int i=0;
-            for(String proKey:propKeys){
-                fields[i] = proKey;
+
+
+//                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
+//                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+//                Relationship relationship = graphDatabaseService.getRelationshipById(id);
+//                tx.acquireWriteLock(relationship);
+//                Set<Map.Entry<String, Object>> entries = relationship.getProperties(propKeys.toArray(new String[0])).entrySet();
+//                for (Map.Entry<String, Object> entry : entries) {
+//                    edgeIndex.remove(relationship, entry.getKey(), entry.getValue());
+//                }
+//
+//                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
+//                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+//                Relationship relationship = graphDatabaseService.getRelationshipById(id);
+//                tx.acquireWriteLock(relationship);
+//                Set<Map.Entry<String, Object>> entries = relationship.getProperties(propKeys.toArray(new String[0])).entrySet();
+//                for (Map.Entry<String, Object> entry : entries) {
+//                    edgeIndex.add(relationship, entry.getKey(), entry.getValue());
+//                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            BooleanQuery q = (BooleanQuery) IKQueryParser.parseMultiField(fields, updateContent);
-            for(int c=0;c<q.clauses().size();c++){
-                System.out.println( q.clauses().get(c).getOccur()+"\t"+q.clauses().get(c).getQuery()+"");
-            }
-            Node node = graphDatabaseService.getNodeById(id);
-            tx.acquireWriteLock(node);
-            //  log.info("method[createFullTextIndex] get node id<"+node.getId()+"> name<" +node.getProperty("knowledge_name")+">");
-            /**获取node详细信息*/
-            Set<Map.Entry<String, Object>> properties = node.getProperties(propKeys.toArray(new String[0]))
-                    .entrySet();
-            for (Map.Entry<String, Object> property : properties) {
-                // log.info("method[createFullTextIndex] index prop<"+property.getKey()+":"+property.getValue()+">");
-                entityIndex.remove(node, property.getKey(), property.getValue());
-            }
-            tx.success();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
     }
     @Transactional
     public void getNodeByIndex(){

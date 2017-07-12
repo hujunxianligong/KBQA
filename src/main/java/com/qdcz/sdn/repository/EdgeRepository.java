@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EdgeRepository extends GraphRepository<_Edge> {
-    @Query( "MATCH (m:law { name:{e_name} , root:{e_root} }) MATCH (p:law { name:{e_name}, root:{e_root} }) " +
-            "MERGE (p)-[r:gra]-(m) ON CREATE SET r.relation ={e_relation},r.name={e_name},r.from={e_from},r.to={e_to},r.root={e_root} " +
-            "on match set r.relation ={e_relation},r.name={e_name},r.from={e_from},r.to={e_to},r.root={e_root}")
-    _Edge getUpdateEdecql(@Param("e_name") String  name,@Param("e_relation") String  relation,@Param("e_from") String  from,@Param("e_to") String to ,@Param("e_root") String  root);
+    @Query( "MATCH (m:law { name:{name} , root:{root} }) MATCH (p:law { name:{name}, root:{root} }) " +
+            "MERGE (p)-[r:gra]-(m) ON CREATE SET r.relation ={relation},r.name={name},r.from={from},r.to={to},r.root={root} " +
+            "on match set r.relation ={relation},r.name={name},r.from={from},r.to={to},r.root={root}")
+    _Edge getUpdateEdecql(@Param("name") String  name,@Param("relation") String  relation,@Param("from") String  from,@Param("to") String to ,@Param("root") String  root);
 
 
 

@@ -208,8 +208,7 @@ public class InstrDemandService {
     }
     @Transactional
     public String queryF(String question){
-        LoadConfigListener loadConfigListener=new LoadConfigListener();//测试使用
-        loadConfigListener.contextInitialized(null);
+
         String[] fields={"problem"};
 
         List<Map<String, Object>> problemMaps = legacyIndexService.selectByFullTextIndex(fields, question, "vertex");

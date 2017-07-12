@@ -25,6 +25,7 @@
     </properties>
 
     <dependencies>
+
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
         <dependency>
             <groupId>org.mongodb</groupId>

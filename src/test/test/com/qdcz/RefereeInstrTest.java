@@ -2,6 +2,8 @@ package com.qdcz;
 
 import com.qdcz.tools.CommonTool;
 import com.qdcz.service.InstrDemandService;
+import com.qdcz.tools.LoadConfigListener;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.ogm.json.JSONException;
@@ -36,9 +38,18 @@ public class RefereeInstrTest {
     public void testInitEdge(){
         instrDemandService.addEgde();
     }
+
+    @Before
+    public void befor(){
+        LoadConfigListener loadConfigListener=new LoadConfigListener();//测试使用
+        loadConfigListener.contextInitialized(null);
+    }
+
     @Test
     public void testQuey(){
-        instrDemandService.queryF("未进行抵押登记");//与银行签订抵押合同//未进行抵押登记//抵押担保//归还借款本金归还借款本金//注销抵押登记//抵押物未进行抵押登记
+
+        String result = instrDemandService.queryF("未进行抵押登记");//与银行签订抵押合同//未进行抵押登记//抵押担保//归还借款本金归还借款本金//注销抵押登记//抵押物未进行抵押登记
+        System.out.println(result);
     }
 
 }

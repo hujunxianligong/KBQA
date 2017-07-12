@@ -27,7 +27,25 @@ public class _Edge {
     public Long from_id;
     @StartNode
     public _Vertex from;
+
+    public Long getFrom_id() {
+        return from_id;
+    }
+
+    public void setFrom_id(Long from_id) {
+        this.from_id = from_id;
+    }
+
+    public Long getTo_id() {
+        return to_id;
+    }
+
+    public void setTo_id(Long to_id) {
+        this.to_id = to_id;
+    }
+
     @Property(name="to")
+
     public Long to_id;
 
     @EndNode

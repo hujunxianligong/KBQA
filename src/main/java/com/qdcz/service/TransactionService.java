@@ -6,6 +6,7 @@ import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
+import com.qdcz.tools.CommonTool;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -110,6 +111,7 @@ public class TransactionService {
  //       _Vertex vertex=new _Vertex("","浩哥","呵呵","奇点创智");
         long l = bankLawService.changeVertex(vertex);
         //3.建立索引
+        System.out.println("ddd");
         List<String > propKeys=new ArrayList<>();
         propKeys.add("name");
         propKeys.add("root");
@@ -272,7 +274,12 @@ public class TransactionService {
         return result;
     }
     @Transactional
-    public JSONObject show(String name){//根据精准name查图
+    public JSONObject show(String name){
+        JSONObject show = show(name, 2);
+        return  show;
+    }
+    @Transactional
+    public JSONObject show(String name,int depth){//根据精准name查图
         //1.预处理
 
 
@@ -283,7 +290,7 @@ public class TransactionService {
         BuildReresult buildReresult = new BuildReresult();
         JSONArray resultArray=new JSONArray();
         for(_Vertex vertex:vertices){
-            Traverser traverser = loopDataService.loopDataByLoopApi(vertex.getId(),2);
+            Traverser traverser = loopDataService.loopDataByLoopApi(vertex.getId(),depth);
             JSONObject jsonObject = buildReresult.graphResult(traverser);
             resultArray.put(jsonObject);
         }
@@ -302,7 +309,7 @@ public class TransactionService {
             }
             if(nodes!=null)
                 for(Node node:nodes){
-                    Traverser traverser = loopDataService.loopDataByLoopApi( node.getId(),2);
+                    Traverser traverser = loopDataService.loopDataByLoopApi( node.getId(),depth);
                     JSONObject jsonObject = buildReresult.graphResult(traverser);
                     resultArray.put(jsonObject);
                 }
@@ -368,6 +375,62 @@ public class TransactionService {
         JSONObject jsonObject = buildReresult.graphResult(traverser);
         System.out.println(jsonObject.toString());
         return jsonObject;
+    }
+    @Transactional
+    public String checkTest1(String question){
+        String node = CommonTool.getNode(question);
+        String edge = CommonTool.getEdge(question);
+        String byNodeAndEdgeName = getByNodeAndEdgeName(node, edge);
+        return byNodeAndEdgeName;
+    }
+    @Transactional
+    public String getByNodeAndEdgeName(String nodeName,String edgeName)  {
+
+//        String nodeName = object.getJSONObject("node").getString("name");
+//        String edgeName = object.getJSONObject("edge").getString("name");
+        //找点首ＩＤ
+//        String[] fields={"root","name"};
+//        JSONArray resultArray=new JSONArray();
+//        List<Map<String, Object>> mapsNode = legacyIndexService.selectByFullTextIndex(fields, nodeName,"vertex");
+//
+        List<_Vertex> vertices = bankLawService.checkVertexByName(nodeName);
+        BuildReresult buildReresult = new BuildReresult();
+
+
+        //边索引
+        String[] fields= new String[]{"relation"};
+        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
+        StringBuffer sb=new StringBuffer();
+        for(Map<String, Object> map:mapsEdge){
+            System.out.println((Long) map.get("id"));
+            Node node    =   null;
+            try (   Transaction tx = graphDatabaseService.beginTx()) {
+                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
+                tx.acquireReadLock(r);
+                node = r.getEndNode();
+                tx.success();
+            }
+            if(node!=null) {
+//                for(Map<String, Object> mapNode:mapsNode){
+//                    Long startid = (Long) mapNode.get("id");
+//                   long endid = node.getId();
+//                    String s = loopDataService.loopDataByDoublePath(startid, endid)+"\n";
+//                    sb.append(s);
+//                }
+                for(_Vertex vertexL:vertices){
+                    Long startid = vertexL.getId();
+                    long endid = node.getId();
+                    String s =loopDataService.loopDataByDoublePath(startid, endid);
+                    if(!"".equals(s))
+                    sb.append(s+"\n");
+                }
+            }
+        }
+        if("".equals(sb)){
+            return "learning";
+        }else{
+            return sb.toString();
+        }
     }
     @Transactional
     public long addEgde(long fromId,long toid,String relation){//插入关系
@@ -443,6 +506,21 @@ public class TransactionService {
         }
         return  newId;
     }
+    @Transactional
+    public void changeEgde(Long id,JSONObject newEgdeInfo){
+        _Edge edge = deleteEgde(id);
+        long newId=0l;
+        try {
+            String relation=newEgdeInfo.getString("relation");
+            _Vertex from = bankLawService.checkVertexById(edge.getFrom_id());
+            _Vertex to = bankLawService.checkVertexById(edge.getTo_id());
+            newId=addEgde(from,to,relation);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(newId);
+    }
+
     @Transactional
     public void threadB(){
         //2
