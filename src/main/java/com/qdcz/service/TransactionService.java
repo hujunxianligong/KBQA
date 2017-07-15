@@ -1,12 +1,15 @@
 package com.qdcz.service;
 
+import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.tools.BuildReresult;
 import com.qdcz.neo4jkernel.ExpanderService;
 import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
-import com.qdcz.tools.CommonTool;
+import com.qdcz.tools.Levenshtein;
+import org.apache.lucene.search.Query;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -15,15 +18,14 @@ import org.neo4j.ogm.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wltea.analyzer.lucene.IKQueryParser;
+
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -44,7 +46,8 @@ public class TransactionService {
     private LegacyIndexService legacyIndexService;
     @Autowired
     private ExpanderService expanderService;
-
+    @Autowired
+    private QuestionPaserService questionPaserService;
     @Transactional
     public long addVertexsByPath(String filePath,String type){//批量导入数据节点
         FileReader re = null;
@@ -280,9 +283,6 @@ public class TransactionService {
     }
     @Transactional
     public JSONObject show(String name,int depth){//根据精准name查图
-        //1.预处理
-
-
         //2.name查询id
         List<_Vertex> vertices = bankLawService.checkVertexByName(name);
         //3.各个节点遍历
@@ -377,30 +377,235 @@ public class TransactionService {
         return jsonObject;
     }
     @Transactional
-    public String checkTest1(String question){
-        String node = CommonTool.getNode(question);
-        String edge = CommonTool.getEdge(question);
-        String byNodeAndEdgeName = getByNodeAndEdgeName(node, edge);
-        return byNodeAndEdgeName;
-    }
-    @Transactional
-    public String getByNodeAndEdgeName(String nodeName,String edgeName)  {
+    public String checkTest1(String question)  {
+//        String node = CommonTool.getNode(question);
+//        String edge = CommonTool.getEdge(question);
 
+//        Query parse1 = IKQueryParser.parse("name",question);
+//        try {
+//            Query parse = IKQueryParser.parseMultiField(new String[]{"name"},question);
+//            System.out.println();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
+
+        List<Term> termList = StandardTokenizer.segment(question);
+        List<Map<String, Object>> maps= new ArrayList();
+        for(Term term:termList) {
+            Map<String, Object> node = questionPaserService.getNode(term.word);
+            if(node!=null) {
+                maps.add(node);
+            }
+        }
+
+        if(maps.size()==2){
+            return TraversePathBynode(maps);
+        }else if(maps.size()<2){
+            System.out.println("少于２个关键提取，无法遍历");
+            return "learning ....";
+        }else if(maps.size()>2){
+            float max=0;
+            Map<String, Object> vertexNode=null;
+            float second=0;
+            Map<String, Object> edgeNode=null;
+            Levenshtein lt=new Levenshtein();
+            for(Map<String, Object> node:maps){
+                if(node!=null) {
+                    String name = null;
+                    float diffLocation=0;
+                    if (node.containsKey("relation")) { //边
+                        name = (String) node.get("relation");
+                         diffLocation = lt.getSimilarityRatio(name, question);
+                        if (diffLocation > second) {
+                            second = diffLocation ;
+                            edgeNode = node;
+                        }
+                    } else {//点
+                        name = (String) node.get("name");
+                         diffLocation = lt.getSimilarityRatio(name, question);
+
+                        if (diffLocation > max) {
+                            max = diffLocation;
+                            vertexNode  = node;
+                        }
+                    }
+                    node.put("questSimilar", diffLocation);
+                }
+            }
+            if(vertexNode!=null&&edgeNode!=null) {
+                List<Map<String, Object>> maps2 = new ArrayList();
+                maps2.add(vertexNode);
+                maps2.add(edgeNode);
+                return TraversePathBynode(maps2);
+            }else if(vertexNode!=null&&edgeNode==null) {
+                maps.remove(vertexNode);
+                Map<String, Object> vertexNode2=getCloestMaps(maps);
+                List<Map<String, Object>> maps2 = new ArrayList();
+                maps2.add(vertexNode);
+                maps2.add(vertexNode2);
+                return TraversePathBynode(maps2);
+            }else if(edgeNode!=null&&vertexNode==null){
+
+                return "learning ....";
+            }
+            return "learning ....";
+        }
+
+//        questionPaserService.getEdge();
+//        String byNodeAndEdgeName = getByNodeAndEdgeName(node, edge);
+        return "learning ....";
+    }
+    private Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
+        Map<String, Object> result=null;
+        float max=0;
+
+        for(Map<String, Object> node:maps){
+            if(node!=null) {
+                String name = null;
+                float   diffLocation= (float) node.get("score");
+                if (diffLocation > max) {
+                    max = diffLocation ;
+                    result =node;
+                }
+            }
+        }
+        return  result;
+    }
+    private String TraversePathBynode(List<Map<String, Object>> maps){
+
+        if(maps.size()==2){
+            String nodeName1="";
+            String nodeName2="";
+            String edgeName1="";
+            String edgeName2="";
+            for(Map<String, Object> node:maps){
+                if(node.containsKey("relation")){
+                    if(!"".equals(edgeName1)){
+                        edgeName2= (String) node.get("relation");
+                    }else{
+                        edgeName1= (String) node.get("relation");
+                    }
+                }else if(node.containsKey("name")){
+                    if(!"".equals(nodeName1)){
+                        nodeName2= (String) node.get("name");
+                    }else{
+                        nodeName1= (String) node.get("name");
+                    }
+                }
+            }
+            if("".equals(nodeName2)&&"".equals(edgeName2)){
+                return  getByNodeAndEdgeName(nodeName1,edgeName1);
+            }else if("".equals(nodeName2)&&"".equals(nodeName1)){
+                return getByEdgeAndEdgeName(edgeName1,edgeName2);
+            }else if("".equals(edgeName2)&&"".equals(edgeName1)){
+                return getByNodeAndNodeName(nodeName1,nodeName2);
+            }
+        }
+        return "learning ....";
+    }
+
+    private String getByEdgeAndEdgeName(String edgeName1,String edgeName2){//边边情况暂时为调用——尚未完成
+        String[] fields= new String[]{"relation"};
+        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
+        List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
+        StringBuffer sb=new StringBuffer();
+        for(Map<String, Object> map:mapsEdge){
+            System.out.println((Long) map.get("id"));
+            Node nodeStart    =   null;
+            try (   Transaction tx = graphDatabaseService.beginTx()) {
+                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
+                tx.acquireReadLock(r);
+                nodeStart = r.getStartNode();
+                tx.success();
+            }
+            if(nodeStart!=null) {
+                for(Map<String, Object> map2:mapsEdge2){
+                    Node nodeEnd    =   null;
+                    try (   Transaction tx = graphDatabaseService.beginTx()) {
+                        Relationship r = graphDatabaseService.getRelationshipById((Long)map2.get("id"));
+                        tx.acquireReadLock(r);
+                        nodeEnd = r.getEndNode();
+                        tx.success();
+                    }
+                    Long startid = nodeStart.getId();
+                    long endid = nodeEnd.getId();
+                    String s =loopDataService.loopDataByDoublePath(startid, endid);
+                    if(!"".equals(s))
+                        sb.append(s);
+                }
+            }
+        }
+        if("".equals(sb)){
+            return "learning";
+        }else{
+            return sb.toString();
+        }
+    }
+    public String getByNodeAndNodeName(String nodeName1,String nodeName2){
+        List<_Vertex> verticesStart = bankLawService.checkVertexByName(nodeName1);
+        List<_Vertex> verticesEnd = bankLawService.checkVertexByName(nodeName2);
+        Set<String>  resultPaths= new HashSet<>();
+        for(_Vertex vertexeE:verticesEnd){
+            for(_Vertex vertexL:verticesStart){
+                Long startid = vertexL.getId();
+                long endid = vertexeE.getId();
+                Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                resultPaths.addAll(strings);
+            }
+        }
+        StringBuffer sb=new StringBuffer();
+        parsePaths(sb,resultPaths);
+        if("".equals(sb)){
+            return "learning";
+        }else{
+            return sb.toString();
+        }
+    }
+    private String getByEdgeAndNodeName(String edgeName,String nodeName){
+        List<_Vertex> vertices = bankLawService.checkVertexByName(nodeName);
+        Set<String>  resultPaths= new HashSet<>();
+        String[] fields= new String[]{"relation"};
+        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
+        for(Map<String, Object> map:mapsEdge){
+            System.out.println((Long) map.get("id"));
+            Node node    =   null;
+            try (   Transaction tx = graphDatabaseService.beginTx()) {
+                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
+                tx.acquireReadLock(r);
+                node = r.getStartNode();
+                tx.success();
+            }
+            if(node!=null) {
+                for(_Vertex vertexL:vertices){
+                    Long startid = node.getId();
+                    long endid = vertexL.getId();
+                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    resultPaths.addAll(strings);
+                }
+            }
+        }
+        StringBuffer sb=new StringBuffer();
+        parsePaths(sb,resultPaths);
+        if("".equals(sb)){
+            return "learning";
+        }else{
+            return sb.toString();
+        }
+    }
+    private String getByNodeAndEdgeName(String nodeName,String edgeName)  {
 //        String nodeName = object.getJSONObject("node").getString("name");
 //        String edgeName = object.getJSONObject("edge").getString("name");
         //找点首ＩＤ
 //        String[] fields={"root","name"};
 //        JSONArray resultArray=new JSONArray();
 //        List<Map<String, Object>> mapsNode = legacyIndexService.selectByFullTextIndex(fields, nodeName,"vertex");
-//
+        Set<String>  resultPaths= new HashSet<>();
         List<_Vertex> vertices = bankLawService.checkVertexByName(nodeName);
-        BuildReresult buildReresult = new BuildReresult();
-
-
         //边索引
         String[] fields= new String[]{"relation"};
         List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
-        StringBuffer sb=new StringBuffer();
         for(Map<String, Object> map:mapsEdge){
             System.out.println((Long) map.get("id"));
             Node node    =   null;
@@ -411,31 +616,39 @@ public class TransactionService {
                 tx.success();
             }
             if(node!=null) {
-//                for(Map<String, Object> mapNode:mapsNode){
-//                    Long startid = (Long) mapNode.get("id");
-//                   long endid = node.getId();
-//                    String s = loopDataService.loopDataByDoublePath(startid, endid)+"\n";
-//                    sb.append(s);
-//                }
                 for(_Vertex vertexL:vertices){
                     Long startid = vertexL.getId();
                     long endid = node.getId();
-                    String s =loopDataService.loopDataByDoublePath(startid, endid);
-                    if(!"".equals(s))
-                    sb.append(s+"\n");
+                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    resultPaths.addAll(strings);
                 }
             }
         }
+        StringBuffer sb=new StringBuffer();
+        parsePaths(sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
             return sb.toString();
         }
     }
+    private  StringBuffer parsePaths(StringBuffer sb,Set<String>  Paths){
+        Set<String> parsePaths =new HashSet<>();
+        for(String path:Paths){
+            if(path.contains("--")&&!path.contains("<-")) {
+                String[] split = path.split("--");
+                String result = split[0] + "的" + split[split.length - 1].replace("->", "为");
+                parsePaths.add(result);
+            }
+        }
+       for(String result:parsePaths){
+            sb.append(result+"、");
+       }
+        return sb;
+    }
     @Transactional
     public long addEgde(long fromId,long toid,String relation){//插入关系
         //1.预处理
-
         //2.建立关系
         _Vertex vertex1= bankLawService.checkVertexById(fromId);
         _Vertex vertex2 = bankLawService.checkVertexById(toid);
@@ -443,7 +656,6 @@ public class TransactionService {
         _Edge edge=new _Edge(relation,vertex1,vertex2,vertex2.getRoot());
         //3.插入关系
         long id = bankLawService.addEdge(edge);
-
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
         propKeys.add("name");
@@ -464,7 +676,6 @@ public class TransactionService {
         _Edge edge=new _Edge(relation,from,to,from.getRoot());
         //3.插入关系
         long id = bankLawService.addEdge(edge);
-
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
         propKeys.add("name");
@@ -476,7 +687,6 @@ public class TransactionService {
     @Transactional
     public _Edge deleteEgde(Long id){
         //1.预处理
-
         //2.建立关系
         _Edge edge=bankLawService.checkEdgeById(id);
         if(edge!=null){
@@ -489,7 +699,6 @@ public class TransactionService {
             //4.删除关系
             bankLawService.deleteEdge(edge);
         }
-
         return edge;
     }
     @Transactional
@@ -520,7 +729,6 @@ public class TransactionService {
         }
         System.out.println(newId);
     }
-
     @Transactional
     public void threadB(){
         //2
@@ -533,7 +741,6 @@ public class TransactionService {
 
         //5、threadB方法结束，提交事物
     }
-
     public void readLock(){
         try(Transaction tx= graphDatabaseService.beginTx()){
             //1
@@ -548,18 +755,13 @@ public class TransactionService {
             tx.success();
         }
     }
-
     @Transactional
     public void writeWaitReadLock(){
         //2
             Node john = graphDatabaseService.getNodeById(143l);
         System.out.println(john.getProperty("age"));
-
         //3
         john.setProperty("age", 38);
         System.out.println(john.getProperty("age"));
     }
-
-
-
 }

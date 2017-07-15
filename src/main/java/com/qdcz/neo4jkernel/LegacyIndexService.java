@@ -66,7 +66,7 @@ public class LegacyIndexService {
         if("vertex".equals(type)){
             Index<Node> entityIndex = null;
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                entityIndex = graphDatabaseService.index().forNodes("NodeFullTextIndex",
+                entityIndex = graphDatabaseService.index().forNodes("FullTextIndex",
                         MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
 
                 Node node = graphDatabaseService.getNodeById(id);
@@ -84,8 +84,9 @@ public class LegacyIndexService {
         }
         else if("edge".equals(type)){
             Index<Relationship> edgeIndex = null;
+
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
+                edgeIndex = graphDatabaseService.index().forRelationships("FullTextIndex",
                         MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
                 Relationship relationship = graphDatabaseService.getRelationshipById(id);
                 tx.acquireWriteLock(relationship);
@@ -116,9 +117,9 @@ public class LegacyIndexService {
                 e.printStackTrace();
             }
             /**查询*/
-            if("vertex".equals(type)) {
-                Index<Node> addressNodeFullTextIndex = index.forNodes("NodeFullTextIndex",
-                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+            if("vertex".equals(type)) {//node_auto_index NodeFullTextIndex
+                Index<Node> addressNodeFullTextIndex = index.forNodes("FullTextIndex",
+                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene",  "analyzer", IKAnalyzer5x.class.getName()));
 //            org.apache.lucene.search.Query q = IKQueryParser.parse("name", query);
                 IndexHits<org.neo4j.graphdb.Node> foundNodes = addressNodeFullTextIndex.query(q);
                 for (org.neo4j.graphdb.Node n : foundNodes) {
@@ -134,15 +135,16 @@ public class LegacyIndexService {
                     ret.add(m);
                 }
             }else if("edge".equals(type)) {
-                Index<Relationship> addressRelationFullTextIndex = index.forRelationships("NodeFullTextIndex",
-                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+                Index<Relationship> addressRelationFullTextIndex = index.forRelationships("FullTextIndex",
+                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene",  "analyzer", IKAnalyzer5x.class.getName()));
                 IndexHits<Relationship> relationshipIndexHits = addressRelationFullTextIndex.query(q);
                 for (Relationship r : relationshipIndexHits) {
                     tx.acquireReadLock(r);
                     Map<String, Object> m = r.getAllProperties();
-                    if (!Float.isNaN(relationshipIndexHits.currentScore())) {
-                        m.put("score", relationshipIndexHits.currentScore() + "");
-                    }
+//                    if (!Float.isNaN(relationshipIndexHits.currentScore())) {
+//                        m.put("score", relationshipIndexHits.currentScore() + "");
+//                    }
+                    m.put("score", relationshipIndexHits.currentScore());
                     m.put("id", r.getId());
                     // log.info("method[selectByIndex] score<"+foundNodes.currentScore()+">");
                     ret.add(m);
@@ -161,7 +163,7 @@ public class LegacyIndexService {
         if("vertex".equals(type)){
             Index<Node> entityIndex = null;
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                entityIndex = graphDatabaseService.index().forNodes("NodeFullTextIndex",
+                entityIndex = graphDatabaseService.index().forNodes("FullTextIndex",
                         MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
 
                 Node node = graphDatabaseService.getNodeById(id);
@@ -181,7 +183,7 @@ public class LegacyIndexService {
         else if("edge".equals(type)){
             Index<Relationship> edgeIndex = null;
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
+                edgeIndex = graphDatabaseService.index().forRelationships("FullTextIndex",
                         MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
                 Relationship relationship = graphDatabaseService.getRelationshipById(id);
                 tx.acquireWriteLock(relationship);
@@ -202,7 +204,7 @@ public class LegacyIndexService {
         if("vertex".equals(type)){
             Index<Node> entityIndex = null;
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                entityIndex = graphDatabaseService.index().forNodes("NodeFullTextIndex",
+                entityIndex = graphDatabaseService.index().forNodes("FullTextIndex",
                         MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
                 String[] fields=new String[propKeys.size()];
                 int i=0;
@@ -228,8 +230,8 @@ public class LegacyIndexService {
         }else if("edge".equals(type)){
             Index<Relationship> edgeIndex = null;
             try (Transaction tx =graphDatabaseService.beginTx()) {
-                edgeIndex = graphDatabaseService.index().forRelationships("NodeFullTextIndex",
-                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene", "analyzer", IKAnalyzer5x.class.getName()));
+                edgeIndex = graphDatabaseService.index().forRelationships("FullTextIndex",
+                        MapUtil.stringMap(IndexManager.PROVIDER, "lucene","analyzer", IKAnalyzer5x.class.getName()));
                 String[] fields=new String[propKeys.size()];
                 int i=0;
                 for(String proKey:propKeys){

@@ -48,6 +48,7 @@ public class TransactionController {
     @RequestMapping(path = "/testdel", method = RequestMethod.POST)
     public boolean testdek(@RequestBody String obj_str){
         Boolean flag=true;
+
         transactionService.addVertexsByPath(obj_str+"/vertex.txt","del");
         return flag;
     }

@@ -28,9 +28,9 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
     public org.neo4j.ogm.config.Configuration getEmbeddedConfiguration(){
         org.neo4j.ogm.config.Configuration config = new org.neo4j.ogm.config.Configuration();
         config.driverConfiguration()
-//                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-//                .setURI("file:///mnt/vol_0/neo4j-community-3.1.1/data/databases/graph.db")
-                    .setDriverClassName(MyConnConfigure.driver).setURI(MyConnConfigure.db)
+                .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
+                .setURI("file:///mnt/vol_0/neo4j-community-3.1.1/data/databases/graph.db")
+//                    .setDriverClassName(MyConnConfigure.driver).setURI(MyConnConfigure.db)
         ;
 
         return config;

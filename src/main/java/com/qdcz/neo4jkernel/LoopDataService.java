@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -224,61 +226,63 @@ public class LoopDataService {
                                 .uniqueness(Uniqueness.NODE_PATH)
                 )
                 //设置碰撞评估函数为包含找到的所有碰撞点
-                .collisionEvaluator(path -> Evaluation.INCLUDE_AND_CONTINUE).collisionEvaluator(Evaluators.toDepth(2));
+//                .collisionEvaluator(path -> Evaluation.INCLUDE_AND_CONTINUE)
                 //设置侧选择器为在两个遍历方向交替变换
-//                .sideSelector(SideSelectorPolicies.ALTERNATING, 100);
+                .sideSelector(SideSelectorPolicies.ALTERNATING, 100)
+                .collisionEvaluator(Evaluators.toDepth(2));
+
 
         PathPrinter pathPrinter = new PathPrinter( "name" );
         String output = "";
         for ( Path path : description.traverse(jane, leeo) ) {
-            output += Paths.pathToString( path, pathPrinter );
-            output += "\n";
+            String str = Paths.pathToString( path, pathPrinter );
+            String[] split = str.split("--");
+            String result = split[0] + "的" + split[split.length - 1].replace("->", "为");
+            output +=result+"、";
         }
+
         System.out.println(output);
         return output;
     }
 
     @Transactional
-    public String loopDataByNodeLevel(Long startNodeId, Long endNodeId){
+    public Set<String> loopDataByNodeLevel(Long startNodeId, Long endNodeId){
         //获取目标起始节点和目标节点
         Node jane = graphDatabaseService.getNodeById(startNodeId);
         Node leeo = graphDatabaseService.getNodeById(endNodeId);
-
-        //创建KNOWS关系遍历
+        //创建遍历
         TraversalDescription traversalDescription = graphDatabaseService.traversalDescription()
                 .relationships(MyRelationshipTypes.gra)
                 .evaluator(path -> {
                     Node currentNode = path.endNode();
                     //当到达目标节点Leeo时，停止遍历
                     if(currentNode.getId() == leeo.getId()){
-                        return Evaluation.EXCLUDE_AND_PRUNE;
+                        return Evaluation.INCLUDE_AND_PRUNE;
                     }
                     Path singlePath = GraphAlgoFactory
-                            .shortestPath(PathExpanders.forType(MyRelationshipTypes.gra), 1)
+                            .shortestPath(PathExpanders.forType(MyRelationshipTypes.gra), 4)
                             .findSinglePath(currentNode, leeo);
                     if(singlePath != null){
                         //当前节点能直接能到达目标节点，将该节点包含在结果中并继续遍历
-                        return Evaluation.INCLUDE_AND_CONTINUE;
+                        return Evaluation.EXCLUDE_AND_CONTINUE;
                     }else{
                         //当前节点不能直接达到目标节点，丢弃该节点并继续遍历
-                        return Evaluation.EXCLUDE_AND_CONTINUE;
-
+                        return Evaluation.EXCLUDE_AND_PRUNE;
                     }
                 })
-                .uniqueness(Uniqueness.NODE_PATH);
-
-        Iterable<Node> nodes = traversalDescription.traverse(jane).nodes();
-        for(Node n : nodes){
-            System.out.println(n.getProperty("name"));
-        }
-
+                .uniqueness(Uniqueness.NODE_PATH)
+                .evaluator(Evaluators.toDepth(4));
+//        Iterable<Node> nodes = traversalDescription.traverse(jane).nodes();
+//        for(Node n : nodes){
+//            System.out.println(n.getProperty("name"));
+//        }
+        Set<String> resultPaths=new HashSet<>();
         PathPrinter pathPrinter = new PathPrinter( "name" );
         String output = "";
-        for ( Path path : traversalDescription.traverse(jane) ) {
-            output += Paths.pathToString( path, pathPrinter );
-            output += "\n";
+        for ( Path path : traversalDescription.traverse(jane, leeo) ) {
+            String str = Paths.pathToString( path, pathPrinter );
+            resultPaths.add(str);
         }
-        System.out.println(output);
-        return output;
+        return resultPaths;
     }
 }

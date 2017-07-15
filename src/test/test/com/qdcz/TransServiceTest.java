@@ -63,4 +63,9 @@ public class TransServiceTest {
         transactionService.getInfoByRname("领导");
     }
 
+    @Test
+    public void testQuest() {
+        transactionService.checkTest1("代理行的职责");
+    }
+
 }
