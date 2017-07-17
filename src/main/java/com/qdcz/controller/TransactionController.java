@@ -37,8 +37,8 @@ public class TransactionController {
         }
         return flag;
     }
-    @RequestMapping(path = "/testadd", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean testadd(@RequestParam String obj_str){
+    @RequestMapping(path = "/testadd", method = RequestMethod.POST)
+    public boolean testadd(@RequestBody String obj_str){
         System.out.println("obj_str:"+obj_str);
         Boolean flag=true;
         transactionService.addVertexsByPath(obj_str+"/vertex.txt","add");

@@ -174,8 +174,15 @@ public class GetLawJson {
                     String to_text = elements.getJSONObject(one.getJSONObject("to").getString("id")).getJSONArray("textBlock").getJSONObject(0).getString("text");
                     String[] from_splits = from_text.split("\n");
                     for(String from_split:from_splits){
+                        if(from_split.length()<2){
+                            continue;
+                        }
                         String[] to_splits = to_text.split("\n");
+
                         for(String to_split:to_splits){
+                            if(to_split.length()<2){
+                                continue;
+                            }
                             JSONObject tmp = new JSONObject();
                             tmp.put("root", root);
                             tmp.put("from", from_split);
@@ -197,6 +204,9 @@ public class GetLawJson {
                 String text = one.getJSONArray("textBlock").getJSONObject(0).getString("text");
                 String[] splits = text.split("\n");
                 for(String split:splits){
+                    if(split.length()<2){
+                        continue;
+                    }
                     JSONObject tmp = new JSONObject();
                     tmp.put("identity","");
                     tmp.put("root",root);

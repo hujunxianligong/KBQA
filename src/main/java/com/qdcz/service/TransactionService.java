@@ -388,9 +388,7 @@ public class TransactionService {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
-
         List<Term> termList = StandardTokenizer.segment(question);
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
@@ -399,12 +397,13 @@ public class TransactionService {
                 maps.add(node);
             }
         }
-
         if(maps.size()==2){
             return TraversePathBynode(maps);
-        }else if(maps.size()<2){
-            System.out.println("少于２个关键提取，无法遍历");
-            return "learning ....";
+        }
+        else if(maps.size()<2){
+
+            System.out.println("少于２个关键提取，无法遍历!\t"+question);
+            return "正在学习中，请多多关照 ....";
         }else if(maps.size()>2){
             float max=0;
             float maxScore=0;
@@ -433,7 +432,6 @@ public class TransactionService {
                     } else {//点
                         name = (String) node.get("name");
                          diffLocation = lt.getSimilarityRatio(name, question);
-
                         if (diffLocation >max) {
                             max = diffLocation;
                             vertexNode  = node;
@@ -468,9 +466,9 @@ public class TransactionService {
                 maps2.add(edgeNode2);
                 return TraversePathBynode(maps2);
             }
-            return "learning ....";
+            return "正在学习中，请多多关照 ....";
         }
-        return "learning ....";
+        return "正在学习中，请多多关照 ....";
     }
     private Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
         Map<String, Object> result=null;
@@ -549,8 +547,11 @@ public class TransactionService {
                 }
             }
         }
+        Map<String,String> conditions= new HashMap<>();
+        conditions.put(edgeName1,"contain");
+        conditions.put(edgeName1,"contain");
         StringBuffer sb=new StringBuffer();
-        parsePaths(sb,resultPaths);
+        parsePaths(conditions,sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
@@ -569,8 +570,9 @@ public class TransactionService {
                 resultPaths.addAll(strings);
             }
         }
+        Map<String,String> conditions= new HashMap<>();
         StringBuffer sb=new StringBuffer();
-        parsePaths(sb,resultPaths);
+        parsePaths(conditions,sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
@@ -600,8 +602,9 @@ public class TransactionService {
                 }
             }
         }
+        Map<String,String> conditions= new HashMap<>();
         StringBuffer sb=new StringBuffer();
-        parsePaths(sb,resultPaths);
+        parsePaths(conditions,sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
@@ -638,27 +641,64 @@ public class TransactionService {
                 }
             }
         }
+        Map<String,String> conditions= new HashMap<>();
+        conditions.put(edgeName,"contain");
+
         StringBuffer sb=new StringBuffer();
-        parsePaths(sb,resultPaths);
+        parsePaths(conditions,sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
             return sb.toString();
         }
     }
-    private  StringBuffer parsePaths(StringBuffer sb,Set<String>  Paths){
+    private  StringBuffer parsePaths( Map<String,String> conditions,StringBuffer sb,Set<String>  Paths){
         Set<String> parsePaths =new HashSet<>();
         for(String path:Paths){
             if(path.contains("--")&&!path.contains("<-")) {
-                String[] split = path.split("--");
-                String result = split[0] + "的" + split[split.length - 1].replace("->", "为");
-                parsePaths.add(result);
+                boolean flag = false;
+                if(conditions.size()==0){
+                    flag =true;
+                }else{
+                    for (Map.Entry<String, String> entry : conditions.entrySet()){
+                        if("contain".equals(entry.getValue().toString())&&path.contains(entry.getKey().toString())){
+                            flag =true;
+                        }
+                    }
+                }
+                if(flag){
+                    String[] split = path.split("--");
+                    String result = split[0] + "--" + split[split.length - 1];
+                    parsePaths.add(result);
+                }
             }
         }
+        Map<String,Vector<String>> maps=new HashMap();
        for(String result:parsePaths){
-            sb.append(result+"、");
+           String[] split = result.split("->");
+           String key=split[0];
+           String value=split[1];
+            if(maps.containsKey(key)){
+                Vector<String> strs=maps.get(key);
+                strs.add(value);
+            }else{
+                Vector<String> strs=new Vector<>();
+                strs.add(value);
+                maps.put(key,strs);
+            }
        }
-        return sb;
+        for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
+           String result="";
+            String key = entry.getKey();
+            Vector<String> value = entry.getValue();
+            result += key.replace("--","的")+"为";
+            for(String str:value){
+                result+=str+"、";
+            }
+            result = result.substring(0,result.length()-1)+"。\n";
+            sb.append(result);
+        }
+            return sb;
     }
     @Transactional
     public long addEgde(long fromId,long toid,String relation){//插入关系
