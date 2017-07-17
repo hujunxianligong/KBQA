@@ -49,13 +49,13 @@ public class Levenshtein {
                         + temp);
             }
         }
-        int min=d[n][0];
-        for(int x=0;x<n;x++){
-            if(d[n][x]<min){
-                min =d[n][x];
-            }
-        }
-        return min;
+//        int min=d[n][0];
+//        for(int x=0;x<m;x++){
+//            if(d[n][x]<min){
+//                min =d[n][x];
+//            }
+//        }
+        return d[n][m];
     }
 
     //获取两个字符串开始不同字符的位置

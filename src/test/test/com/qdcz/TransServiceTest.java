@@ -24,7 +24,7 @@ public class TransServiceTest {
 
     @Test
     public void testshow(){
-        transactionService.check("监督管理");
+        transactionService.show("银团");
 //        transactionService.getGraphById(2358l,1);
         System.out.println();
     }

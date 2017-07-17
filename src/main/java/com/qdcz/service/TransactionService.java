@@ -377,7 +377,7 @@ public class TransactionService {
         return jsonObject;
     }
     @Transactional
-    public String checkTest1(String question)  {
+    public String smartQA(String question)  {
 //        String node = CommonTool.getNode(question);
 //        String edge = CommonTool.getEdge(question);
 
@@ -407,8 +407,10 @@ public class TransactionService {
             return "learning ....";
         }else if(maps.size()>2){
             float max=0;
+            float maxScore=0;
             Map<String, Object> vertexNode=null;
             float second=0;
+            float secScore=0;
             Map<String, Object> edgeNode=null;
             Levenshtein lt=new Levenshtein();
             for(Map<String, Object> node:maps){
@@ -421,14 +423,26 @@ public class TransactionService {
                         if (diffLocation > second) {
                             second = diffLocation ;
                             edgeNode = node;
+                            maxScore = (float) node.get("score");
+                        }else if(diffLocation == second){
+                            if(maxScore< (float) node.get("score")){
+                                edgeNode = node;
+                                maxScore = (float) node.get("score");
+                            }
                         }
                     } else {//点
                         name = (String) node.get("name");
                          diffLocation = lt.getSimilarityRatio(name, question);
 
-                        if (diffLocation > max) {
+                        if (diffLocation >max) {
                             max = diffLocation;
                             vertexNode  = node;
+                            secScore = (float) node.get("score");
+                        }else if(diffLocation ==max){
+                            if(secScore < (float) node.get("score")){
+                                vertexNode = node;
+                                secScore = (float) node.get("score");
+                            }
                         }
                     }
                     node.put("questSimilar", diffLocation);
@@ -447,20 +461,20 @@ public class TransactionService {
                 maps2.add(vertexNode2);
                 return TraversePathBynode(maps2);
             }else if(edgeNode!=null&&vertexNode==null){
-
-                return "learning ....";
+                maps.remove(edgeNode);
+                Map<String, Object> edgeNode2=getCloestMaps(maps);
+                List<Map<String, Object>> maps2 = new ArrayList();
+                maps2.add(edgeNode);
+                maps2.add(edgeNode2);
+                return TraversePathBynode(maps2);
             }
             return "learning ....";
         }
-
-//        questionPaserService.getEdge();
-//        String byNodeAndEdgeName = getByNodeAndEdgeName(node, edge);
         return "learning ....";
     }
     private Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
         Map<String, Object> result=null;
         float max=0;
-
         for(Map<String, Object> node:maps){
             if(node!=null) {
                 String name = null;
@@ -474,7 +488,6 @@ public class TransactionService {
         return  result;
     }
     private String TraversePathBynode(List<Map<String, Object>> maps){
-
         if(maps.size()==2){
             String nodeName1="";
             String nodeName2="";
@@ -506,11 +519,11 @@ public class TransactionService {
         return "learning ....";
     }
 
-    private String getByEdgeAndEdgeName(String edgeName1,String edgeName2){//边边情况暂时为调用——尚未完成
+    private String getByEdgeAndEdgeName(String edgeName1,String edgeName2){
         String[] fields= new String[]{"relation"};
         List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
         List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
-        StringBuffer sb=new StringBuffer();
+        Set<String>  resultPaths= new HashSet<>();
         for(Map<String, Object> map:mapsEdge){
             System.out.println((Long) map.get("id"));
             Node nodeStart    =   null;
@@ -531,12 +544,13 @@ public class TransactionService {
                     }
                     Long startid = nodeStart.getId();
                     long endid = nodeEnd.getId();
-                    String s =loopDataService.loopDataByDoublePath(startid, endid);
-                    if(!"".equals(s))
-                        sb.append(s);
+                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    resultPaths.addAll(strings);
                 }
             }
         }
+        StringBuffer sb=new StringBuffer();
+        parsePaths(sb,resultPaths);
         if("".equals(sb)){
             return "learning";
         }else{
@@ -668,7 +682,6 @@ public class TransactionService {
     @Transactional
     public long addEgde(_Vertex from,_Vertex to,String relation){//插入关系
         //1.预处理
-
         //2.建立关系
 //        _Vertex vertex1= bankLawService.checkVertexById(2686l);
 //        _Vertex vertex2 = bankLawService.checkVertexByNameAndRoot("王倪东", "奇点创智");
