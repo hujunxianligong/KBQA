@@ -1,6 +1,6 @@
 package com.qdcz;
 
-import com.qdcz.service.TransactionService;
+import com.qdcz.service.high.TransactionService;
 import com.qdcz.sdn.entity._Vertex;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ public class TransServiceTest {
 
     @Test
     public void testshow(){
-        transactionService.show("银团");
+        transactionService.indexMatchingQuery("银团");
 //        transactionService.getGraphById(2358l,1);
         System.out.println();
     }
@@ -43,13 +43,13 @@ public class TransServiceTest {
     public void testadEdge(){
 //        transactionService.addEgde();
 //        transactionService.deleteEgde(1848l);
-        transactionService.show("浩哥");
+        transactionService.indexMatchingQuery("浩哥");
 
         System.out.println();
     }
     @Test
     public void testcheck(){
-        transactionService.check("续贷条件");
+        transactionService.exactMatchQuery("江苏江都农村商业银行股份有限公司与史金诚、周燕等借款合同纠纷一审民事判决书");
         System.out.println();
     }
     @Test

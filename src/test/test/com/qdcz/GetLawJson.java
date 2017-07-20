@@ -8,6 +8,7 @@ import org.neo4j.ogm.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -156,6 +157,7 @@ public class GetLawJson {
 
     public  void test() throws Exception{
         String str = new String(CommonTool.readFileOneTime("/home/hadoop/wnd/usr/leagal/建新/银团贷款知识图谱.pos"));
+        HashMap<String, JSONObject> stringJSONObjectHashMap = dealJianXin();
         JSONObject obj = new JSONObject(str);
         JSONObject elements = obj.getJSONObject("diagram").getJSONObject("elements").getJSONObject("elements");
         Set<String> set = elements.toMap().keySet();
@@ -212,6 +214,14 @@ public class GetLawJson {
                     tmp.put("root",root);
                     tmp.put("name",split);
                     tmp.put("type","");
+                    tmp.put("content",new JSONObject());
+                    if(split.endsWith("判决书")||split.endsWith("裁定书")){
+                        tmp.put("type","裁判文书");
+                        if(stringJSONObjectHashMap.containsKey(split)){
+                            tmp.put("content",stringJSONObjectHashMap.get(split));
+                        }
+                    }
+
                     nodes.put(tmp);
                 }
 
@@ -234,5 +244,26 @@ public class GetLawJson {
         }
 
     }
-
+    public HashMap<String ,JSONObject> dealJianXin(){//处理建新给的裁判文书提取数据
+        HashMap<String ,JSONObject> maps =new HashMap<>();
+        String rengongzhengli =CommonTool.readFileOneTime("/home/hadoop/wnd/usr/leagal/建新/银团贷款风险点整理");
+        String[] split = rengongzhengli.split("\n");
+        for(String str :split){
+            if(!"".equals(str)){
+                String[] split1 = str.split("#####");
+                String url=split1[0];
+                String title=split1[1];
+                String summary= split1[2];
+                JSONObject obj =new JSONObject();
+                try {
+                    obj.put("url",url);
+                    obj.put("abstract",summary);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                maps.put(title,obj) ;
+            }
+        }
+        return maps;
+    }
 }

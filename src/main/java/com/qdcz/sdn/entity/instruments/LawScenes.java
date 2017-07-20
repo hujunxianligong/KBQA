@@ -65,6 +65,10 @@ public class LawScenes {
     @GraphId
     private Long id ;
 
+    public String getName() {
+        return name;
+    }
+
     @Property(name="name")
     public String name;
     @Property

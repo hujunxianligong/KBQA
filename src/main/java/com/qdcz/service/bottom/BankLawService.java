@@ -1,4 +1,4 @@
-package com.qdcz.service;
+package com.qdcz.service.bottom;
 
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
@@ -93,7 +93,7 @@ public class BankLawService {
     }
     @Transactional
     public long changeVertex(_Vertex vertex){
-        Long id = vertexRepository.getUpdateVertexCql(vertex.name, vertex.root, vertex.type, vertex.identity).getId();
+        Long id = vertexRepository.getUpdateVertexCql(vertex.name, vertex.root, vertex.type, vertex.identity,vertex.content.toString()).getId();
         return id;
     }
 }

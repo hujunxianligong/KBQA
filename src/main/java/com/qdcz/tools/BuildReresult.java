@@ -44,6 +44,14 @@ public class BuildReresult {
             JSONObject jsonObject = new JSONObject(node.getAllProperties());
             try {
                 jsonObject.put("id",node.getId()) ;
+                if(jsonObject.has("content")){
+                    String content = jsonObject.getString("content");
+                    if("".equals(content)){
+                        jsonObject.put("content", new JSONObject());
+                    }else {
+                        jsonObject.put("content", new JSONObject(content));
+                    }
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

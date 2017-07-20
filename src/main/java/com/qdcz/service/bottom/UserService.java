@@ -1,4 +1,4 @@
-package com.qdcz.service;
+package com.qdcz.service.bottom;
 
 import com.qdcz.sdn.entity.Movie;
 import com.qdcz.sdn.entity.Seen;

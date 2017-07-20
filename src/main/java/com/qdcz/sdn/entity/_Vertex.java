@@ -2,10 +2,14 @@ package com.qdcz.sdn.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.qdcz.tools.CommonTool;
 import lombok.Data;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.json.JSONObject;
+
+import java.util.HashMap;
 
 /**
  * Created by hadoop on 17-6-22.
@@ -26,10 +30,13 @@ public class _Vertex {
     public String name;
     public String identity;
 
+
     public String getRoot() {
         return root;
     }
 
+    @Property
+    public String content;
     @Property
     public String root;
 
@@ -54,6 +61,19 @@ public class _Vertex {
         this.name = name;
         this.identity = identity;
         this.root =root;
+        this.content = "";
+    }
+    @JsonCreator
+    public _Vertex(@JsonProperty("type") String type,
+                   @JsonProperty("name") String name,
+                   @JsonProperty("identity") String identity,
+                   @JsonProperty("root") String root,
+                   @JsonProperty("content") JSONObject content) {
+        this.type = type;
+        this.name = name;
+        this.identity = identity;
+        this.root =root;
+        this.content = content.toString();
     }
 
     @Override

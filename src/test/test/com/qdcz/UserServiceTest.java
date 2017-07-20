@@ -1,7 +1,7 @@
 package com.qdcz;
 
 import com.qdcz.sdn.entity.User;
-import com.qdcz.service.UserService;
+import com.qdcz.service.bottom.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Node;

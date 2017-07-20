@@ -1,7 +1,7 @@
 package com.qdcz;
 
 import com.qdcz.tools.CommonTool;
-import com.qdcz.service.InstrDemandService;
+import com.qdcz.service.high.InstrDemandService;
 import com.qdcz.tools.LoadConfigListener;
 import org.junit.Before;
 import org.junit.Test;

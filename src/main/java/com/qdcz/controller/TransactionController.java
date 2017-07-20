@@ -2,8 +2,8 @@ package com.qdcz.controller;
 
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.tools.CommonTool;
-import com.qdcz.service.InstrDemandService;
-import com.qdcz.service.TransactionService;
+import com.qdcz.service.high.InstrDemandService;
+import com.qdcz.service.high.TransactionService;
 import com.qdcz.sdn.entity._Vertex;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
@@ -67,22 +67,23 @@ public class TransactionController {
 //                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
-                return "error param";
+                System.out.println( "error param");
+                return "failure";
             }
             String type = obj.getString("type");
             System.out.println(obj);
             if("checkByName".equals(type)){
                 //通过名称查询
-                String result=transactionService.show(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
+                String result=transactionService.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                 System.out.println(result);
                 return result;
             }else if("checkByNameAndDepth".equals(type)){
                 int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
-                String result=transactionService.show(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth).toString();
+                String result=transactionService.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth).toString();
                 return result;
             }
             else if("checkByIndex".equals(type)){
-                String result=transactionService.check(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
+                String result=transactionService.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                 System.out.println(result);
                 return result;
             }
@@ -96,12 +97,12 @@ public class TransactionController {
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
                 _Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
                 Long id= transactionService.addVertex(vertex);
-                return "success add Node";
+                return "success";
             }else if("addEdge".equals(type)){
                 //新增边 TODO test
                 JSONObject node = obj.getJSONObject("info").getJSONObject("edge");
                 Long id=transactionService.addEgde(Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"));
-                return "success add Edge";
+                return "success";
             }else if("addNodeEdge".equals(type)){
                 //新增边和终点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
@@ -111,24 +112,24 @@ public class TransactionController {
                 JSONObject edge = obj.getJSONObject("info").getJSONObject("edge");
                 Long id2=transactionService.addEgde(Long.parseLong(edge.getString("from")),end_id,edge.getString("relation"));
                 System.out.println("新增边");
-                return "success add node and edge";
+                return "success";
             }else if("deleteNode".equals(type)){
                 //删除节点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
                 transactionService.deleteVertex(Long.parseLong(node.getString("id")));
-                return "success delete node";
+                return "success";
             }if("changeNode".equals(type)){
                 //修改节点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
                 _Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
                 Long id  = transactionService.changeVertex(Long.parseLong(node.getString("id")), vertex);
-                return "success change Node";
+                return "success";
             }else if("changeEdge".equals(type)){
                 //修改边   TODO test
                 JSONObject Edge =  obj.getJSONObject("info").getJSONObject("edge");
                 transactionService.changeEgde(Long.parseLong(Edge.getString("id")),Edge);
 //                Long id  = transactionService.changeEgde(Long.parseLong(Edge.getString("id")),Long.parseLong(Edge.getString("from")),Long.parseLong(Edge.getString("to")),Edge);
-                return "success change Edge";
+                return "success";
             }
             else if("deleteEdge".equals(type)){
                 //修改边   TODO test
@@ -137,17 +138,18 @@ public class TransactionController {
                 if(edge==null)
                     return "fail delete Edge,has`t this id of edge by"+Edge.getString("id");
                 Long id =edge.getEdgeId();
-                return "success delete Edge";
+                return "success";
             }
             else{
-                return "error type:"+type;
+                System.out.println("error type:"+type);
+                return "failure";
             }
 
         } catch (Exception e) {
 
             e.printStackTrace();
         }
-        return "Server Error";
+        return "failure";
     }
 
     @CrossOrigin
@@ -190,9 +192,9 @@ public class TransactionController {
 //            System.out.println("obj:"+obj);
             String type = obj.getString("type");
             if("checkByName".equals(type)){
-                result=transactionService.show(obj.getString("name")).toString();
+                result=transactionService.exactMatchQuery(obj.getString("name")).toString();
             }else if("checkByIndex".equals(type)){
-                result=transactionService.check(obj.getString("keyword")).toString();
+                result=transactionService.indexMatchingQuery(obj.getString("keyword")).toString();
             }else if("checkByRelationship".equals(type)){
                 result=transactionService.getInfoByRname(obj.getString("name")).toString();
             }else if("checkById".equals(type)){
