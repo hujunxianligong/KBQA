@@ -205,11 +205,7 @@ public class TransactionService {
             Node assocNode = (Node) value.get("associationVertex");
             Map<String, Object> allProperties = assocNode.getAllProperties();
             _Vertex associationVertex = null;
-            try {
-                associationVertex = new _Vertex(allProperties.get("type").toString(),allProperties.get("name").toString(),allProperties.get("identity").toString(),allProperties.get("root").toString(),new JSONObject(allProperties.get("content").toString()));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            associationVertex = new _Vertex(allProperties.get("type").toString(),allProperties.get("name").toString(),allProperties.get("identity").toString(),allProperties.get("root").toString());
             associationVertex.setId(assocNode.getId());
             _Edge edge=null;
             if("start".equals(allProperties.get("type").toString())) {
