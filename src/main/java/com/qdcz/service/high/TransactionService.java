@@ -10,8 +10,8 @@ import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
-import com.qdcz.tools.CommonTool;
 import com.qdcz.tools.Levenshtein;
+import com.qdcz.tools.MyComparetor;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -264,7 +264,7 @@ public class TransactionService {
         //5.组织返回结果
         for(int i=0;i<resultArray.length();i++){
             try {
-                merge=buildReresult.MergeResult(merge,resultArray.getJSONObject(i));
+                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -315,7 +315,7 @@ public class TransactionService {
         //4.结果组织返回
         for(int i=0;i<resultArray.length();i++){
             try {
-                merge=buildReresult.MergeResult(merge,resultArray.getJSONObject(i));
+                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -351,7 +351,7 @@ public class TransactionService {
         //5.组织返回结果
         for(int i=0;i<resultArray.length();i++){
             try {
-                merge=buildReresult.MergeResult(merge,resultArray.getJSONObject(i));
+                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -370,14 +370,14 @@ public class TransactionService {
 
         //3.结果组织返回
         JSONObject jsonObject = buildReresult.graphResult(traverser);
-        System.out.println(jsonObject.toString());
         return jsonObject;
     }
     @Transactional
     public String smartQA(String question)  {//智能问答
-
+        System.out.println("智能问答提出问题：\t"+question);
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = StandardTokenizer.segment(question);
+        MyComparetor mc = new MyComparetor("score");
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
             Map<String, Object> node = questionPaserService.getNode(term.word);
@@ -385,11 +385,18 @@ public class TransactionService {
                 maps.add(node);
             }
         }
+//        if(maps.size()>1){
+//            Collections.sort(maps,mc);
+//            Collections.reverse(maps);
+//            mc=null;
+//        }
+
+
         String result= null;
         if(maps.size()==2){
             result= questionPaserService.traversePathBynode(maps);
         }
-        else if(maps.size()<2){
+        else if(maps.size()==0){
             return questionPaserService.requestTuring(question);
         }else if(maps.size()>2){
             float max=0;
@@ -441,6 +448,7 @@ public class TransactionService {
             }else if(vertexNode!=null&&edgeNode==null) {
                 maps.remove(vertexNode);
                 Map<String, Object> vertexNode2=questionPaserService.getCloestMaps(maps);
+                maps.add(vertexNode);
                 List<Map<String, Object>> maps2 = new ArrayList();
                 maps2.add(vertexNode);
                 maps2.add(vertexNode2);
@@ -448,6 +456,7 @@ public class TransactionService {
             }else if(edgeNode!=null&&vertexNode==null){
                 maps.remove(edgeNode);
                 Map<String, Object> edgeNode2=questionPaserService.getCloestMaps(maps);
+                maps.add(vertexNode);
                 List<Map<String, Object>> maps2 = new ArrayList();
                 maps2.add(edgeNode);
                 maps2.add(edgeNode2);
@@ -458,7 +467,19 @@ public class TransactionService {
         }
 
         if(result==null||"learning".equals(result)){
-            return questionPaserService.requestTuring(question);
+            Collections.sort(maps,mc);
+            Collections.reverse(maps);
+            String str = null;
+            try {
+                str = questionPaserService.findDefine(question, maps.get(0));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if(str==null||"learning".equals(str)||"".equals(str)) {
+                return questionPaserService.requestTuring(question);
+            }else{
+                return str;
+            }
         }
 
         return result;

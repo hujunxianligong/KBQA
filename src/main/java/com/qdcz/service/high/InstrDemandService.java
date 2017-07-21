@@ -9,6 +9,7 @@ import com.qdcz.tools.CommonTool;
 import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity.instruments.*;
+import com.qdcz.tools.MyComparetor;
 import org.apache.http.client.ClientProtocolException;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -222,7 +223,7 @@ public class InstrDemandService {
         }
         problemMaps.addAll(keyWordmaps);
         List<Map<String, Object>> maps= problemMaps;
-        MyComparetor mc = new MyComparetor();
+        MyComparetor mc = new MyComparetor("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         mc=null;
@@ -238,7 +239,7 @@ public class InstrDemandService {
             long id = Long.parseLong(map.get("id").toString());
             Traverser paths = loopDataService.associatedNodeSearch(id);
             JSONObject jsonObject = buildReresult.graphResult(paths);
-            result=buildReresult.MergeResult(result,buildReresult.graphResult(paths));
+            result=buildReresult.mergeResult(result,buildReresult.graphResult(paths));
         }
         result= buildReresult.cleanRestult(result);
         //遍历结果去mongo查文书
@@ -295,15 +296,6 @@ public class InstrDemandService {
         System.out.println(result);
         return  result.toString();
     }
-    class MyComparetor implements Comparator
-    {
-        @Override
-        public int compare(Object o1, Object o2)
-        {
-            Map sdto1= (Map )o1;
-            Map sdto2= (Map )o2;
-            return Float.compare(Float.parseFloat(sdto1.get("score").toString()),Float.parseFloat(sdto2.get("score").toString()));
-        }
-    }
+
 
 }

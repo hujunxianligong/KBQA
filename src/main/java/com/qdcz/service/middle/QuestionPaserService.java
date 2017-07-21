@@ -1,18 +1,14 @@
 package com.qdcz.service.middle;
 
-import com.qdcz.config.MongoConfigure;
 import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
+import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
 import com.qdcz.service.bottom.BankLawService;
-import com.qdcz.service.mongo.BaseMongoDAL;
-import com.qdcz.service.mongo.MyMongo;
+import com.qdcz.service.high.TransactionService;
+import com.qdcz.tools.BuildReresult;
 import com.qdcz.tools.CommonTool;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.graphdb.*;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
@@ -29,6 +25,8 @@ import java.util.*;
 @Service
 public class QuestionPaserService
 {
+    @Autowired
+    private TransactionService transactionService;
     @Autowired
     private GraphDatabaseService graphDatabaseService;
     @Autowired
@@ -82,6 +80,79 @@ public class QuestionPaserService
             }
         }
         return  result;
+    }
+
+    public String findDefine(String question,Map<String, Object> map) throws JSONException {
+        String[] defineMatchs= new String[]{"是什么","什么是", "定义", "概念", "含义", "指什么","是谁","解释","描述"};
+        BuildReresult buildReresult = new BuildReresult();
+        boolean flag=false;
+        if(map.get("name").equals(question)){
+            flag=true;
+        }else {
+            for (String def : defineMatchs) {
+                if (question.contains(def)) {
+                    flag = true;
+                }
+            }
+        }
+        if(flag){
+            StringBuffer sb=new StringBuffer();
+            JSONArray resultArray=new JSONArray();
+            String name = null;
+            if (map.containsKey("relation")) {//边
+                name = (String) map.get("relation");
+                _Edge edge = bankLawService.checkEdgeById((Long) map.get("id"));
+                JSONObject graphById = transactionService.getGraphById(edge.getFrom_id(), 1);
+                resultArray.put(graphById);
+                JSONObject graphById1 = transactionService.getGraphById(edge.getTo_id(), 1);
+                resultArray.put(graphById1);
+            }else{//点
+                name = (String) map.get("name");
+                JSONObject object = transactionService.getGraphById((Long) map.get("id"), 1);
+                resultArray.put(object);
+            }
+            JSONObject merge=new JSONObject();
+            //5.组织返回结果
+            for(int i=0;i<resultArray.length();i++){
+                    merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
+
+            }
+            JSONObject result= buildReresult.cleanRestult(merge);
+            JSONArray edges = result.getJSONArray("edges");
+            for(int i=0;i<edges.length();i++){
+                JSONObject edge=edges.getJSONObject(i);
+                String relation = edge.getString("relation");
+                boolean hasMatchsWord=false;
+                for(String def:defineMatchs){
+                    if(relation.contains(def)){
+                        hasMatchsWord =true;
+                        break;
+                    }
+                }
+                if(hasMatchsWord){
+                    String from = edge.getString("from");
+                    String from_name=null;
+                    String to = edge.getString("to");
+                    String to_name=null;
+                    JSONArray nodes = result.getJSONArray("nodes");
+                    for(int m=0;m<nodes.length();m++){
+                        JSONObject node=nodes.getJSONObject(m);
+                        String id = node.getString("id");
+                        if(id.equals(from)){
+                            from_name=node.getString("name");
+                        }else  if(id.equals(to)){
+                            to_name=node.getString("name");
+                        }
+                        if(from_name!=null&&to_name!=null){
+                            break;
+                        }
+                    }
+                    sb.append(from_name+"的"+relation+"为"+to_name+"。");
+                }
+            }
+            return sb.toString();
+        }
+        return "learning";
     }
     public String traversePathBynode(List<Map<String, Object>> maps){
         if(maps.size()==2){

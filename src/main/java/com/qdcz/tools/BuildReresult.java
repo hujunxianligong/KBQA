@@ -81,7 +81,7 @@ public class BuildReresult {
     }
 
     //两个结果集合并
-    public JSONObject MergeResult(JSONObject obj1,JSONObject obj2){
+    public JSONObject mergeResult(JSONObject obj1, JSONObject obj2){
         JSONObject jsonObject = new JSONObject();
         try {
             if(!obj1.has("nodes")){
