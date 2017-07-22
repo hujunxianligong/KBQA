@@ -1,5 +1,6 @@
 package com.qdcz.controller;
 
+import com.qdcz.neo4jkernel.CypherSearchService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.tools.CommonTool;
 import com.qdcz.service.high.InstrDemandService;
@@ -21,6 +22,8 @@ public class TransactionController {
     private TransactionService transactionService;
     @Autowired
     private InstrDemandService instrDemandService;
+    @Autowired
+    private CypherSearchService cypherSearchService;
     @RequestMapping(path = "/testjianxin", method = RequestMethod.POST)
     public boolean testjianxin(@RequestBody String obj_str){
 
@@ -51,6 +54,11 @@ public class TransactionController {
 
         transactionService.addVertexsByPath(obj_str+"/vertex.txt","del");
         return flag;
+    }
+    @RequestMapping(path = "/testask", method = {RequestMethod.POST,RequestMethod.GET})
+    public void  testQuery(@RequestParam String question){
+       cypherSearchService.queryWithCypher(question);
+
     }
 
     @CrossOrigin

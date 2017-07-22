@@ -15,19 +15,19 @@ public class CypherSearchService {
     private GraphDatabaseService graphDatabaseService;
 
     @Transactional
-    public void queryWithCypher(){
+    public void queryWithCypher(String quertString){
         //通过Cypher查询获得结果
-        StringBuilder sb = new StringBuilder();
-        sb.append("start john = node(0) ");
-        sb.append("match (john)-[:IS_FRIEND_OF]->(USER)-[:HAS_SEEN]->(movie) ");
-        sb.append("return movie;");
-        Result result = graphDatabaseService.execute(sb.toString());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("start john = node(0) ");
+//        sb.append("match (john)-[:IS_FRIEND_OF]->(USER)-[:HAS_SEEN]->(movie) ");
+//        sb.append("return movie;");
+        Result result = graphDatabaseService.execute(quertString);
 
         //遍历结果
         while(result.hasNext()){
             //get("movie")和查询语句的return movie相匹配
-            Node movie = (Node) result.next().get("movie");
-            System.out.println(movie.getId() + " : " + movie.getProperty("name"));
+            Node n = (Node) result.next().get("n");
+            System.out.println( n.getAllProperties());
         }
     }
 }

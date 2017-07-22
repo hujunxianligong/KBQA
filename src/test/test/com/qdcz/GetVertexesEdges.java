@@ -11,7 +11,7 @@ public class GetVertexesEdges {
     public static void main(String[] args) {
         GetVertexesEdges test=new GetVertexesEdges();
 //        test.putAll("/home/hadoop/wnd/usr/leagal/实体关系修改");
-        test.getdefine("/home/hadoop/wnd/usr/leagal/银监会法规释义_人工_机器2 - 150份");
+        test.getdefine("/home/hadoop/wnd/usr/leagal/log");
 //        try {
 //            test.get("/home/hadoop/wnd/usr/leagal/实体关系提取-06.15/个人贷款管理.txt");
 //        } catch (IOException e) {
@@ -23,12 +23,16 @@ public class GetVertexesEdges {
         File[] files = dirInput.listFiles();
         for (File file: files) {
 //            System.out.println(file);
+
+            if(file.toString().endsWith("doc"))
+                System.out.println();
             FileReader re = null;
             try {
                 re = new FileReader(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+            boolean flag=false;//判断是否没有一条定义
             String[] splits=filePath.split("/");
             String filename =splits[splits.length-1];
             BufferedReader read = new BufferedReader(re );
@@ -41,7 +45,7 @@ public class GetVertexesEdges {
                     for(String str:splitju){
                         if(str.contains("是")){
                             String[] strs = str.split("是");
-                            if((strs[0].endsWith("还应当")||strs[0].endsWith("而")||strs[0].endsWith("实事求")||strs[0].endsWith("尤其")||strs[0].endsWith("需要注意的")||strs[0].endsWith("但")||strs[1].startsWith("否"))&&strs.length==2){
+                            if(strs.length==2&&(strs[0].endsWith("还应当")||strs[0].endsWith("而")||strs[0].endsWith("实事求")||strs[0].endsWith("尤其")||strs[0].endsWith("需要注意的")||strs[0].endsWith("但")||(strs[1].length()>1&&strs[1].startsWith("否")))){
 
                             }else if(strs.length>2&&strs[1].startsWith("否")&&strs[2].startsWith("否")){
 
@@ -68,110 +72,149 @@ public class GetVertexesEdges {
 
                             }
                             else if(str.contains("：")){//有内容，需要高端方法搞定
-                                //  System.out.println(str);
+//                                  System.out.println(str);
                             }
 
                             else {
-                                str=str.replaceAll("第[1234567890零一二三四五六七八九十百]{1,5}条","").replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,2}\\){0,1}）{0,1}[\\.、]{0,1}","").trim();
+                                str=str.replaceAll("[ |　]", " ").trim();
+                                str=str.replace(" ","").replaceAll("第[1234567890１２３４５６７８９０零一二三四五六七八九十百]{1,5}条","").replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,2}\\){0,1}）{0,1}[\\.、]{0,1}","").trim();
                                 if(str.split("是")[0].length()>40){
 
                                 }else{
+
                                     String name=str.split("是")[0].trim();
                                     if(name.contains("，")){
                                         String[] split = name.split("，");
+
                                         if(split.length>1){//有内容
+                                            continue;
+//                                            System.out.println(line);
 //                                            System.out.println(name +"\t \t \t \t "+str.split("是")[1]);
                                         }else{//OK
-                                            String replace = split[0].trim().replace("　", "");
-                                             if(replace.contains("所称的")){
-                                                replace = replace.split("所称的")[1];
-                                            }else if(replace.contains("所指的")){
-                                                replace = replace.split("所指的")[1];
-                                            }
-                                            else if(replace.contains("所指")){
-                                                replace = replace.split("所指")[1];
-                                            }else if(replace.contains("所称")){
-                                                replace = replace.split("所称")[1];
-                                            }
-                                            replace= replace.replaceAll("[“”．]","").replace("前款","");
-                                            if(replace.endsWith("的")&&!replace.endsWith("的目的")){
-                                                replace=replace.replace("的","");
-                                            }
-                                            else if(replace.endsWith("的")||replace.endsWith("既")||replace.endsWith("应")){
-                                                replace=replace.substring(0,replace.length()-1);
-                                            }
-                                            else if(replace.endsWith("主要")){
-                                                replace=replace.substring(0,replace.length()-2);
-                                            }
-                                            else if(replace.endsWith("的含义")||replace.endsWith("的目的")){
-                                                replace=replace.substring(0,replace.length()-3);
-                                            }
-                                            String replace2=null;
-                                            if(replace.contains("也称为")){
-                                                String[] 也称为s = replace.split("也称为");
-                                                 replace2 = 也称为s[0];
-                                                replace = 也称为s[1];
 
-                                            }else if(replace.contains("（以下简称")){
-                                                String[] split1 = replace.split("（以下简称");
-                                                replace2 = split1[0];
-                                                replace= split1[1].substring(0, split1[1].length() - 1);
-
-                                            }
-
-                                            if(!"".equals(replace)){
-                                                System.out.println(replace+ "\t \t \t \t "+str.split("是")[1]);
-                                            }
-                                            if(replace2!=null){
-                                                System.out.println(replace2+ "\t \t \t \t "+str.split("是")[1]);
-                                            }
+                                            name = split[0].replace("　", "").trim();
                                         }
                                     }
-                                    else{
-                                        String replace = name.trim().replace("　", "");
-                                        if(replace.contains("所称的")){
-                                            replace = replace.split("所称的")[1];
-                                        }else if(replace.contains("所指的")){
-                                            replace = replace.split("所指的")[1];
-                                        }
-                                        else if(replace.contains("所指")){
-                                            replace = replace.split("所指")[1];
-                                        }else if(replace.contains("所称")){
-                                            replace = replace.split("所称")[1];
-                                        }
-                                        replace= replace.replaceAll("[“”．]","").replace("前款","");
-                                        if(replace.endsWith("的")&&!replace.endsWith("的目的")){
-                                            replace=replace.replace("的","");
-                                        }
-                                        else if(replace.endsWith("的")||replace.endsWith("既")||replace.endsWith("应")){
-                                            replace=replace.substring(0,replace.length()-1);
-                                        }
-                                        else if(replace.endsWith("主要")){
-                                            replace=replace.substring(0,replace.length()-2);
-                                        }
-                                        else if(replace.endsWith("的含义")||replace.endsWith("的目的")){
-                                            replace=replace.substring(0,replace.length()-3);
-                                        }
-                                        String replace2=null;
-                                        if(replace.contains("也称为")){
-                                            String[] 也称为s = replace.split("也称为");
-                                            replace2 = 也称为s[0];
-                                            replace = 也称为s[1];
 
-                                        }else if(replace.contains("（以下简称")){
-                                            String[] split1 = replace.split("（以下简称");
-                                            replace2 = split1[0];
-                                            replace= split1[1].substring(0, split1[1].length() - 1);
-
+                                    String  replace =name;
+                                    String[] splitsOne = new String[]{"所称的", "所指的", "所指", "所称"};
+                                    for (String eachSplitOne : splitsOne) {
+                                        String[] split = replace.split(eachSplitOne);
+                                        if (split.length > 1) {
+                                            replace = split[1];
                                         }
+                                    }
 
-                                        if(!"".equals(replace)){
+                                    String[] replacesOldWord = new String[]{"的目", "另一目"};
+                                    String[] replacesNewWord = new String[]{"的目的", "另一个目的"};
+                                    for (int i = 0; i < replacesOldWord.length; i++) {
+                                        if (replace.endsWith(replacesOldWord[i])) {
+                                            replace = replace.replace(replacesOldWord[i], replacesNewWord[i]);
+                                        }
+                                    }
+
+                                    String[] replacesWord = new String[]{"本意见中的", "前款", "“", "”", "上述计算公式中提到的"
+                                    , "&nbsp;"};
+                                    for (String eachReplaceWord : replacesWord) {
+                                        replace = replace.replaceAll(eachReplaceWord, "");
+                                    }
+
+                                    String[] startsDel = new String[]{ "•", "．", "、", "该", "除非", "上述", "其中", "不论",
+                                            "这些都", "这些", "也就", "无论", "与上述",  "尤其", "本条", "(a)", "\\d+\u0007",
+                                            "(b)", "(e)", "(j)", "(c)", "(f)", "附件\\d+", "附件", "这点", "一项", "本办法中",
+                                            "即使", "对于", "-", "下面"};
+                                    for (String eachStartDel : startsDel) {
+                                        if (replace.startsWith(eachStartDel) ) {
+                                            replace = replace.substring(eachStartDel.length(), replace.length());
+                                        }
+                                    }
+
+                                    String[] endsDel = new String[]{ "的", "既", "应", "应当", "主要", "通常", "一般", "应该",
+                                            "的含义", "的目的", "既可以", "可以", "不仅", "必须", "都", ",", ".", "特别", "也", "或许",
+                                            "只", "或", "附件\\d+", "强调", "的取得", "□3", "本指引", "重要", "在理论上"};
+                                    for (String eachEndDel : endsDel) {
+                                        if (replace.endsWith(eachEndDel)) {
+                                            replace = replace.substring(0, replace.length() - eachEndDel.length());
+                                        }
+                                    }
+
+                                    String replace2=null;
+                                    if(replace.contains("也称为")){
+                                        String[] 也称为s = replace.split("也称为");
+                                        replace2 = 也称为s[0];
+                                        replace = 也称为s[1];
+
+                                    }else if(replace.contains("（以下简称")){
+                                        String[] split1 = replace.split("（以下简称");
+                                        replace2 = split1[0];
+                                        replace= split1[1].substring(0, split1[1].length() - 1);
+
+                                    }
+
+                                    if(!"".equals(replace)){
+
+                                        replace=replace.replaceAll("[ |　]", " ").trim();
+
+                                        if(str.split("是").length > 1 && replace.length() > 1){
+                                            flag=true;
                                             System.out.println(replace+ "\t \t \t \t "+str.split("是")[1]);
+
                                         }
-                                        if(replace2!=null&&!"".equals(replace2)){
+                                    }
+                                    if(replace2!=null){
+                                        flag=true;
+                                        replace2=replace2.replaceAll("[ |　]", " ").trim();
+                                        if (replace2.length() > 1) {
                                             System.out.println(replace2+ "\t \t \t \t "+str.split("是")[1]);
                                         }
+                                    }
+                                }
 
+                            }
+
+                        }
+                        else if(str.contains("包括")){
+                            if(str.contains("：")){//有内容
+
+                            }else if(str.split("包括").length==2&&(str.contains("不包括"))){
+
+                            }
+                            else if(str.split("包括").length>2){//有内容
+                                // System.out.println(str);
+                            }
+                            else{
+
+                                String name =str.split("包括")[0].replace("　", "").trim();
+                                name=name.replaceAll("第[1234567890１２３４５６７８９０零一二三四五六七八九十百]{1,5}条","").replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,2}\\){0,1}）{0,1}[\\.、]{0,1}","").replace(" ","").trim();
+                                name=name.replace("．","");
+//                              System.out.println(name);
+                                if(name.length()<2){
+
+                                }
+                                else if(name.length()>10){//有内容
+//                                  System.out.println(name);
+                                }
+                                else{
+
+                                    if(name.endsWith("至少要")){
+                                        name=name.substring(0,name.length()-3);
+                                    }else if(name.endsWith("主要")||name.endsWith("至少")||name.endsWith("应当")||name.endsWith("可以")||name.endsWith("应该")){
+                                        name=name.substring(0,name.length()-2);
+                                    }else if(name.endsWith("应")||name.endsWith("可")){
+                                        name=name.substring(0,name.length()-1);
+                                    }
+                                    if(name.endsWith("，")||name.endsWith(",")){//有内容
+                                        name=name.substring(0,name.length()-1);
+                                    }
+                                    else if(name.endsWith("（")||name.endsWith("(")){//有内容
+                                        name=name.substring(0,name.length()-1);
+                                    }
+                                    if(name.startsWith("这")){
+
+                                    } else if("主要".equals(name)||"内容".equals(name)||"至少".equals(name)){
+
+                                    }else{
+                                        //    System.out.println(name);
                                     }
 
                                 }
@@ -179,9 +222,6 @@ public class GetVertexesEdges {
                             }
 
                         }
-//                        if(str.contains("指")){
-//
-//                        }
 
 
 
@@ -190,6 +230,9 @@ public class GetVertexesEdges {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//               if(!flag){
+//                   System.out.println(file.toString());
+//                }
         }
     }
     private void putAll(String filePath){

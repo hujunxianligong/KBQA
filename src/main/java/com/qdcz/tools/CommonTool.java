@@ -12,6 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.json.JSONException;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,25 +86,99 @@ public class CommonTool {
 
 
     public static String readFileOneTime(String inpath) {
+
         File file = new File(inpath);
         Long file_length = new Long(file.length());
         byte[] file_buffer = new byte[file_length.intValue()];
         String content = "";
 
         try {
-            FileInputStream e = new FileInputStream(file);
-            e.read(file_buffer);
-            e.close();
-        } catch (Exception var7) {
-            var7.printStackTrace();
+            FileInputStream in = new FileInputStream(file);
+            in.read(file_buffer);
+            in.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         try {
-            content = new String(file_buffer, "utf8");
-        } catch (UnsupportedEncodingException var6) {
-            var6.printStackTrace();
+            content = new String(file_buffer, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-
         return content;
     }
+
+    public static void printFile(byte[] image,  String outPath) {
+        FileOutputStream fout = null;
+        DataOutputStream dout = null;
+        try {
+            //			System.out.println(filename);
+            fout = new FileOutputStream(outPath);
+            dout = new DataOutputStream(fout);
+            dout.write(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fout != null)
+                    fout.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (dout != null)
+                    dout.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public static void printFile(String s, String outPath, Boolean append) {
+
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(outPath, append);
+            fileOutputStream.write(s.getBytes());
+//            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+//            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+//            bufferedWriter.write(s);
+//            bufferedWriter.close();
+//            outputStreamWriter.close();
+            fileOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static  String filterOffUtf8Mb4(byte[] bytes) throws UnsupportedEncodingException {
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        int i = 0;
+        while (i < bytes.length) {
+            short b = bytes[i];
+            if (b > 0) {
+                buffer.put(bytes[i++ ]);
+                continue;
+            }
+            b += 256;
+            if ((b ^ 0xC0) >> 4 == 0) {
+                buffer.put(bytes, i, 2);
+                i += 2;
+            }
+            else if ((b ^ 0xE0) >> 4 == 0) {
+                buffer.put(bytes, i, 3);
+                i += 3;
+            }
+            else if ((b ^ 0xF0) >> 4 == 0) {
+                i += 4;
+            } else { //解決遇到特殊字符時死循環的問題
+                buffer.put(bytes[i++ ]);
+                continue;
+            }
+        }
+        buffer.flip();
+        String result = new String(buffer.array(),0, buffer.limit(), "utf-8");
+        return result;
+    }
+
 }
