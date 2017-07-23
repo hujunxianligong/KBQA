@@ -244,9 +244,12 @@ public class LoopDataService {
         System.out.println(output);
         return output;
     }
-
     @Transactional
     public Set<String> loopDataByNodeLevel(Long startNodeId, Long endNodeId){
+        return loopDataByNodeLevel( startNodeId,  endNodeId,1);
+    }
+    @Transactional
+    public Set<String> loopDataByNodeLevel(Long startNodeId, Long endNodeId,int depth){
         //获取目标起始节点和目标节点
         Node jane = graphDatabaseService.getNodeById(startNodeId);
         Node leeo = graphDatabaseService.getNodeById(endNodeId);
@@ -260,7 +263,7 @@ public class LoopDataService {
                         return Evaluation.INCLUDE_AND_PRUNE;
                     }
                     Path singlePath = GraphAlgoFactory
-                            .shortestPath(PathExpanders.forType(MyRelationshipTypes.gra), 4)
+                            .shortestPath(PathExpanders.forType(MyRelationshipTypes.gra), depth)
                             .findSinglePath(currentNode, leeo);
                     if(singlePath != null){
                         //当前节点能直接能到达目标节点，将该节点包含在结果中并继续遍历
@@ -271,7 +274,7 @@ public class LoopDataService {
                     }
                 })
                 .uniqueness(Uniqueness.NODE_PATH)
-                .evaluator(Evaluators.toDepth(4));
+                .evaluator(Evaluators.toDepth(depth));
 //        Iterable<Node> nodes = traversalDescription.traverse(jane).nodes();
 //        for(Node n : nodes){
 //            System.out.println(n.getProperty("name"));

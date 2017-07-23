@@ -13,10 +13,7 @@ import org.neo4j.ogm.json.JSONException;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by hadoop on 17-6-30.
@@ -180,5 +177,16 @@ public class CommonTool {
         String result = new String(buffer.array(),0, buffer.limit(), "utf-8");
         return result;
     }
-
+    public   static   void  removeDuplicateWithOrder(List list)  {
+        Set set  =   new  HashSet();
+        List newList  =   new  ArrayList();
+        for  (Iterator iter  =  list.iterator(); iter.hasNext();)  {
+            Object element  =  iter.next();
+            if  (set.add(element.toString()))
+                newList.add(element);
+        }
+        list.clear();
+        list.addAll(newList);
+  //      System.out.println( " remove duplicate "   +  list);
+    }
 }

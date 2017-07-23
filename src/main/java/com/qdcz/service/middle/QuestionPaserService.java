@@ -8,6 +8,7 @@ import com.qdcz.service.bottom.BankLawService;
 import com.qdcz.service.high.TransactionService;
 import com.qdcz.tools.BuildReresult;
 import com.qdcz.tools.CommonTool;
+import com.qdcz.tools.MyComparetor;
 import org.neo4j.graphdb.*;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
@@ -41,6 +42,9 @@ public class QuestionPaserService
         Map<String, Object> node =null;
         String type="node";
         List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
+        MyComparetor mc = new MyComparetor("score");
+        Collections.sort(maps,mc);
+        Collections.reverse(maps);
         for(Map<String, Object> map:maps){
             float score = (float) map.get("score");//会出错
             if(maxScore<score){
@@ -50,6 +54,8 @@ public class QuestionPaserService
         }
         fields= new String[]{"relation"};
         maps = legacyIndexService.selectByFullTextIndex(fields, question,"edge");
+        Collections.sort(maps,mc);
+        Collections.reverse(maps);
         for(Map<String, Object> map:maps){
             float score = 0;
             try {
@@ -63,7 +69,9 @@ public class QuestionPaserService
                 node = map;
             }
         }
-
+        if(node!=null){
+            node.put("type",type);
+        }
         return node;
     }
     public Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
@@ -156,45 +164,56 @@ public class QuestionPaserService
     }
     public String traversePathBynode(List<Map<String, Object>> maps){
         if(maps.size()==2){
-            String nodeName1="";
-            String nodeName2="";
-            String edgeName1="";
-            String edgeName2="";
+            Map<String, Object> vertex1=null;
+            Map<String, Object> vertex2=null;
+            Map<String, Object> edge1=null;
+            Map<String, Object> edge2=null;
+
             for(Map<String, Object> node:maps){
-                if(node.containsKey("relation")){
-                    if(!"".equals(edgeName1)){
-                        edgeName2= (String) node.get("relation");
+                String  type = (String)node.get("type");
+                if("node".equals(type)){
+                    if(vertex1!=null){
+                        vertex2=node;
                     }else{
-                        edgeName1= (String) node.get("relation");
+                        vertex1=node;
                     }
-                }else if(node.containsKey("name")){
-                    if(!"".equals(nodeName1)){
-                        nodeName2= (String) node.get("name");
+                }else {
+                    if(edge1!=null){
+                        edge2=node;
                     }else{
-                        nodeName1= (String) node.get("name");
+                        edge1=node;
                     }
                 }
+
+
             }
             String result =null;
-            if("".equals(nodeName2)&&"".equals(edgeName2)){
-                result =  getByNodeAndEdgeName(nodeName1,edgeName1);
-            }else if("".equals(nodeName2)&&"".equals(nodeName1)){
-                result = getByEdgeAndEdgeName(edgeName1,edgeName2);
-            }else if("".equals(edgeName2)&&"".equals(edgeName1)){
-                result = getByNodeAndNodeName(nodeName1,nodeName2);
+            if(vertex2==null&&edge2==null){
+                result =  getByNodeAndEdgeName(vertex1,edge1);
+            }else if(vertex2==null&&vertex1==null){
+                result = getByEdgeAndEdgeName(edge1,edge2);
+            }else if(edge2==null&&edge1==null){
+                result = getByNodeAndNodeName(vertex1,vertex2);
             }
             return result;
         }
         return "learning";
     }
 
-    private String getByEdgeAndEdgeName(String edgeName1,String edgeName2){
+    private String getByEdgeAndEdgeName(Map<String, Object> edge1,Map<String, Object> edge2){
         String[] fields= new String[]{"relation"};
+        String edgeName1=(String)edge1.get("relation");
+        String edgeName2=(String)edge2.get("relation");
         List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
         List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
+        if(mapsEdge.size()==0){
+            mapsEdge.add(edge1);
+        }
+        if(mapsEdge2.size()==0){
+            mapsEdge.add(edge2);
+        }
         Set<String> resultPaths= new HashSet<>();
         for(Map<String, Object> map:mapsEdge){
-            System.out.println((Long) map.get("id"));
             Node nodeStart    =   null;
             try (   Transaction tx = graphDatabaseService.beginTx()) {
                 Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
@@ -229,9 +248,11 @@ public class QuestionPaserService
             return sb.toString();
         }
     }
-    private String getByNodeAndNodeName(String nodeName1,String nodeName2){
-        List<_Vertex> verticesStart = bankLawService.checkVertexByName(nodeName1);
-        List<_Vertex> verticesEnd = bankLawService.checkVertexByName(nodeName2);
+    private String getByNodeAndNodeName(Map<String, Object> vertex1 ,Map<String, Object> vertex2){
+        String vertexName1=(String)vertex1.get("name");
+        String vertexName2=(String)vertex2.get("name");
+        List<_Vertex> verticesStart = bankLawService.checkVertexByName(vertexName1);
+        List<_Vertex> verticesEnd = bankLawService.checkVertexByName(vertexName2);
         Set<String>  resultPaths= new HashSet<>();
         for(_Vertex vertexeE:verticesEnd){
             for(_Vertex vertexL:verticesStart){
@@ -250,52 +271,18 @@ public class QuestionPaserService
             return sb.toString();
         }
     }
-    private String getByEdgeAndNodeName(String edgeName,String nodeName){
-        List<_Vertex> vertices = bankLawService.checkVertexByName(nodeName);
+    private String getByNodeAndEdgeName(Map<String, Object> vertex,Map<String, Object> edge)  {
         Set<String>  resultPaths= new HashSet<>();
-        String[] fields= new String[]{"relation"};
-        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
-        for(Map<String, Object> map:mapsEdge){
-            System.out.println((Long) map.get("id"));
-            Node node    =   null;
-            try (   Transaction tx = graphDatabaseService.beginTx()) {
-                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
-                tx.acquireReadLock(r);
-                node = r.getStartNode();
-                tx.success();
-            }
-            if(node!=null) {
-                for(_Vertex vertexL:vertices){
-                    Long startid = node.getId();
-                    long endid = vertexL.getId();
-                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
-                    resultPaths.addAll(strings);
-                }
-            }
-        }
-        Map<String,String> conditions= new HashMap<>();
-        StringBuffer sb=new StringBuffer();
-        parsePaths(conditions,sb,resultPaths);
-        if("".equals(sb.toString())){
-            return "learning";
-        }else{
-            return sb.toString();
-        }
-    }
-    private String getByNodeAndEdgeName(String nodeName,String edgeName)  {
-//        String nodeName = object.getJSONObject("node").getString("name");
-//        String edgeName = object.getJSONObject("edge").getString("name");
-        //找点首ＩＤ
-//        String[] fields={"root","name"};
-//        JSONArray resultArray=new JSONArray();
-//        List<Map<String, Object>> mapsNode = legacyIndexService.selectByFullTextIndex(fields, nodeName,"vertex");
-        Set<String>  resultPaths= new HashSet<>();
-        List<_Vertex> vertices = bankLawService.checkVertexByName(nodeName);
+        String vertexName=(String)vertex.get("name");
+        List<_Vertex> vertices = bankLawService.checkVertexByName(vertexName);
         //边索引
         String[] fields= new String[]{"relation"};
+        String edgeName=(String)edge.get("relation");
         List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
+        if(mapsEdge.size()==0){//索引找不到的时候直接取id去找
+            mapsEdge.add(edge);
+        }
         for(Map<String, Object> map:mapsEdge){
-            System.out.println((Long) map.get("id"));
             Node node    =   null;
             try (   Transaction tx = graphDatabaseService.beginTx()) {
                 Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
@@ -307,11 +294,12 @@ public class QuestionPaserService
                 for(_Vertex vertexL:vertices){
                     Long startid = vertexL.getId();
                     long endid = node.getId();
-                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid,1);
                     resultPaths.addAll(strings);
                 }
             }
         }
+
         Map<String,String> conditions= new HashMap<>();
         conditions.put(edgeName,"contain");
 
