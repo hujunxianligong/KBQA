@@ -42,21 +42,22 @@ public class QuestionPaserService
         float maxScore = 0;
         Map<String, Object> node =null;
         String type="node";
+        Levenshtein lt=new Levenshtein();
         List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
         MyComparetor mc = new MyComparetor("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         for(Map<String, Object> map:maps){
+            String nodeName = (String)map.get("name");
+            float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+
+            map.put("questSimilar",similarityRatio1);
             float score = (float) map.get("score");//会出错
             if(maxScore<score){
                 maxScore = score;
                 node = map;
-            }else if(maxScore==score){
-                Levenshtein lt=new Levenshtein();
-                String nodeName = (String)map.get("name");
-                String maxName = (String)node.get("name");
-                float similarityRatio = lt.getSimilarityRatio(maxName, question);
-                float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+            }else if(node !=null&&maxScore==score){
+                float similarityRatio = (float) node.get("questSimilar");
                 if(similarityRatio1>similarityRatio){
                     node = map;
                 }
@@ -68,6 +69,8 @@ public class QuestionPaserService
         Collections.reverse(maps);
         for(Map<String, Object> map:maps){
             float score = 0;
+            String nodeName = (String)map.get("relation");
+            float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
             try {
                 score = Float.parseFloat( map.get("score").toString());//会出错
             }catch (Exception e){
@@ -77,12 +80,9 @@ public class QuestionPaserService
                 type="edge";
                 maxScore = score;
                 node = map;
-            }else if(maxScore==score){
-                Levenshtein lt=new Levenshtein();
-                String nodeName = (String)map.get("relation");
-                String maxName = (String)node.get("relation");
-                float similarityRatio = lt.getSimilarityRatio(maxName, question);
-                float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+            }else if(node !=null&&maxScore==score){
+                float similarityRatio = (float) node.get("questSimilar");
+
                 if(similarityRatio1>similarityRatio){
                     node = map;
                 }

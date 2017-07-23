@@ -492,6 +492,7 @@ public class TransactionService {
         }
 
         if(result==null||"learning".equals(result)){
+            mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;
