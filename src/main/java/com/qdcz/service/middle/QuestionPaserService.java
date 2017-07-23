@@ -8,6 +8,7 @@ import com.qdcz.service.bottom.BankLawService;
 import com.qdcz.service.high.TransactionService;
 import com.qdcz.tools.BuildReresult;
 import com.qdcz.tools.CommonTool;
+import com.qdcz.tools.Levenshtein;
 import com.qdcz.tools.MyComparetor;
 import org.neo4j.graphdb.*;
 import org.neo4j.ogm.json.JSONArray;
@@ -50,6 +51,15 @@ public class QuestionPaserService
             if(maxScore<score){
                 maxScore = score;
                 node = map;
+            }else if(maxScore==score){
+                Levenshtein lt=new Levenshtein();
+                String nodeName = (String)map.get("name");
+                String maxName = (String)node.get("name");
+                float similarityRatio = lt.getSimilarityRatio(maxName, question);
+                float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+                if(similarityRatio1>similarityRatio){
+                    node = map;
+                }
             }
         }
         fields= new String[]{"relation"};
@@ -67,6 +77,15 @@ public class QuestionPaserService
                 type="edge";
                 maxScore = score;
                 node = map;
+            }else if(maxScore==score){
+                Levenshtein lt=new Levenshtein();
+                String nodeName = (String)map.get("relation");
+                String maxName = (String)node.get("relation");
+                float similarityRatio = lt.getSimilarityRatio(maxName, question);
+                float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+                if(similarityRatio1>similarityRatio){
+                    node = map;
+                }
             }
         }
         if(node!=null){
