@@ -375,7 +375,7 @@ public class TransactionService {
         return jsonObject;
     }
     @Transactional
-    public String smartQA(String question)  {//智能问答
+    public String smartQA(String methodName,String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = StandardTokenizer.segment(question);
@@ -384,7 +384,6 @@ public class TransactionService {
             if(i<termList.size()-1){
                 Term nextTerm=termList.get(i+1);
                 if("a".equals(term.nature.name())&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
-
                     term.nature=nextTerm.nature;
                     term.word+=nextTerm.word;
                     nextTerm.nature= term.nature;
@@ -403,17 +402,25 @@ public class TransactionService {
                 maps.add(node);
             }
         }
-//        if(maps.size()>1){
-//            Collections.sort(maps,mc);
-//            Collections.reverse(maps);
-//            mc=null;
-//        }
 
         String result= null;
         if(maps.size()==2){
-            result= questionPaserService.traversePathBynode(maps);
+            result = questionPaserService.traversePathBynode(maps);
         }
         else if(maps.size()==0){
+            if("askOfWeChat".equals(methodName)){
+                JSONObject obj=new JSONObject();
+
+                JSONArray data=new JSONArray();
+                data.put(questionPaserService.requestTuring(question));
+                try {
+                    obj.put("data",data);
+                    obj.put("type","Turing");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return obj.toString();
+            }
             return questionPaserService.requestTuring(question);
         }else if(maps.size()>2){
             float max=0;
@@ -494,12 +501,45 @@ public class TransactionService {
                 e.printStackTrace();
             }
             if(str==null||"learning".equals(str)||"".equals(str)) {
+                if("askOfWeChat".equals(methodName)){
+                    JSONObject obj=new JSONObject();
+                    JSONArray data=new JSONArray();
+                    data.put(questionPaserService.requestTuring(question));
+                    try {
+                        obj.put("data",data);
+                        obj.put("type","Turing");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return obj.toString();
+                }
                 return questionPaserService.requestTuring(question);
             }else{
-                return str;
+                result= str;
             }
         }
+        if("askOfWeChat".equals(methodName)){
+            boolean flag=false;//判断是否是之前获取案例json
+            JSONObject obj=null;
+            try{
+                 obj=new JSONObject(result);
+            }catch (Exception e){
+                flag=true;
+            }
+            if(flag){
+                 obj = new JSONObject();
 
+                JSONArray data = new JSONArray();
+                data.put(result);
+                try {
+                    obj.put("data", data);
+                    obj.put("type", "Graph");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return obj.toString();
+        }
         return result;
     }
 

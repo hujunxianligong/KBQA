@@ -65,7 +65,7 @@ public class TransServiceTest {
 
     @Test
     public void testQuest() {
-        transactionService.smartQA("代理行的职责");
+        transactionService.smartQA("testQuest","代理行的职责");
     }
 
 }

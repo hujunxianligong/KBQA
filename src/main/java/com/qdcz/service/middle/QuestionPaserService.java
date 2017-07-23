@@ -110,7 +110,7 @@ public class QuestionPaserService
     }
 
     public String findDefine(String question,Map<String, Object> map) throws JSONException {
-        String[] defineMatchs= new String[]{"是什么","什么是", "定义", "概念", "含义", "指什么","是谁","解释","描述"};
+        String[] defineMatchs= new String[]{"是什么","是怎么样","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
         BuildReresult buildReresult = new BuildReresult();
         boolean flag=false;
         if(map.get("name").equals(question)){
@@ -365,9 +365,7 @@ public class QuestionPaserService
                 maps.put(key,strs);
             }
         }
-        System.out.println();
 
-        //BaseMongoDAL mongo = new MyMongo(MongoConfigure.dbOnline,"law_details");
 
         try{
             JSONObject resultJSon=new JSONObject();
@@ -375,22 +373,13 @@ public class QuestionPaserService
                 JSONArray jsonArray=new JSONArray();
                 String result="";
                 String key = entry.getKey().replace("--","的");
-                resultJSon.put("title",key);
                 Vector<String> value = entry.getValue();
                 result += key+"为";
                 for(String str:value){
                     try{
-
                         JSONObject object = new JSONObject(str);
                         result="";
                         jsonArray.put(object);
-          //              JSONObject oneDocument = mongo.getOneDocument(name);
-          //              if(oneDocument!=null) {
-          //                  String title = oneDocument.getString("title");
-         //                   result += title + "、";
-          //              }else{
-          //                  result+=name+"、";
-          //              }
                     }catch ( JSONException je){
 //                        je.printStackTrace();
                         result+=str+"、";
@@ -401,6 +390,8 @@ public class QuestionPaserService
                     sb.append(result);
                 }
                 else if(jsonArray.length()>0){
+                    resultJSon.put("title",key);
+                    resultJSon.put("type","Law");
                     resultJSon.put("data",jsonArray);
                     sb.append(resultJSon);
                 }
@@ -408,11 +399,6 @@ public class QuestionPaserService
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        finally {
-//            if(mongo!=null){
-//                mongo.close();
-//            }
-//        }
         return sb;
     }
     public   String requestTuring(String question) {

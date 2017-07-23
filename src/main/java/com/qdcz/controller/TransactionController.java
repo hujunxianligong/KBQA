@@ -175,14 +175,19 @@ public class TransactionController {
         }else if("这个公司属于什么行业，行业中规模排名如何？".equals(question)){
             return "这个公司属于咨询行业，2016年营业收入行业排名第9位";
         }else {
-            String s = transactionService.smartQA(question);
+            String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+            String s = transactionService.smartQA(methodName,question);
             return s;
         }
-//        String result=instrDemandService.queryF(question);
-//        return result;
-
     }
-
+    @CrossOrigin
+    @RequestMapping(path = "/askFromWeChat", method = {RequestMethod.POST,RequestMethod.GET})
+    @ResponseBody
+    public String askOfWeChat(@RequestParam String question){
+        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String s = transactionService.smartQA(methodName,question);
+        return s;
+    }
     @CrossOrigin
 //    @RequestMapping(path = "/check")
     @ResponseBody
