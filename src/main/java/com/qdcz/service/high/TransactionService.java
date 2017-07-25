@@ -497,7 +497,16 @@ public class TransactionService {
             Collections.reverse(maps);
             String str = null;
             try {
-                str = questionPaserService.findDefine(question, maps.get(0));
+                Map<String, Object> maxNode=null;
+                for(Map<String, Object> node:maps){
+                    if("node".equals(node.get("type"))){
+                        maxNode=node;
+                        break;
+                    }
+                }
+                if(maxNode!=null) {
+                    str = questionPaserService.findDefine(question, maxNode);
+                }
             } catch (JSONException  e) {
                 e.printStackTrace();
             }

@@ -379,7 +379,7 @@ public class QuestionPaserService
                     try{
                         JSONObject object = new JSONObject(str);
                         result="";
-                        jsonArray.put(object);
+                        jsonArray.put(object.toString());
                     }catch ( JSONException je){
 //                        je.printStackTrace();
                         result+=str+"、";
