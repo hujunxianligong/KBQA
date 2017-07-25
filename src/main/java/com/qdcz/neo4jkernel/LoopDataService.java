@@ -246,7 +246,7 @@ public class LoopDataService {
     }
     @Transactional
     public Set<String> loopDataByNodeLevel(Long startNodeId, Long endNodeId){
-        return loopDataByNodeLevel( startNodeId,  endNodeId,1);
+        return loopDataByNodeLevel( startNodeId,  endNodeId,4);
     }
     @Transactional
     public Set<String> loopDataByNodeLevel(Long startNodeId, Long endNodeId,int depth){

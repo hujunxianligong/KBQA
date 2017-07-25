@@ -313,7 +313,7 @@ public class QuestionPaserService
                 for(_Vertex vertexL:vertices){
                     Long startid = vertexL.getId();
                     long endid = node.getId();
-                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid,1);
+                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
                     resultPaths.addAll(strings);
                 }
             }
@@ -332,6 +332,27 @@ public class QuestionPaserService
     }
     private  StringBuffer parsePaths( Map<String,String> conditions,StringBuffer sb,Set<String>  Paths){
         Set<String> parsePaths =new HashSet<>();
+        int mindepth =Integer.MAX_VALUE;
+
+        for(String path:Paths) {//找到路径中包含边测最小最小的层数
+            if(path.contains("--")&&!path.contains("<-")) {
+                boolean flag = false;
+                if(conditions.size()==0){
+                    flag =true;
+                }else{
+                    for (Map.Entry<String, String> entry : conditions.entrySet()){
+                        if("contain".equals(entry.getValue().toString())&&path.contains(entry.getKey().toString())){
+                            flag =true;
+                        }
+                    }
+                }
+                int pathDepth = path.split("->").length;//获取当前路径深度
+                if (flag&&mindepth > pathDepth) {
+                    mindepth = pathDepth;
+                }
+            }
+
+        }
         for(String path:Paths){
             if(path.contains("--")&&!path.contains("<-")) {
                 boolean flag = false;
@@ -344,7 +365,8 @@ public class QuestionPaserService
                         }
                     }
                 }
-                if(flag){
+                int pathDepth = path.split("->").length;//获取当前路径深度
+                if(flag&&pathDepth<=mindepth){
                     String[] split = path.split("--");
                     String result = split[0] + "--" + split[split.length - 1];
                     parsePaths.add(result);

@@ -1,5 +1,6 @@
 package com.qdcz;
 
+import com.qdcz.tools.CommonTool;
 import org.neo4j.ogm.json.JSONObject;
 
 import java.io.*;
@@ -10,8 +11,10 @@ import java.io.*;
 public class GetVertexesEdges {
     public static void main(String[] args) {
         GetVertexesEdges test=new GetVertexesEdges();
+        test.putAll("/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/");
+//
 //        test.putAll("/home/hadoop/wnd/usr/leagal/实体关系修改");
-        test.getdefine("/home/hadoop/wnd/usr/leagal/log");
+//        test.getdefine("/home/hadoop/wnd/usr/leagal/一行三会数据/log");
 //        try {
 //            test.get("/home/hadoop/wnd/usr/leagal/实体关系提取-06.15/个人贷款管理.txt");
 //        } catch (IOException e) {
@@ -19,6 +22,7 @@ public class GetVertexesEdges {
 //        }
     }
     private void getdefine(String filePath){
+        String outpath="/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/";
         File dirInput = new File(filePath);
         File[] files = dirInput.listFiles();
         for (File file: files) {
@@ -33,7 +37,7 @@ public class GetVertexesEdges {
                 e.printStackTrace();
             }
             boolean flag=false;//判断是否没有一条定义
-            String[] splits=filePath.split("/");
+            String[] splits=file.toString().split("/");
             String filename =splits[splits.length-1];
             BufferedReader read = new BufferedReader(re );
             String line = null;
@@ -45,7 +49,7 @@ public class GetVertexesEdges {
                     for(String str:splitju){
                         if(str.contains("是")){
                             String[] strs = str.split("是");
-                            if(strs.length==2&&(strs[0].endsWith("还应当")||strs[0].endsWith("而")||strs[0].endsWith("实事求")||strs[0].endsWith("尤其")||strs[0].endsWith("需要注意的")||strs[0].endsWith("但")||(strs[1].length()>1&&strs[1].startsWith("否")))){
+                            if(strs.length==2&&(strs[0].endsWith("还应当")||strs[0].endsWith("以上条件")||strs[0].endsWith("本身就")||strs[0].endsWith("往往")||strs[0].endsWith("而")||strs[0].endsWith("假如")||strs[0].endsWith("实事求")||strs[0].endsWith("尤其")||strs[0].endsWith("需要注意的")||strs[0].endsWith("但")||strs[0].endsWith("还")||(strs[1].length()>1&&strs[1].startsWith("否")))){
 
                             }else if(strs.length>2&&strs[1].startsWith("否")&&strs[2].startsWith("否")){
 
@@ -76,12 +80,12 @@ public class GetVertexesEdges {
                             }
 
                             else {
+
                                 str=str.replaceAll("[ |　]", " ").trim();
                                 str=str.replace(" ","").replaceAll("第[1234567890１２３４５６７８９０零一二三四五六七八九十百]{1,5}条","").replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,2}\\){0,1}）{0,1}[\\.、]{0,1}","").trim();
                                 if(str.split("是")[0].length()>40){
 
                                 }else{
-
                                     String name=str.split("是")[0].trim();
                                     if(name.contains("，")){
                                         String[] split = name.split("，");
@@ -95,7 +99,7 @@ public class GetVertexesEdges {
                                             name = split[0].replace("　", "").trim();
                                         }
                                     }
-
+                                    System.out.println(str);
                                     String  replace =name;
                                     String[] splitsOne = new String[]{"所称的", "所指的", "所指", "所称"};
                                     for (String eachSplitOne : splitsOne) {
@@ -113,7 +117,7 @@ public class GetVertexesEdges {
                                         }
                                     }
 
-                                    String[] replacesWord = new String[]{"本意见中的", "前款", "“", "”", "上述计算公式中提到的"
+                                    String[] replacesWord = new String[]{"本解释中","本规定有关","在本文中","本意见中的","此处", "前款", "“", "”", "上述计算公式中提到的"
                                     , "&nbsp;"};
                                     for (String eachReplaceWord : replacesWord) {
                                         replace = replace.replaceAll(eachReplaceWord, "");
@@ -153,19 +157,30 @@ public class GetVertexesEdges {
 
                                     if(!"".equals(replace)){
 
-                                        replace=replace.replaceAll("[ |　]", " ").trim();
+                                        replace=replace.replaceAll("[ |　]", " ").replaceAll("^[1234567890]","").trim();
 
                                         if(str.split("是").length > 1 && replace.length() > 1){
                                             flag=true;
-                                            System.out.println(replace+ "\t \t \t \t "+str.split("是")[1]);
-
+                                            String result=replace+ "\t";
+                                            for(int i=1;i<strs.length;i++){
+                                                result+=strs[i];
+                                            }
+                                            result+="\t"+"概念\n";
+                                            System.out.println(result);
+                                            CommonTool.printFile(result,outpath+filename,true);
                                         }
                                     }
                                     if(replace2!=null){
-                                        flag=true;
                                         replace2=replace2.replaceAll("[ |　]", " ").trim();
                                         if (replace2.length() > 1) {
-                                            System.out.println(replace2+ "\t \t \t \t "+str.split("是")[1]);
+                                            flag=true;
+                                            String result=replace+ "\t";
+                                            for(int i=1;i<strs.length;i++){
+                                                result+=strs[i];
+                                            }
+                                            result+="\t"+"概念\n";
+                                            System.out.println(result);
+                                            CommonTool.printFile(result,outpath+filename,true);
                                         }
                                     }
                                 }
@@ -286,8 +301,8 @@ public class GetVertexesEdges {
                     JSONObject obj1 = new JSONObject();
 
                     obj1.put("relation",strs[2].replaceAll(" ",""));
-                    obj1.put("from",strs[1].replaceAll(" ",""));
-                    obj1.put("to",strs[0].replaceAll(" ",""));
+                    obj1.put("to",strs[1].replaceAll(" ",""));
+                    obj1.put("from",strs[0].replaceAll(" ",""));
                     obj1.put("root",filename.replace(".txt",""));
                     sb1.append(obj1+"\n");
                     obj1 = null;
@@ -303,8 +318,8 @@ public class GetVertexesEdges {
             read.close();
             re.close();
         }
-        write(sb.toString(),"/home/hadoop/wnd/usr/leagal/logs/vertex.txt");
-        write(sb1.toString(),"/home/hadoop/wnd/usr/leagal/logs/edges.txt");
+        write(sb.toString(),"/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
+        write(sb1.toString(),"/home/hadoop/wnd/usr/leagal/一行三会数据/edges.txt");
         sb=null;
         sb1=null;
     }
