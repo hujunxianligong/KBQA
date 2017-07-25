@@ -71,6 +71,7 @@ public class QuestionPaserService
             float score = 0;
             String nodeName = (String)map.get("relation");
             float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+            map.put("questSimilar",similarityRatio1);
             try {
                 score = Float.parseFloat( map.get("score").toString());//会出错
             }catch (Exception e){
@@ -82,7 +83,6 @@ public class QuestionPaserService
                 node = map;
             }else if(node !=null&&maxScore==score){
                 float similarityRatio = (float) node.get("questSimilar");
-
                 if(similarityRatio1>similarityRatio){
                     node = map;
                 }
