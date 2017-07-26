@@ -99,7 +99,7 @@ public class GetVertexesEdges {
                                             name = split[0].replace("　", "").trim();
                                         }
                                     }
-                                    System.out.println(str);
+                              //      System.out.println(str);
                                     String  replace =name;
                                     String[] splitsOne = new String[]{"所称的", "所指的", "所指", "所称"};
                                     for (String eachSplitOne : splitsOne) {
@@ -117,7 +117,7 @@ public class GetVertexesEdges {
                                         }
                                     }
 
-                                    String[] replacesWord = new String[]{"本解释中","本规定有关","在本文中","本意见中的","此处", "前款", "“", "”", "上述计算公式中提到的"
+                                    String[] replacesWord = new String[]{"本实施细则中规定的","本表填写的","本办法","所谓","本解释中","本规定有关","在本文中","本意见中的","此处", "前款", "“", "”", "上述计算公式中提到的"
                                     , "&nbsp;"};
                                     for (String eachReplaceWord : replacesWord) {
                                         replace = replace.replaceAll(eachReplaceWord, "");
@@ -166,8 +166,8 @@ public class GetVertexesEdges {
                                                 result+=strs[i];
                                             }
                                             result+="\t"+"概念\n";
-                                            System.out.println(result);
-                                            CommonTool.printFile(result,outpath+filename,true);
+                                           // System.out.println(result);
+                                          //  CommonTool.printFile(result,outpath+filename,true);
                                         }
                                     }
                                     if(replace2!=null){
@@ -179,8 +179,8 @@ public class GetVertexesEdges {
                                                 result+=strs[i];
                                             }
                                             result+="\t"+"概念\n";
-                                            System.out.println(result);
-                                            CommonTool.printFile(result,outpath+filename,true);
+                                          //  System.out.println(result);
+                                         //   CommonTool.printFile(result,outpath+filename,true);
                                         }
                                     }
                                 }
@@ -245,9 +245,9 @@ public class GetVertexesEdges {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//               if(!flag){
-//                   System.out.println(file.toString());
-//                }
+               if(!flag){
+                   System.out.println(file.toString());
+                }
         }
     }
     private void putAll(String filePath){
