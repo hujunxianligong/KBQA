@@ -430,6 +430,7 @@ public class TransactionService {
             float secScore=0;
             Map<String, Object> edgeNode=null;
             Levenshtein lt=new Levenshtein();
+            //对候选边/节点进行筛选，分别挑选最高分数的node作为对应类型的代表
             for(Map<String, Object> node:maps){
                 if(node!=null) {
                     String name = null;
@@ -442,6 +443,7 @@ public class TransactionService {
                             edgeNode = node;
                             maxScore = (float) node.get("score");
                         }else if(diffLocation == second){
+                        	// 当前词和之前的词与问句具有相同的编辑距离相似度，则通过索引分数对比
                             if(maxScore< (float) node.get("score")){
                                 edgeNode = node;
                                 maxScore = (float) node.get("score");
@@ -461,6 +463,7 @@ public class TransactionService {
                             }
                         }
                     }
+                    //记录检索到的每个索引与问句的相似度分数
                     node.put("questSimilar", diffLocation);
                 }
             }
@@ -472,6 +475,7 @@ public class TransactionService {
                 result = questionPaserService.traversePathBynode(maps2);
             }else if(vertexNode!=null&&edgeNode==null) {
                 maps.remove(vertexNode);
+                //查找分数第二高的索引
                 Map<String, Object> vertexNode2=questionPaserService.getCloestMaps(maps);
                 maps.add(vertexNode);
                 List<Map<String, Object>> maps2 = new ArrayList();
@@ -497,6 +501,7 @@ public class TransactionService {
             Collections.reverse(maps);
             String str = null;
             try {
+            	//降序后，第一个node就是分数最大的点
                 Map<String, Object> maxNode=null;
                 for(Map<String, Object> node:maps){
                     if("node".equals(node.get("type"))){

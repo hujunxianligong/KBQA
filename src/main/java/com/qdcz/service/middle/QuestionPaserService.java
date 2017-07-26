@@ -110,6 +110,7 @@ public class QuestionPaserService
     }
 
     public String findDefine(String question,Map<String, Object> map) throws JSONException {
+    	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{"是什么","是怎么样","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
         BuildReresult buildReresult = new BuildReresult();
         boolean flag=false;
@@ -126,6 +127,7 @@ public class QuestionPaserService
             StringBuffer sb=new StringBuffer();
             JSONArray resultArray=new JSONArray();
             String name = null;
+            //此处判断是否必要？
             if (map.containsKey("relation")) {//边
                 name = (String) map.get("relation");
                 _Edge edge = bankLawService.checkEdgeById((Long) map.get("id"));
