@@ -43,7 +43,7 @@ public class BytesToHexString {
         return stringBuilder.toString();
     }
 
-    public static final String OUT_PATH = "/home/hadoop/wnd/usr/leagal/log/";
+    public static final String OUT_PATH = "/home/hadoop/wnd/usr/leagal/一行三会数据/log/";
     /**
      * 根据文件流判断图片类型
      * @param fis
@@ -171,7 +171,7 @@ public class BytesToHexString {
     }
     public static void main(String[] args) throws IOException {
         BytesToHexString bytesToHexString=new BytesToHexString();
-        bytesToHexString.exchangeWord("/home/hadoop/wnd/usr/leagal/一行三会法律");
+        bytesToHexString.exchangeWord("/home/hadoop/wnd/usr/leagal/一行三会数据/1To3");
 //        File file= new File("/home/hadoop/wnd/usr/leagal/银监会所有文件/附件5：按照监管公式法计量信用风险缓释作用示例.doc");
 //        Long file_length = new Long(file.length());
 //        byte[] file_buffer = new byte[file_length.intValue()];

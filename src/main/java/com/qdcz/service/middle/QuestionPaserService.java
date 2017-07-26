@@ -99,7 +99,7 @@ public class QuestionPaserService
         for(Map<String, Object> node:maps){
             if(node!=null) {
                 String name = null;
-                float   diffLocation= (float) node.get("score");
+                float   diffLocation= (float) node.get("questSimilar");
                 if (diffLocation > max) {
                     max = diffLocation ;
                     result =node;
@@ -214,7 +214,7 @@ public class QuestionPaserService
             }else if(vertex2==null&&vertex1==null){
                 result = getByEdgeAndEdgeName(edge1,edge2);
             }else if(edge2==null&&edge1==null){
-                result = getByNodeAndNodeName(vertex1,vertex2);
+                result = getByNodeAndNodeName(vertex1,vertex2,false);
             }
             return result;
         }
@@ -269,7 +269,7 @@ public class QuestionPaserService
             return sb.toString();
         }
     }
-    private String getByNodeAndNodeName(Map<String, Object> vertex1 ,Map<String, Object> vertex2){
+    private String getByNodeAndNodeName(Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
         String vertexName1=(String)vertex1.get("name");
         String vertexName2=(String)vertex2.get("name");
         List<_Vertex> verticesStart = bankLawService.checkVertexByName(vertexName1);
@@ -286,8 +286,14 @@ public class QuestionPaserService
         Map<String,String> conditions= new HashMap<>();
         StringBuffer sb=new StringBuffer();
         parsePaths(conditions,sb,resultPaths);
-        if("".equals(sb.toString())){
-            return "learning";
+
+        if("".equals(sb.toString())&&!exchange){
+            if(exchange) {
+                return "learning";
+            }
+            else{
+                return  getByNodeAndNodeName(vertex2,vertex1,true);
+            }
         }else{
             return sb.toString();
         }
