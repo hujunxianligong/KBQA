@@ -475,6 +475,7 @@ public class TransactionService {
                 result = questionPaserService.traversePathBynode(maps2);
             }else if(vertexNode!=null&&edgeNode==null) {
                 maps.remove(vertexNode);
+                //查找分数第二高的索引
                 Map<String, Object> vertexNode2=questionPaserService.getCloestMaps(maps);
                 maps.add(vertexNode);
                 List<Map<String, Object>> maps2 = new ArrayList();
@@ -500,7 +501,7 @@ public class TransactionService {
             Collections.reverse(maps);
             String str = null;
             try {
-            	//从变量命名角度来看，似乎是找最大分数的点，但代码实现与目的不符
+            	//降序后，第一个node就是分数最大的点
                 Map<String, Object> maxNode=null;
                 for(Map<String, Object> node:maps){
                     if("node".equals(node.get("type"))){
