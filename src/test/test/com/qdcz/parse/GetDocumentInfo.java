@@ -21,6 +21,10 @@ import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.rtf.RTFEditorKit;
+
 /**
  * Created by hadoop on 17-7-22.
  */
@@ -170,5 +174,14 @@ public class GetDocumentInfo {
         poifsFileSystem=null;
         String tmp=sb.toString();
         return tmp.getBytes();
+    }
+    public static String getRtf(byte[] data) throws IOException,
+            BadLocationException {
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        RTFEditorKit kit = new RTFEditorKit();
+        Document doc = kit.createDefaultDocument();
+        kit.read(bis, doc, 0);
+        return doc.getText(0, doc.getLength());
     }
 }

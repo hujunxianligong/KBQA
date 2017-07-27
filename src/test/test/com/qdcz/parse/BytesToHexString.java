@@ -3,6 +3,7 @@ package com.qdcz.parse;
 import com.qdcz.tools.CommonTool;
 import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 
+import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.io.IOException;
  * Created by hadoop on 17-7-22.
  */
 public class BytesToHexString {
-
+    public static final String TYPE_RTF = "rtf";
     public static final String TYPE_JPG = "jpg";
     public static final String TYPE_GIF = "gif";
     public static final String TYPE_PNG = "png";
@@ -43,7 +44,7 @@ public class BytesToHexString {
         return stringBuilder.toString();
     }
 
-    public static final String OUT_PATH = "/home/hadoop/wnd/usr/leagal/一行三会数据/log/";
+    public static final String OUT_PATH = "/home/hadoop/wnd/usr/leagal/一行三会数据/概念转换/";
     /**
      * 根据文件流判断图片类型
      * @param fis
@@ -94,7 +95,19 @@ public class BytesToHexString {
                 }
             }
 
+        } else if (type.contains("7B5C7274")) {
+            try {
+                String rtf = GetDocumentInfo.getRtf(fis);
+                String strs=new String(rtf.getBytes("ISO8859_1"),"GBK");
+                CommonTool.printFile(strs,outFilePath,false);
+
+                return TYPE_XLSX;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return TYPE_RTF;
         }
+
         else if (type.contains("504B0304")) {
             try {
                 byte[] bytes = GetDocumentInfo.GetXlsx(fis);
@@ -113,8 +126,11 @@ public class BytesToHexString {
         }
         else if (type.contains("25504446")) {
             try{
+
                 byte[] bytes = GetDocumentInfo.getTextFromPDF(fis);
-                CommonTool.printFile(bytes,outFilePath);
+                String s = CommonTool.filterOffUtf8Mb4(bytes);
+
+                CommonTool.printFile(s,outFilePath,false);
             }catch (Exception e){
                 System.out.println(filePath);
                 e.printStackTrace();
@@ -171,7 +187,7 @@ public class BytesToHexString {
     }
     public static void main(String[] args) throws IOException {
         BytesToHexString bytesToHexString=new BytesToHexString();
-        bytesToHexString.exchangeWord("/home/hadoop/wnd/usr/leagal/一行三会数据/1To3");
+        bytesToHexString.exchangeWord("/home/hadoop/wnd/usr/leagal/一行三会数据/银行概念");
 //        File file= new File("/home/hadoop/wnd/usr/leagal/银监会所有文件/附件5：按照监管公式法计量信用风险缓释作用示例.doc");
 //        Long file_length = new Long(file.length());
 //        byte[] file_buffer = new byte[file_length.intValue()];

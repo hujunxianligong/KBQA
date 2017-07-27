@@ -11,6 +11,7 @@ public class MyConnConfigure extends Properties {
     public static String driver;
     public static String db;
     public static int port;
+    public static String[] project;
 
     @Override
     public synchronized void load(InputStream inStream) throws IOException {
@@ -18,5 +19,6 @@ public class MyConnConfigure extends Properties {
         driver = this.getProperty("driver");
         db = this.getProperty("db");
         port =Integer.parseInt(this.getProperty("port"));
+        project=this.getProperty("project").split(";");
     }
 }

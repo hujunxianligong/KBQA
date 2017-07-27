@@ -84,10 +84,12 @@ public class LoopDataService {
     @Transactional
     public Traverser loopDataByLoopApi(Long id,int depth){
         Traverser traverser =null;
+        MyRelationshipTypes.values();
         try(Transaction tx= graphDatabaseService.beginTx()) {
             Node userJohn = graphDatabaseService.getNodeById(id);
             tx.acquireReadLock(userJohn);
-            TraversalDescription traversal = graphDatabaseService.traversalDescription()
+            TraversalDescription traversal =
+                    graphDatabaseService.traversalDescription()
                     //      .relationships(MyRelationshipTypes.IS_FRIEND_OF)
                     //    .relationships(MyRelationshipTypes.gra, Direction.OUTGOING)
                     .relationships(MyRelationshipTypes.gra)

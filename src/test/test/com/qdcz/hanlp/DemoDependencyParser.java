@@ -16,7 +16,7 @@ public class DemoDependencyParser
 {
     public static void main(String[] args)
     {//徐先生还具体帮助他确定了把画雄鹰、松鼠和麻雀作为主攻目标。
-        CoNLLSentence sentence = HanLP.parseDependency("股权转让的定义");
+        CoNLLSentence sentence = HanLP.parseDependency("银团贷款业务介绍");
         System.out.println(sentence);
         // 可以方便地遍历它
         for (CoNLLWord word : sentence)

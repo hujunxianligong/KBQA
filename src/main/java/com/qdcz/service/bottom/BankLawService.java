@@ -1,16 +1,19 @@
 package com.qdcz.service.bottom;
 
-import com.qdcz.sdn.entity._Edge;
-import com.qdcz.sdn.entity._Vertex;
+import com.qdcz.neo4jkernel.generic.MyLabels;
 import com.qdcz.sdn.repository.EdgeRepository;
 
 import com.qdcz.sdn.repository.VertexRepository;
+import com.qdcz.sdn.entity.Edge;
+import com.qdcz.sdn.entity.Vertex;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,65 +38,131 @@ public class BankLawService {
     }
 
     @Transactional
-    public long addEdge(_Edge egde){
-        _Edge save = edgeRepository.save(egde);
+    public long addEdge(String label,Edge egde){
+
+        Edge save = edgeRepository.save(egde);
         return save.getEdgeId();
 
     }
+
     @Transactional
-    public void addEdge(List<_Edge> egdes){
-        edgeRepository.save(egdes);
-    }
-    @Transactional
-    public void deleteEdge(_Edge egde){
+    public void deleteEdge(Edge egde){
         edgeRepository.delete(egde);
     }
+
     @Transactional
-    public void deleteEdge(List<_Edge> egdes){
-        edgeRepository.delete(egdes);
-    }
-    @Transactional
-    public _Edge checkEdgeById(Long id){
-        _Edge one = edgeRepository.findOne(id);
+    public Edge checkEdgeById(String label,Long id){
+        Edge one = edgeRepository.findOne(id);
 
         return one;
     }
 
+//    @Transactional
+//    public void changeEdge(Edge egde){
+//
+//       edgeRepository.getUpdateEdecql(egde.name,egde.relation,egde.from.name,egde.to.name,egde.root);
+//    }
     @Transactional
-    public void changeEdge(_Edge egde){
-       edgeRepository.getUpdateEdecql(egde.name,egde.relation,egde.from.name,egde.to.name,egde.root);
+    public long addVertex(String label,Vertex vertex){
+        String addString=
+        "merge (n:"+label+" {name:'"+vertex.getName()+"', root:'"+vertex.getRoot()+"',root:'"+vertex.getIdentity()+"' }) on " +
+                "create set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' on " +
+                "match set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' return n";
+        Result result = graphDatabaseService.execute(addString);
+        long id=0l;
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+            id=n.getId();
+            System.out.println( n.getId()+""+n.getAllProperties());
+        }
+
+        return id;
+    }
+
+    @Transactional
+    public long deleteVertex(String label,Vertex vertex){
+        String delString="Match (n:"+label+"  )where id(n)="+vertex.getId()+" delete n";
+        Result result = graphDatabaseService.execute(delString);
+        long id=0l;
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+            System.out.println( n.getAllProperties());
+        }
+//        vertexRepository.delete(vertex);
+        return  id;
     }
     @Transactional
-    public void addVertex(_Vertex vertex){
-        vertexRepository.save(vertex);
+    public Vertex checkVertexById(String label,Long id){
+        String quertString="match (n:"+label+") where id(n)="+id+" return n";
+        Result result = graphDatabaseService.execute(quertString);
+        Vertex vertex=new Vertex();
+        //遍历结果
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+
+            vertex.setContent(n.getProperty("content").toString());
+            vertex.setRoot(n.getProperty("root").toString());
+            vertex.setType(n.getProperty("type").toString());
+            vertex.setId(n.getId());
+            vertex.setName(n.getProperty("name").toString());
+            vertex.setIdentity(n.getProperty("identity").toString());
+            System.out.println( n.getAllProperties());
+        }
+        return vertex;
     }
     @Transactional
-    public void addVertex(List<_Vertex> vertexs){
-        vertexRepository.save(vertexs);
+    public Vertex checkVertexByNameAndRoot(String label,String  name,String root){
+        String quertString="MATCH (n:"+label+" {name:'"+name+"', root:'"+root+"' }) RETURN n";
+        Result result = graphDatabaseService.execute(quertString);
+        Vertex vertex=new Vertex();
+        //遍历结果
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+
+            vertex.setContent(n.getProperty("content").toString());
+            vertex.setRoot(n.getProperty("root").toString());
+            vertex.setType(n.getProperty("type").toString());
+            vertex.setId(n.getId());
+            vertex.setName(n.getProperty("name").toString());
+            vertex.setIdentity(n.getProperty("identity").toString());
+            System.out.println( n.getAllProperties());
+        }
+        return vertex;
     }
     @Transactional
-    public void deleteVertex(_Vertex vertex){
-        vertexRepository.delete(vertex);
+    public List<Vertex> checkVertexByName(String label, String  name){
+        List<Vertex> vertexList=new ArrayList<>();
+        String quertString="MATCH (n:"+label+" {name:'"+name+"'}) RETURN n";
+        Result result = graphDatabaseService.execute(quertString);
+        //遍历结果
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+            Vertex vertex=new Vertex();
+            vertex.setContent(n.getProperty("content").toString());
+            vertex.setRoot(n.getProperty("root").toString());
+            vertex.setType(n.getProperty("type").toString());
+            vertex.setId(n.getId());
+            vertex.setName(n.getProperty("name").toString());
+            vertex.setIdentity(n.getProperty("identity").toString());
+            vertexList.add(vertex);
+            System.out.println( n.getAllProperties());
+        }
+        return vertexList;
     }
     @Transactional
-    public void deleteVertex(List<_Vertex> vertexs){
-        vertexRepository.delete(vertexs);
-    }
-    @Transactional
-    public _Vertex checkVertexById(Long id){
-        return vertexRepository.findOne(id);
-    }
-    @Transactional
-    public _Vertex checkVertexByNameAndRoot(String  name,String root){
-        return vertexRepository.getVertByNameCql(name,root);
-    }
-    @Transactional
-    public List<_Vertex> checkVertexByName(String  name){
-        return vertexRepository.getVertsByNameCql(name);
-    }
-    @Transactional
-    public long changeVertex(_Vertex vertex){
-        Long id = vertexRepository.getUpdateVertexCql(vertex.name, vertex.root, vertex.type, vertex.identity,vertex.content.toString()).getId();
+    public long changeVertex(String label,Vertex vertex){
+        String addString=
+                "merge (n:"+label+" {name:'"+vertex.getName()+"', root:'"+vertex.getRoot()+"',root:'"+vertex.getIdentity()+"' }) on " +
+                        "create set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' on " +
+                        "match set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' return n";
+        Result result = graphDatabaseService.execute(addString);
+        long id=0l;
+        while(result.hasNext()){
+            Node n = (Node) result.next().get("n");
+            id=n.getId();
+            System.out.println( n.getId()+""+n.getAllProperties());
+        }
+
         return id;
     }
 }

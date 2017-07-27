@@ -1,7 +1,9 @@
 package com.qdcz;
 
+import com.qdcz.service.bean.RequestParameter;
 import com.qdcz.service.high.TransactionService;
 import com.qdcz.sdn.entity._Vertex;
+import com.qdcz.sdn.entity.Vertex;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ public class TransServiceTest {
     private TransactionService transactionService;
 
 
-
+    private RequestParameter requestParameter=null;
     @Test
     public void testshow(){
         transactionService.indexMatchingQuery("银团");
@@ -30,13 +32,18 @@ public class TransServiceTest {
     }
     @Test
     public void testadd(){
-        _Vertex vertex=new _Vertex("","建新","呵呵","奇点创智");
-        transactionService.addVertex(vertex);
+        requestParameter =new RequestParameter();
+        requestParameter.label="law";
+        Vertex vertex=new _Vertex("","建新","呵呵","奇点创智");
+        transactionService.addVertex(requestParameter,vertex);
         System.out.println();
     }
     @Test
     public void testDeleteVertex(){
-        transactionService.deleteVertex(2686l);
+        RequestParameter requestParameter =null;
+        requestParameter =new RequestParameter();
+        requestParameter.label="law";
+        transactionService.deleteVertex(requestParameter,2686l);
         System.out.println();
     }
     @Test
@@ -49,13 +56,13 @@ public class TransServiceTest {
     }
     @Test
     public void testcheck(){
-        transactionService.exactMatchQuery("江苏江都农村商业银行股份有限公司与史金诚、周燕等借款合同纠纷一审民事判决书");
+        transactionService.exactMatchQuery(requestParameter,"江苏江都农村商业银行股份有限公司与史金诚、周燕等借款合同纠纷一审民事判决书");
         System.out.println();
     }
     @Test
     public  void testchange(){
         _Vertex newVertex=new _Vertex("","宇哥","呵呵","奇点创智");
-        transactionService.changeVertex(2686l,newVertex);
+        transactionService.changeVertex(requestParameter,2686l,newVertex);
 
     }
     @Test
@@ -65,7 +72,7 @@ public class TransServiceTest {
 
     @Test
     public void testQuest() {
-        transactionService.smartQA("testQuest","代理行的职责");
+        transactionService.smartQA(requestParameter,"testQuest","代理行的职责");
     }
 
 }

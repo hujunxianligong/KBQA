@@ -9,9 +9,15 @@ import java.io.*;
  * Created by hadoop on 17-7-4.
  */
 public class GetVertexesEdges {
+    public static String INPUTPATH="/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/test/";
+    public static String OUTPUTPATH="/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/test/";
+    public static String OUTFILEPATH= "/home/hadoop/wnd/usr/leagal/一行三会数据/建新给的概念/";
+
     public static void main(String[] args) {
         GetVertexesEdges test=new GetVertexesEdges();
-        test.putAll("/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/");
+        test.putAll(INPUTPATH);
+//        test.getdefine2("/home/hadoop/wnd/usr/leagal/一行三会数据/建新给的概念");
+
 //
 //        test.putAll("/home/hadoop/wnd/usr/leagal/实体关系修改");
 //        test.getdefine("/home/hadoop/wnd/usr/leagal/一行三会数据/log");
@@ -21,8 +27,8 @@ public class GetVertexesEdges {
 //            e.printStackTrace();
 //        }
     }
-    private void getdefine(String filePath){
-        String outpath="/home/hadoop/wnd/usr/leagal/一行三会数据/定义处理后的文本/";
+    private void getdefine(String filePath){//一行三会文本
+        String outpath=OUTPUTPATH;
         File dirInput = new File(filePath);
         File[] files = dirInput.listFiles();
         for (File file: files) {
@@ -250,6 +256,46 @@ public class GetVertexesEdges {
                 }
         }
     }
+    private void getdefine2(String inputPath){//小宇哥 建新给的文本
+        File dirInput = new File(inputPath);
+        File[] files = dirInput.listFiles();
+        for (File file: files) {
+            try {
+                FileReader re = null;
+                try {
+                    re = new FileReader(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                String[] splits=file.toString().split("/");
+                String filename =splits[splits.length-1];
+                BufferedReader read = new BufferedReader(re );
+                String str = null;
+                StringBuffer sb = new StringBuffer();
+                StringBuffer sb1 = new StringBuffer();
+                while((str=read.readLine())!=null){
+                      if(str.contains("：")){
+
+                          String[] split = str.split("：");
+                          String name=split[0].replace(" ","").replace(" ","").trim();
+                          name=name.replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,4}\\){0,1}）{0,1}[\\.、]{0,1}","").replace("\t","").replace(" ","").trim();
+                          name=name.replaceAll("^（{0,1}\\({0,1}[一二三四五六七八九十壹贰叁肆伍陆柒捌玖拾0-9]{1,4}\\){0,1}）{0,1}[\\.、]{0,1}","");
+                          String define="";
+                          for(int i=1;i<split.length;i++){
+                              define+=split[i];
+                          }
+                          String result=name+"\t"+define+"\t概念\n";
+                          CommonTool.printFile(result,OUTPUTPATH+filename,true);
+                       //   System.out.println(name+"\t"+define+"\t概念");
+                      }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
     private void putAll(String filePath){
         File dirInput = new File(filePath);
         File[] files = dirInput.listFiles();
@@ -318,8 +364,8 @@ public class GetVertexesEdges {
             read.close();
             re.close();
         }
-        write(sb.toString(),"/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
-        write(sb1.toString(),"/home/hadoop/wnd/usr/leagal/一行三会数据/edges.txt");
+        write(sb.toString(),OUTFILEPATH+"vertex.txt");
+        write(sb1.toString(),OUTFILEPATH+"edges.txt");
         sb=null;
         sb1=null;
     }
