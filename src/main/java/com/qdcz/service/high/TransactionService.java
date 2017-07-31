@@ -96,7 +96,8 @@ public class TransactionService {
                     JSONObject obj = new JSONObject(str);
                     Vertex vertex1= bankLawService.checkVertexByNameAndRoot(label,obj.getString("from").replace("\\", "、").trim(), obj.getString("root").replace("\\", "、").trim());
                     Vertex vertex2 = bankLawService.checkVertexByNameAndRoot(label,obj.getString("to").replace("\\", "、").trim(), obj.getString("root").replace("\\", "、").trim());
-                    addEgde(requestParameter,vertex1,vertex2,obj.getString("relation").replace("\\", "、").trim());
+                    Edge newEdge=new _Edge(obj.getString("relation"),vertex1,vertex2,vertex1.getRoot());
+                    addEgde(requestParameter,newEdge);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -141,10 +142,8 @@ public class TransactionService {
     @Transactional
     public void deleteVertex(RequestParameter requestParameter,long id){//删除节点
         //1.预处理
-
         //2.获取节点及关系
         String label = requestParameter.label;
-
         Vertex vertex = bankLawService.checkVertexById(label,id);
         if(vertex==null)
             return ;
@@ -219,13 +218,15 @@ public class TransactionService {
             Node assocNode = (Node) value.get("associationVertex");
             Map<String, Object> allProperties = assocNode.getAllProperties();
             _Vertex associationVertex = null;
-            associationVertex = new _Vertex(allProperties.get("type").toString(),allProperties.get("name").toString(),allProperties.get("identity").toString(),allProperties.get("root").toString());
+            JSONObject content = new JSONObject(allProperties.get("content"));
+            associationVertex = new _Vertex(allProperties.get("type").toString(),allProperties.get("name").toString(),allProperties.get("identity").toString(),allProperties.get("root").toString(),content);
             associationVertex.setId(assocNode.getId());
             _Edge edge=null;
+            JSONObject edgeContent=new JSONObject(value.get("content"));
             if("start".equals(allProperties.get("type").toString())) {
-                edge = new _Edge(value.get("relation").toString(), associationVertex, newVertex, value.get("root").toString());
+                edge = new _Edge(value.get("relation").toString(), associationVertex, newVertex, value.get("root").toString(),edgeContent);
             }else{
-                edge = new _Edge(value.get("relation").toString(),newVertex, associationVertex, value.get("root").toString());
+                edge = new _Edge(value.get("relation").toString(),newVertex, associationVertex, value.get("root").toString(),edgeContent);
             }
             long edgeid = bankLawService.addEdge(label,edge);
             List<String > propKeys=new ArrayList<>();
@@ -390,7 +391,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public String smartQA( RequestParameter requestParameter,String methodName,String question)  {//智能问答
+    public String smartQA( RequestParameter requestParameter,String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
 
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
@@ -424,7 +425,7 @@ public class TransactionService {
             result = questionPaserService.traversePathBynode(requestParameter,maps);
         }
         else if(maps.size()==0){
-            if("askOfWeChat".equals(methodName)){
+            if("askOfWeChat".equals(requestParameter.requestSource)){
                 JSONObject obj=new JSONObject();
 
                 JSONArray data=new JSONArray();
@@ -532,7 +533,7 @@ public class TransactionService {
                 e.printStackTrace();
             }
             if(str==null||"learning".equals(str)||"".equals(str)) {
-                if("askOfWeChat".equals(methodName)){
+                if("askOfWeChat".equals(requestParameter.requestSource)){
                     JSONObject obj=new JSONObject();
                     JSONArray data=new JSONArray();
                     data.put(questionPaserService.requestTuring(question));
@@ -549,7 +550,7 @@ public class TransactionService {
                 result= str;
             }
         }
-        if("askOfWeChat".equals(methodName)){
+        if("askOfWeChat".equals(requestParameter.requestSource)){
             boolean flag=false;//判断是否是之前获取案例json
             JSONObject obj=null;
             try{
@@ -575,14 +576,14 @@ public class TransactionService {
     }
 
     @Transactional
-    public long addEgde(RequestParameter requestParameter,long fromId,long toid,String relation){//插入关系
+    public long addEgde(RequestParameter requestParameter,Edge edge){//插入关系
         //1.预处理
         //2.建立关系
         String label = requestParameter.label;
-        Vertex vertex1= bankLawService.checkVertexById(label,fromId);
-        Vertex vertex2 = bankLawService.checkVertexById(label,toid);
+//        Vertex vertex1= bankLawService.checkVertexById(label,fromId);
+//        Vertex vertex2 = bankLawService.checkVertexById(label,toid);
 //        _Edge edge=new _Edge("领导",vertex1,vertex2,"奇点创智");
-        Edge edge=new _Edge(relation,vertex1,vertex2,vertex2.getRoot());
+//        Edge edge=new _Edge(relation,vertex1,vertex2,vertex2.getRoot());
         //3.插入关系
         long id = bankLawService.addEdge(label,edge);
         //4.关系建立索引
@@ -592,14 +593,15 @@ public class TransactionService {
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
         return id;
-
     }
     @Transactional
-    public long addEgde(RequestParameter requestParameter,Vertex from,Vertex to,String relation){//插入关系
+    public long addEgde(RequestParameter requestParameter,long fromId,long toId,String relation,JSONObject content){//插入关系
         //1.预处理
         //2.建立关系
         String label = requestParameter.label;
-        Edge edge=new _Edge(relation,from,to,from.getRoot());
+        Vertex vertex1= bankLawService.checkVertexById(label,fromId);
+        Vertex vertex2 = bankLawService.checkVertexById(label,toId);
+        Edge edge=new _Edge(relation,vertex1,vertex2,vertex2.getRoot(),content);
         //3.插入关系
         long id = bankLawService.addEdge(label,edge);
         //4.关系建立索引
@@ -615,7 +617,6 @@ public class TransactionService {
         //1.预处理
         //2.建立关系
         String label = requestParameter.label;
-
         Edge edge=bankLawService.checkEdgeById(label,id);
         if(edge!=null){
             //3.删除关系索引
@@ -639,7 +640,8 @@ public class TransactionService {
             String relation=newEgdeInfo.getString("relation");
             Vertex from = bankLawService.checkVertexById(label,fromId);
             Vertex to = bankLawService.checkVertexById(label,toId);
-            newId=addEgde(requestParameter,from,to,relation);
+            Edge newEdge=new _Edge(relation,from,to,from.getRoot());
+            newId=addEgde(requestParameter,newEdge);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -654,7 +656,8 @@ public class TransactionService {
             String relation=newEgdeInfo.getString("relation");
             Vertex from = bankLawService.checkVertexById(label,edge.getFrom_id());
             Vertex to = bankLawService.checkVertexById(label,edge.getTo_id());
-            newId=addEgde(requestParameter,from,to,relation);
+            Edge newEdge=new _Edge(relation,from,to,from.getRoot(),newEgdeInfo.getJSONObject("content"));
+            newId=addEgde(requestParameter,newEdge);
         } catch (JSONException e) {
             e.printStackTrace();
         }

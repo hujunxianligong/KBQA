@@ -13,7 +13,7 @@ public class RequestParameter {
     public String type;
     public String label;
     public Set<String> relationship;
-
+    public String requestSource;
     public void clear(){
         type=null;
 

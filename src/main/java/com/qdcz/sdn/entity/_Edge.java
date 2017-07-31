@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.json.JSONObject;
 
 /**
  * Created by hadoop on 17-6-22.
@@ -27,6 +28,14 @@ public class _Edge extends Edge{
                 @JsonProperty("to") Vertex to,
                 @JsonProperty("root") String root) {
         super(relation,from,to,root);
+    }
+    @JsonCreator
+    public _Edge(@JsonProperty("relation") String relation,
+                 @JsonProperty("from") Vertex from,
+                 @JsonProperty("to") Vertex to,
+                 @JsonProperty("root") String root,
+                 @JsonProperty("content") JSONObject content) {
+        super(relation,from,to,root,content);
     }
 
     @Relationship(type = "gra", direction=Relationship.OUTGOING)

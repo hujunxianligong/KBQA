@@ -3,6 +3,7 @@ package com.qdcz.sdn.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.json.JSONObject;
 
 /**
  * Created by hadoop on 17-7-27.
@@ -51,6 +52,8 @@ public class Edge {
     public String name;
     @Property
     public String root;
+    @Property
+    public String content;
     public Edge(){
 
     }
@@ -78,6 +81,21 @@ public class Edge {
         this.root = root;
         this.from_id=this.from.getId();
         this.to_id=this.to.getId();
+    }
+    @JsonCreator
+    public Edge(@JsonProperty("relation") String relation,
+                @JsonProperty("from") Vertex from,
+                @JsonProperty("to") Vertex to,
+                @JsonProperty("root") String root,
+                @JsonProperty("content") JSONObject content) {
+        this.relation = relation;
+        this.from = from;
+        this.to = to;
+        this.name = from.name+"-"+to.name;
+        this.root = root;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
+        this.content=content.toString();
     }
     @Override
     public String toString() {

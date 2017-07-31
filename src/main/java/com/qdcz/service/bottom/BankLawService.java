@@ -65,7 +65,7 @@ public class BankLawService {
     @Transactional
     public long addVertex(String label,Vertex vertex){
         String addString=
-        "merge (n:"+label+" {name:'"+vertex.getName()+"', root:'"+vertex.getRoot()+"',root:'"+vertex.getIdentity()+"' }) on " +
+        "merge (n:"+label+" {name:'"+vertex.getName()+"', root:'"+vertex.getRoot()+"',identity:'"+vertex.getIdentity()+"' }) on " +
                 "create set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' on " +
                 "match set n.type='"+vertex.getType()+"',n.identity='"+vertex.getIdentity()+"',n.root='"+vertex.getRoot()+"',n.content='"+vertex.getContent()+"' return n";
         Result result = graphDatabaseService.execute(addString);

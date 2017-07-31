@@ -86,7 +86,6 @@ public class TransactionController {
         if(parameterMap.size()==0){
             return "param is null";
         }
-
         try {
             if(parameterMap.containsKey("data")){
 //                System.out.println(parameterMap.get("data")[0]);
@@ -96,8 +95,6 @@ public class TransactionController {
                 return "failure";
             }
             System.out.println(obj);
-
-
             if(obj.has("project")){
                 project= obj.getString("project");
                 String[] hasProjects = MyConnConfigure.project;
@@ -114,12 +111,10 @@ public class TransactionController {
             }
             requestParameter =new RequestParameter();
             requestParameter.label=project;
-
             String type = obj.getString("type");
             if("checkByName".equals(type)){
                 //通过名称查询
                 String graphName = obj.getJSONObject("info").getJSONObject("node").getString("name");
-
                 String result=transactionService.exactMatchQuery(requestParameter,graphName).toString();
                 System.out.println(result);
                 return result;
@@ -141,23 +136,23 @@ public class TransactionController {
             if("addNode".equals(type)){
                 //新增节点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
-                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"),node.getJSONObject("content"));
 
                 Long id= transactionService.addVertex(requestParameter,vertex);
                 return "success";
             }else if("addEdge".equals(type)){
                 //新增边 TODO test
                 JSONObject node = obj.getJSONObject("info").getJSONObject("edge");
-                Long id=transactionService.addEgde(requestParameter,Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"));
+                Long id=transactionService.addEgde(requestParameter,Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"),node.getJSONObject("content"));
                 return "success";
             }else if("addNodeEdge".equals(type)){
                 //新增边和终点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
-                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"),node.getJSONObject("content"));
                 Long end_id= transactionService.addVertex(requestParameter,vertex);
                 System.out.println("新增节点"+end_id);
                 JSONObject edge = obj.getJSONObject("info").getJSONObject("edge");
-                Long id2=transactionService.addEgde(requestParameter,Long.parseLong(edge.getString("from")),end_id,edge.getString("relation"));
+                Long id2=transactionService.addEgde(requestParameter,Long.parseLong(edge.getString("from")),end_id,edge.getString("relation"),edge.getJSONObject("content"));
                 System.out.println("新增边");
                 return "success";
             }else if("deleteNode".equals(type)){
@@ -168,7 +163,7 @@ public class TransactionController {
             }if("changeNode".equals(type)){
                 //修改节点
                 JSONObject node = obj.getJSONObject("info").getJSONObject("node");
-                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+                Vertex vertex =new _Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"),node.getJSONObject("content"));
                 Long id  = transactionService.changeVertex(requestParameter,Long.parseLong(node.getString("id")), vertex);
                 return "success";
             }else if("changeEdge".equals(type)){
@@ -203,37 +198,57 @@ public class TransactionController {
     @CrossOrigin
     @RequestMapping(path = "/ask", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
-    public String ask(@RequestParam String question){
-
-        if("请问地方政府类授信信贷政策中“银监会地方政府融资平台名单”是什么？".equals(question)){
-            return "“银监会地方政府融资平台名单”包含“退出类平台客户”和“仍按平台管理类客户”两类。其中对于流动资金贷款的发放，“仍按平台管理类客户”必须同时满足监管规定和信贷政策要求；“退出类平台客户”执信贷政策相关要求。";
-        }else if("请问安徽临泉县天丰铝品压延厂是否符合行业信贷政策准入要求？".equals(question)){
-            return "不符合，不符合的点是产能为达标，安徽临泉县天丰铝品压延厂的去年产能为２０万吨，低于我行２０１７年的铝压延行业的客户准入底线３０万吨的年产能要求。";
-        } else if("我想了解这个客户实际控制人是哪里人？".equals(question)){
-            return "辽宁沈阳";
-        }else if("这个公司近三年的净现金流如何？".equals(question)){
-            return "2014,2015,2016年分别是1、2、1.5亿元";
-        }else if("这个公司属于什么行业，行业中规模排名如何？".equals(question)){
-            return "这个公司属于咨询行业，2016年营业收入行业排名第9位";
-        }else {
-            RequestParameter requestParameter =null;
-            requestParameter =new RequestParameter();
-            requestParameter.label="law";
-            String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
-            String s = transactionService.smartQA(requestParameter,methodName,question);
-            return s;
+    public String ask(HttpServletRequest request){
+        JSONObject obj=null;
+        String project=null;
+        RequestParameter requestParameter =null;
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        if(parameterMap.size()==0){
+            return "param is null";
         }
+        try {
+            if (parameterMap.containsKey("data")) {
+//                System.out.println(parameterMap.get("data")[0]);
+                obj = new JSONObject(parameterMap.get("data")[0]);
+            } else {
+                System.out.println("error param");
+                return "failure";
+            }
+            System.out.println(obj);
+            if (obj.has("project")) {
+                project = obj.getString("project");
+                String[] hasProjects = MyConnConfigure.project;
+                boolean flag = false;
+                for (String hasProject : hasProjects) {
+                    if (hasProject.equals(project)) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    return "hasn`t project " + project;
+                }
+            }
+        }
+        catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        requestParameter =new RequestParameter();
+        requestParameter.label="law";
+        requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String s = transactionService.smartQA(requestParameter,"");
+        return s;
     }
     @CrossOrigin
     @RequestMapping(path = "/askFromWeChat", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
     public String askOfWeChat(@RequestParam String question){
-        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
         requestParameter.label="law";
-        String s = transactionService.smartQA(requestParameter,methodName,question);
+        requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
+        String s = transactionService.smartQA(requestParameter,question);
         return s;
     }
 
