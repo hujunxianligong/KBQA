@@ -109,6 +109,7 @@ public class QuestionPaserService
         return  result;
     }
 
+
     public String findDefine(String question,Map<String, Object> map) throws JSONException {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{"是什么","是怎么样","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
@@ -148,6 +149,7 @@ public class QuestionPaserService
             }
             JSONObject result= buildReresult.cleanRestult(merge);
             JSONArray edges = result.getJSONArray("edges");
+            Map<String,Vector<String>> maps=new HashMap();
             for(int i=0;i<edges.length();i++){
                 JSONObject edge=edges.getJSONObject(i);
                 String relation = edge.getString("relation");
@@ -176,9 +178,32 @@ public class QuestionPaserService
                             break;
                         }
                     }
-                    sb.append(from_name+"的"+relation+"为"+to_name+"。");
+                    String key=from_name+"的"+relation+"为";
+                    String value=to_name;
+                    if(maps.containsKey(key)){
+                        Vector<String> strs=maps.get(key);
+                        strs.add(value);
+                    }else{
+                        Vector<String> strs=new Vector<>();
+                        strs.add(value);
+                        maps.put(key,strs);
+                    }
                 }
             }
+            for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
+                String key=entry.getKey();
+                String value="";
+                Vector<String> values = entry.getValue();
+                for(String str:values){
+                    value+=str+"、";
+                }
+                if(!"".equals(value)) {
+                    value = value.substring(0, value.length() - 1) + "。";
+                    sb.append(key+value);
+                }
+            }
+
+
             return sb.toString();
         }
         return "learning";

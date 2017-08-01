@@ -1,18 +1,16 @@
 package com.qdcz.service.high;
 
 import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.service.bottom.BankLawService;
 import com.qdcz.service.middle.QuestionPaserService;
-import com.qdcz.tools.BuildReresult;
+import com.qdcz.tools.*;
 import com.qdcz.neo4jkernel.ExpanderService;
 import com.qdcz.neo4jkernel.LegacyIndexService;
 import com.qdcz.neo4jkernel.LoopDataService;
 import com.qdcz.sdn.entity._Edge;
 import com.qdcz.sdn.entity._Vertex;
-import com.qdcz.tools.CommonTool;
-import com.qdcz.tools.Levenshtein;
-import com.qdcz.tools.MyComparetor;
 import org.apache.lucene.document.Field;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -114,12 +112,14 @@ public class TransactionService {
 //        _Vertex vertex=new _Vertex("","王倪东","呵呵","奇点创智");
  //       _Vertex vertex=new _Vertex("","浩哥","呵呵","奇点创智");
         long l = bankLawService.changeVertex(vertex);
-        //3.建立索引
-        List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
-        propKeys.add("root");
-        propKeys.add("relation");
-        legacyIndexService.createFullTextIndex(l,propKeys,"vertex");
+        if(vertex.name.length()<30){
+            //3.建立索引
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("name");
+            propKeys.add("root");
+            propKeys.add("relation");
+            legacyIndexService.createFullTextIndex(l,propKeys,"vertex");
+        }
         return  l;
     }
     @Transactional
@@ -154,11 +154,13 @@ public class TransactionService {
             e.printStackTrace();
         }
         //4.删除索引
-        List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
-        propKeys.add("root");
-        propKeys.add("relation");
-        legacyIndexService.deleteFullTextIndex(id,propKeys,"vertex");
+        if(vertex.name.length()<30){
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("name");
+            propKeys.add("root");
+            propKeys.add("relation");
+            legacyIndexService.deleteFullTextIndex(id,propKeys,"vertex");
+        }
         //5.删除节点
         bankLawService.deleteVertex(vertex);
     }
@@ -217,7 +219,7 @@ public class TransactionService {
             }
             long edgeid = bankLawService.addEdge(edge);
             List<String > propKeys=new ArrayList<>();
-            propKeys.add("name");
+          //  propKeys.add("name");
             propKeys.add("root");
             propKeys.add("relation");
             legacyIndexService.createFullTextIndex(edgeid,propKeys,"edge");
@@ -377,8 +379,28 @@ public class TransactionService {
     @Transactional
     public String smartQA(String methodName,String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
+        try {
+            String s = ConceptRuler.RegexKey(question);//正则模式
+            if(s!=null){
+                List<_Vertex> vertices = bankLawService.checkVertexByName(s);
+                String result="";
+                for(_Vertex vertex:vertices){
+                    Map<String, Object> map=new HashMap<>();
+                    map.put("name",vertex.getName());
+                    map.put("id",vertex.getId());
+                    String str = questionPaserService.findDefine(question, map);
+                    result+=str;
+                }
+                if(!"learning".equals(result)&&!"".equals(result)){
+                    return result;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
-        List<Term> termList = StandardTokenizer.segment(question);
+        List<Term> termList = NLPTokenizer.segment(question);
         for(int i=0;i<termList.size();i++){
             Term term=termList.get(i);
             if(i<termList.size()-1){
@@ -393,6 +415,7 @@ public class TransactionService {
             }
 
         }
+
         CommonTool.removeDuplicateWithOrder(termList);
         MyComparetor mc = new MyComparetor("score");
         List<Map<String, Object>> maps= new ArrayList();
@@ -495,7 +518,7 @@ public class TransactionService {
             }
         }
 
-        if(result==null||"learning".equals(result)){
+        if(result==null||"learning".equals(result)||"".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
@@ -570,7 +593,7 @@ public class TransactionService {
         long id = bankLawService.addEdge(edge);
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
+      //  propKeys.add("name");
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
@@ -589,7 +612,7 @@ public class TransactionService {
         long id = bankLawService.addEdge(edge);
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
+//        propKeys.add("name");
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
@@ -603,7 +626,7 @@ public class TransactionService {
         if(edge!=null){
             //3.删除关系索引
             List<String > propKeys=new ArrayList<>();
-            propKeys.add("name");
+//            propKeys.add("name");
             propKeys.add("root");
             propKeys.add("relation");
             legacyIndexService.deleteFullTextIndex(id,propKeys,"edge");
