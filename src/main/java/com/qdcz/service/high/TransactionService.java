@@ -388,6 +388,7 @@ public class TransactionService {
                     Map<String, Object> map=new HashMap<>();
                     map.put("name",vertex.getName());
                     map.put("id",vertex.getId());
+                    map.put("regex",true);
                     String str = questionPaserService.findDefine(question, map);
                     result+=str;
                 }
@@ -405,7 +406,7 @@ public class TransactionService {
             Term term=termList.get(i);
             if(i<termList.size()-1){
                 Term nextTerm=termList.get(i+1);
-                if("a".equals(term.nature.name())&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
+                if(("a".equals(term.nature.name())||"n".equals(term.nature.name()))&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
                     term.nature=nextTerm.nature;
                     term.word+=nextTerm.word;
                     nextTerm.nature= term.nature;

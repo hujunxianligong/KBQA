@@ -28,6 +28,7 @@ public class GetLawJson {
         FileReader re =  new FileReader(filePath);
         BufferedReader read = new BufferedReader(re );
         String str = null;
+        Set<UUID> set=new HashSet<>();
         while((str=read.readLine())!=null){
             String[] split = str.split(",");
             if(split.length==4){
@@ -37,13 +38,18 @@ public class GetLawJson {
                 JSONObject node1=new JSONObject();
                 node1.put("root",root);
                 node1.put("name",name);
-                node1.put("identity", UUID.nameUUIDFromBytes(name.getBytes()));
+                UUID uid =UUID.nameUUIDFromBytes((root+name).getBytes());
+                node1.put("identity",uid );
+                if(!set.contains(uid)){
+                    set.add(uid);
+                    GetVertexesEdges.write( node1.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
+                }
                 node1.put("type", "");
                 node1.put("content", new JSONObject());
                 JSONObject node2=new JSONObject();
                 node2.put("root",root);
                 node2.put("name",define);
-                node2.put("identity", UUID.nameUUIDFromBytes(define.getBytes()));
+                node2.put("identity", UUID.nameUUIDFromBytes((root+define).getBytes()));
                 node2.put("type", "");
                 node2.put("content", new JSONObject());
                 JSONObject edge=new JSONObject();
@@ -51,7 +57,7 @@ public class GetLawJson {
                 edge.put("from",name);
                 edge.put("to",define);
                 edge.put("relation","定义");
-                GetVertexesEdges.write(node1.toString()+"\n"+node2.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
+                GetVertexesEdges.write(node2.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
                 GetVertexesEdges.write(edge.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/edges.txt");
             }else{
                 System.out.println(str);

@@ -27,7 +27,7 @@ public class CypherSearchService {
         while(result.hasNext()){
             //get("movie")和查询语句的return movie相匹配
             Node n = (Node) result.next().get("n");
-            System.out.println( n.getAllProperties());
+            System.out.println( n.getId()+" "+n.getAllProperties());
         }
     }
 }

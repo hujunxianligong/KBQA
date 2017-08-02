@@ -112,9 +112,13 @@ public class QuestionPaserService
 
     public String findDefine(String question,Map<String, Object> map) throws JSONException {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
-        String[] defineMatchs= new String[]{"是什么","是怎么样","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
+        String[] defineMatchs= new String[]{"是什么","是怎么样","是啥","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
         BuildReresult buildReresult = new BuildReresult();
         boolean flag=false;
+        if(map.containsKey("regex")){
+            flag=true;
+        }
+        else
         if(map.get("name").equals(question)){
             flag=true;
         }else {
@@ -148,6 +152,8 @@ public class QuestionPaserService
 
             }
             JSONObject result= buildReresult.cleanRestult(merge);
+            String rootName = result.getString("root");
+
             JSONArray edges = result.getJSONArray("edges");
             Map<String,Vector<String>> maps=new HashMap();
             for(int i=0;i<edges.length();i++){
@@ -178,7 +184,13 @@ public class QuestionPaserService
                             break;
                         }
                     }
-                    String key=from_name+"的"+relation+"为";
+                    String key=null;
+                    if("杂类".equals(rootName)){
+                        key=from_name+"的"+relation+"为";
+                    }else{
+                        key="在"+rootName+"中，"+from_name+"的"+relation+"为";
+                    }
+
                     String value=to_name;
                     if(maps.containsKey(key)){
                         Vector<String> strs=maps.get(key);
@@ -199,6 +211,9 @@ public class QuestionPaserService
                 }
                 if(!"".equals(value)) {
                     value = value.substring(0, value.length() - 1) + "。";
+                    if((value.startsWith("是")||value.startsWith("指"))&&key.endsWith("为")){
+                        key=key.substring(0,key.length()-1);
+                    }
                     sb.append(key+value);
                 }
             }
