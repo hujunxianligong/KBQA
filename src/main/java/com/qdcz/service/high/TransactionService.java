@@ -388,6 +388,7 @@ public class TransactionService {
                     Map<String, Object> map=new HashMap<>();
                     map.put("name",vertex.getName());
                     map.put("id",vertex.getId());
+                    map.put("regex",true);
                     String str = questionPaserService.findDefine(question, map);
                     result+=str;
                 }
