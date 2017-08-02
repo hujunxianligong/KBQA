@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Repository
 public interface VertexRepository extends GraphRepository<_Vertex> {
-    @Query( "merge (n:law {name:{name}, root:{root} }) on " +
+    @Query( "merge (n:law {name:{name}, root:{root} , identity:{identity}}) on " +
             "create set n.type={type},n.identity={identity},n.root={root},n.content={content} on " +
             "match set n.type={type},n.identity={identity},n.root={root},n.content={content} return n")
     _Vertex getUpdateVertexCql(@Param("name") String  name, @Param("root") String  root, @Param("type") String type , @Param("identity") String  identity,@Param("content") String content);

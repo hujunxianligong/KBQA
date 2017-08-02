@@ -23,6 +23,11 @@ public class _Vertex {
     private Long id;
 
     public String type;
+
+    public String getName() {
+        return name;
+    }
+
     @Property(name="name")
     public String name;
     public String identity;

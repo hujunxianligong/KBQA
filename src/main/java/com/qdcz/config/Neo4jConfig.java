@@ -33,6 +33,7 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
                     .setDriverClassName(MyConnConfigure.driver).setURI(MyConnConfigure.db)
         ;
 
+        config.set("dbms.allow_format_migration", "true");
         return config;
     }
 

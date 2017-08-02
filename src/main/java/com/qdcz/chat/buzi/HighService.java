@@ -1,39 +1,67 @@
 package com.qdcz.chat.buzi;
 
 import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
+import com.qdcz.common.ConceptRuler;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
+import com.qdcz.graph.neo4jkernel.BankLawService;
+import com.qdcz.graph.neo4jkernel.entity._Vertex;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by star on 17-8-1.
  */
+@Service
 public class HighService {
 
     @Autowired
     private QuestionPaserService questionPaserService;
 
+
+    @Autowired
+    private BankLawService bankLawService;
+
     @Transactional
     public String smartQA(String methodName,String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
+        try {
+            String s = ConceptRuler.RegexKey(question);//正则模式
+            if(s!=null){
+                List<_Vertex> vertices = bankLawService.checkVertexByName(s);
+                String result="";
+                for(_Vertex vertex:vertices){
+                    Map<String, Object> map=new HashMap<>();
+                    map.put("name",vertex.getName());
+                    map.put("id",vertex.getId());
+                    map.put("regex",true);
+                    String str = questionPaserService.findDefine(question, map);
+                    result+=str;
+                }
+                if(!"learning".equals(result)&&!"".equals(result)){
+                    return result;
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
-        List<Term> termList = StandardTokenizer.segment(question);
+        List<Term> termList = NLPTokenizer.segment(question);
         for(int i=0;i<termList.size();i++){
             Term term=termList.get(i);
             if(i<termList.size()-1){
                 Term nextTerm=termList.get(i+1);
-                if("a".equals(term.nature.name())&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
+                if(("a".equals(term.nature.name())||"n".equals(term.nature.name()))&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
                     term.nature=nextTerm.nature;
                     term.word+=nextTerm.word;
                     nextTerm.nature= term.nature;
@@ -146,7 +174,7 @@ public class HighService {
             }
         }
 
-        if(result==null||"learning".equals(result)){
+        if(result==null||"learning".equals(result)||"".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
