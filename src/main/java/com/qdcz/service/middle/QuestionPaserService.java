@@ -148,6 +148,8 @@ public class QuestionPaserService
 
             }
             JSONObject result= buildReresult.cleanRestult(merge);
+            String rootName = result.getString("root");
+
             JSONArray edges = result.getJSONArray("edges");
             Map<String,Vector<String>> maps=new HashMap();
             for(int i=0;i<edges.length();i++){
@@ -178,7 +180,13 @@ public class QuestionPaserService
                             break;
                         }
                     }
-                    String key=from_name+"的"+relation+"为";
+                    String key=null;
+                    if("杂类".equals(rootName)){
+                        key=from_name+"的"+relation+"为";
+                    }else{
+                        key="在"+rootName+"中，"+from_name+"的"+relation+"为";
+                    }
+
                     String value=to_name;
                     if(maps.containsKey(key)){
                         Vector<String> strs=maps.get(key);
