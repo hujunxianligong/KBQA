@@ -1,6 +1,6 @@
 package com.qdcz;
 
-import com.qdcz.tools.CommonTool;
+import com.qdcz.common.CommonTool;
 import org.neo4j.ogm.json.JSONObject;
 
 import java.io.*;

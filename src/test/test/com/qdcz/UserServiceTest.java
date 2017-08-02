@@ -1,7 +1,7 @@
 package com.qdcz;
 
-import com.qdcz.sdn.entity.User;
-import com.qdcz.service.bottom.UserService;
+import com.qdcz.graph.neo4jkernel.entity.User;
+import com.qdcz.graph.neo4jkernel.bottom.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.Node;

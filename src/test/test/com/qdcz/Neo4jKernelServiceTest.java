@@ -1,7 +1,7 @@
 package com.qdcz;
 
-import com.qdcz.neo4jkernel.ExpanderService;
-import com.qdcz.neo4jkernel.LoopDataService;
+import com.qdcz.graph.neo4jkernel.ExpanderService;
+import com.qdcz.graph.neo4jkernel.LoopDataService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

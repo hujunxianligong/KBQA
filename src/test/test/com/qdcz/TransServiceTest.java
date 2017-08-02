@@ -1,7 +1,7 @@
 package com.qdcz;
 
-import com.qdcz.service.high.TransactionService;
-import com.qdcz.sdn.entity._Vertex;
+import com.qdcz.graph.neo4jkernel.high.TransactionService;
+import com.qdcz.graph.neo4jkernel.entity._Vertex;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

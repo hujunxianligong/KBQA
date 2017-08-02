@@ -1,6 +1,6 @@
 package com.qdcz.parse;
 
-import com.qdcz.tools.CommonTool;
+import com.qdcz.common.CommonTool;
 import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 
 import java.io.File;
