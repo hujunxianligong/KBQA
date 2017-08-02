@@ -1,7 +1,7 @@
 package com.qdcz;
 
-import com.qdcz.graph.neo4jkernel.high.TransactionService;
 import com.qdcz.graph.neo4jkernel.entity._Vertex;
+import com.qdcz.graph.service.TransactionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringbootSdnEmbeddedApplication.class)
+@SpringApplicationConfiguration(classes = App.class)
 public class TransServiceTest {
 
     @Autowired
@@ -63,9 +63,5 @@ public class TransServiceTest {
         transactionService.getInfoByRname("领导");
     }
 
-    @Test
-    public void testQuest() {
-        transactionService.smartQA("testQuest","代理行的职责");
-    }
 
 }

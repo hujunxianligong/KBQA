@@ -1,5 +1,6 @@
 package com.qdcz.graph.service;
 
+import com.qdcz.common.MyComparetor;
 import com.qdcz.graph.neo4jkernel.BankLawService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.graph.neo4jkernel.ExpanderService;
