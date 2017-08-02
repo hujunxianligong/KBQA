@@ -2,7 +2,6 @@ package com.qdcz.chat.service;
 
 import com.qdcz.chat.buzi.HighService;
 import com.qdcz.graph.neo4jkernel.CypherSearchService;
-import com.qdcz.graph.neo4jkernel.high.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +16,9 @@ public class ChatService {
 
     @Autowired
     private CypherSearchService cypherSearchService;
+
+
+
     @RequestMapping(path = "/testask", method = {RequestMethod.POST,RequestMethod.GET})
     public void  testQuery(@RequestParam String question){
         cypherSearchService.queryWithCypher(question);

@@ -1,7 +1,7 @@
 package com.qdcz.graph.neo4jkernel.repository;
 
 
-import com.qdcz.graph.neo4jkernel.entity._Edge;
+import com.qdcz.graph.entity._Edge;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;

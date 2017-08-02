@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by hadoop on 17-6-29.
@@ -21,9 +22,49 @@ public class GetLawJson {
         GetLawJson test=new GetLawJson();
 //        test.getLawScenesJson("/home/hadoop/wnd/usr/leagal/建新/场景属性");
 //        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
-        test.test();
+        test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
     }
-
+    public void getOneBankThreeHuiDefine(String filePath) throws Exception{
+        FileReader re =  new FileReader(filePath);
+        BufferedReader read = new BufferedReader(re );
+        String str = null;
+        Set<UUID> set=new HashSet<>();
+        while((str=read.readLine())!=null){
+            String[] split = str.split(",");
+            if(split.length==4){
+                String name=split[0].replaceAll("[?。]","");
+                String define=split[1].replaceAll("[?。]","");
+                String root=split[3];
+                JSONObject node1=new JSONObject();
+                node1.put("root",root);
+                node1.put("name",name);
+                UUID uid =UUID.nameUUIDFromBytes((root+name).getBytes());
+                node1.put("identity",uid );
+                if(!set.contains(uid)){
+                    set.add(uid);
+                    GetVertexesEdges.write( node1.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
+                }
+                node1.put("type", "");
+                node1.put("content", new JSONObject());
+                JSONObject node2=new JSONObject();
+                node2.put("root",root);
+                node2.put("name",define);
+                node2.put("identity", UUID.nameUUIDFromBytes((root+define).getBytes()));
+                node2.put("type", "");
+                node2.put("content", new JSONObject());
+                JSONObject edge=new JSONObject();
+                edge.put("root",root);
+                edge.put("from",name);
+                edge.put("to",define);
+                edge.put("relation","定义");
+                GetVertexesEdges.write(node2.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
+                GetVertexesEdges.write(edge.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/edges.txt");
+            }else{
+                System.out.println(str);
+            }
+        }
+        read.close();
+    }
     public  void getLawScenesJson(String filePath) throws Exception{
         FileReader re =  new FileReader(filePath);
         BufferedReader read = new BufferedReader(re );

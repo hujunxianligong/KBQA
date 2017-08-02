@@ -323,7 +323,7 @@ public class GetVertexesEdges {
         sb=null;
         sb1=null;
     }
-    private void write(String text,String filePath) throws IOException {
+    public static void write(String text,String filePath) throws IOException {
         FileWriter fileWriter=new FileWriter(new File(filePath),true);///home/hadoop/wnd/usr/leagal/logs/log.txt
         try {
             fileWriter.write(text);

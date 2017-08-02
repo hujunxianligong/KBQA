@@ -1,7 +1,8 @@
-package com.qdcz.graph.neo4jkernel.entity;
+package com.qdcz.graph.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.qdcz.graph.entity.IGraphEntity;
 import lombok.Data;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -13,16 +14,24 @@ import org.neo4j.ogm.json.JSONObject;
  */
 @Data
 @NodeEntity(label="law")
-public class _Vertex {
+public class _Vertex implements IGraphEntity {
 
     public void setId(Long id) {
         this.id = id;
     }
 
+    private String graphId;
+
+
     @GraphId
     private Long id;
 
     public String type;
+
+    public String getName() {
+        return name;
+    }
+
     @Property(name="name")
     public String name;
     public String identity;
@@ -77,10 +86,59 @@ public class _Vertex {
     public String toString() {
         return String.format("%s/%s/%s", type, name, identity);
     }
-
     public Long getId() {
         return id;
     }
 
 
+    @Override
+    public org.json.JSONObject toJSON() {
+        org.json.JSONObject obj = new org.json.JSONObject();
+        obj.put("type",type);
+        obj.put("name",name);
+        obj.put("root",root);
+        obj.put("identity",identity);
+        obj.put("content",content);
+        return obj;
+    }
+
+    @Override
+    public String getGraphId() {
+        return graphId;
+    }
+
+    @Override
+    public String getGraphType() {
+        return "vertex";
+    }
+
+
+    @Override
+    public org.json.JSONObject toQueryJSON() {
+        org.json.JSONObject obj = new org.json.JSONObject();
+
+        if(type!=null && !type.isEmpty()) {
+            obj.put("type", type);
+        }
+
+        if(name!=null && !name.isEmpty()) {
+            obj.put("name", name);
+        }
+
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(identity!=null && !identity.isEmpty()) {
+            obj.put("identity",identity);
+        }
+        if(content!=null && !content.isEmpty()) {
+            obj.put("content",content);
+        }
+        return obj;
+    }
+
+
+    public void setGraphId(String graphId) {
+        this.graphId = graphId;
+    }
 }

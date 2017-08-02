@@ -1,8 +1,9 @@
-package com.qdcz.graph.neo4jkernel.entity;
+package com.qdcz.graph.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.json.JSONObject;
 import org.neo4j.ogm.annotation.*;
 
 /**
@@ -10,7 +11,7 @@ import org.neo4j.ogm.annotation.*;
  */
 @Data
 @RelationshipEntity(type="gra")
-public class _Edge {
+public class _Edge implements IGraphEntity{
     public Long getEdgeId() {
         return edgeId;
     }
@@ -18,6 +19,9 @@ public class _Edge {
     public void setEdgeId(Long edgeId) {
         this.edgeId = edgeId;
     }
+
+    private String graphId;
+
 
     @GraphId
     private Long edgeId;
@@ -85,5 +89,52 @@ public class _Edge {
     @Override
     public String toString() {
         return String.format("%s/%s/%s", from, relation, to);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+        obj.put("from",from.getName());
+        obj.put("to",to.getName());
+        obj.put("root",root);
+        obj.put("relation",relation);
+        return obj;
+    }
+
+    @Override
+    public String getGraphId() {
+
+        return graphId;
+    }
+
+    @Override
+    public String getGraphType() {
+        return "edges";
+    }
+
+    @Override
+    public JSONObject toQueryJSON() {
+        JSONObject obj = new JSONObject();
+
+        if(from!=null && !from.getName().isEmpty()) {
+            obj.put("from", from.getName());
+        }
+
+        if(to!=null && !to.getName().isEmpty()) {
+            obj.put("to", to);
+        }
+
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(relation!=null && !relation.isEmpty()) {
+            obj.put("relation",relation);
+        }
+        return obj;
+    }
+
+
+    public void setGraphId(String graphId) {
+        this.graphId = graphId;
     }
 }

@@ -1,13 +1,12 @@
-package com.qdcz.graph.neo4jkernel.high;
+package com.qdcz.graph.service;
 
 import com.qdcz.graph.neo4jkernel.BankLawService;
-import com.qdcz.chat.buzi.QuestionPaserService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.graph.neo4jkernel.ExpanderService;
 import com.qdcz.graph.neo4jkernel.LegacyIndexService;
 import com.qdcz.graph.neo4jkernel.LoopDataService;
-import com.qdcz.graph.neo4jkernel.entity._Edge;
-import com.qdcz.graph.neo4jkernel.entity._Vertex;
+import com.qdcz.graph.entity._Edge;
+import com.qdcz.graph.entity._Vertex;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.ogm.json.JSONArray;
@@ -41,8 +40,6 @@ public class TransactionService {
     private LegacyIndexService legacyIndexService;
     @Autowired
     private ExpanderService expanderService;
-    @Autowired
-    private QuestionPaserService questionPaserService;
 
 
     /**
@@ -123,12 +120,14 @@ public class TransactionService {
         //1.预处理
         //2.建立节点
         long l = bankLawService.changeVertex(vertex);
-        //3.建立索引
-        List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
-        propKeys.add("root");
-        propKeys.add("relation");
-        legacyIndexService.createFullTextIndex(l,propKeys,"vertex");
+        if(vertex.name.length()<30){
+            //3.建立索引
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("name");
+            propKeys.add("root");
+            propKeys.add("relation");
+            legacyIndexService.createFullTextIndex(l,propKeys,"vertex");
+        }
         return  l;
     }
     /**
@@ -171,11 +170,13 @@ public class TransactionService {
             e.printStackTrace();
         }
         //4.删除索引
-        List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
-        propKeys.add("root");
-        propKeys.add("relation");
-        legacyIndexService.deleteFullTextIndex(id,propKeys,"vertex");
+        if(vertex.name.length()<30){
+            List<String > propKeys=new ArrayList<>();
+            propKeys.add("name");
+            propKeys.add("root");
+            propKeys.add("relation");
+            legacyIndexService.deleteFullTextIndex(id,propKeys,"vertex");
+        }
         //5.删除节点
         bankLawService.deleteVertex(vertex);
     }
@@ -242,7 +243,7 @@ public class TransactionService {
             }
             long edgeid = bankLawService.addEdge(edge);
             List<String > propKeys=new ArrayList<>();
-            propKeys.add("name");
+          //  propKeys.add("name");
             propKeys.add("root");
             propKeys.add("relation");
             legacyIndexService.createFullTextIndex(edgeid,propKeys,"edge");
@@ -426,7 +427,6 @@ public class TransactionService {
         return jsonObject;
     }
 
-
     /**
      * 插入关系
      * @param fromId
@@ -446,7 +446,7 @@ public class TransactionService {
         long id = bankLawService.addEdge(edge);
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
+      //  propKeys.add("name");
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
@@ -473,7 +473,7 @@ public class TransactionService {
         long id = bankLawService.addEdge(edge);
         //4.关系建立索引
         List<String > propKeys=new ArrayList<>();
-        propKeys.add("name");
+//        propKeys.add("name");
         propKeys.add("root");
         propKeys.add("relation");
         legacyIndexService.createFullTextIndex(id,propKeys,"edge");
@@ -493,7 +493,7 @@ public class TransactionService {
         if(edge!=null){
             //3.删除关系索引
             List<String > propKeys=new ArrayList<>();
-            propKeys.add("name");
+//            propKeys.add("name");
             propKeys.add("root");
             propKeys.add("relation");
             legacyIndexService.deleteFullTextIndex(id,propKeys,"edge");
