@@ -1,9 +1,5 @@
 package com.qdcz;
 
-import com.qdcz.service.bean.RequestParameter;
-import com.qdcz.service.high.TransactionService;
-import com.qdcz.sdn.entity._Vertex;
-import com.qdcz.sdn.entity.Vertex;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringbootSdnEmbeddedApplication.class)
+@SpringApplicationConfiguration(classes = App.class)
 public class TransServiceTest {
 
 

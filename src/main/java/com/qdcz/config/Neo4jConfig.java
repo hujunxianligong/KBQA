@@ -2,6 +2,8 @@ package com.qdcz.config;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 //启动类的@SpringBootApplication会自动扫描同级包以及子包，所以下面的@ComponentScan不加应该没关系
 //@ComponentScan("cn.didadu.sdn")
-@EnableNeo4jRepositories({"com.qdcz.sdn.repository","com.qdcz.sdn.repository.instruments"})
+@EnableNeo4jRepositories({"com.qdcz.graph.neo4jkernel.repository"})
 @EnableTransactionManagement
 public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletContainerCustomizer {
     /**
@@ -33,6 +35,7 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
                     .setDriverClassName(MyConnConfigure.driver).setURI(MyConnConfigure.db)
         ;
 
+        config.set("dbms.allow_format_migration", "true");
         return config;
     }
 
@@ -42,13 +45,14 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
          * 如果不指定节点映射的java bean路径，保存时会报如下警告，导致无法将节点插入Neo4j中
          * ... is not an instance of a persistable class
          */
-        return new SessionFactory(getEmbeddedConfiguration(), "com.qdcz.sdn.entity","com.qdcz.sdn.entity.instruments");
+        return new SessionFactory(getEmbeddedConfiguration(), "com.qdcz.graph.neo4jkernel.entity");
     }
 
     @Bean
     public GraphDatabaseService graphDatabaseService(){
         getSessionFactory();
-        EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();
+
+        EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();;
         return embeddedDriver.getGraphDatabaseService();
     }
 
