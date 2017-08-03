@@ -2,6 +2,7 @@ package com.qdcz.common;
 
 import com.qdcz.config.MongoConfigure;
 import com.qdcz.config.MyConnConfigure;
+import com.qdcz.index.elsearch.conf.ELKConfig;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -30,7 +31,9 @@ public class LoadConfigListener implements ServletContextListener {
             System.out.println("------------加载MongoDB配置文件------------");
             MongoConfigure mongoConf = new MongoConfigure();
             mongoConf.load(LoadConfigListener.class.getResourceAsStream("/mongo.properties"));
-
+            System.out.println("------------加载ElaSearch配置文件------------");
+            ELKConfig elkConfig = new ELKConfig();
+            elkConfig.load(LoadConfigListener.class.getResourceAsStream("/elasearch.properties"));
 
 
         } catch (IOException e) {
