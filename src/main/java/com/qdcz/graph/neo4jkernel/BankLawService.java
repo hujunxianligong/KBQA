@@ -2,8 +2,11 @@ package com.qdcz.graph.neo4jkernel;
 
 
 
-import com.qdcz.graph.neo4jkernel.entity.Edge;
-import com.qdcz.graph.neo4jkernel.entity.Vertex;
+
+
+
+import com.qdcz.graph.entity.Edge;
+import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.neo4jkernel.repository.EdgeRepository;
 
 import com.qdcz.graph.neo4jkernel.repository.VertexRepository;

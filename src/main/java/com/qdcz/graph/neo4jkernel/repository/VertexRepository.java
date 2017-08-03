@@ -1,6 +1,6 @@
 package com.qdcz.graph.neo4jkernel.repository;
 
-import com.qdcz.graph.neo4jkernel.entity.Vertex;
+import com.qdcz.graph.entity.Vertex;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 

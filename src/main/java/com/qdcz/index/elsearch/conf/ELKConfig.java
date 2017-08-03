@@ -1,4 +1,4 @@
-package com.qdcz.elsearch.conf;
+package com.qdcz.index.elsearch.conf;
 
 /**
  * Created by hadoop on 17-5-25.

@@ -1,35 +1,22 @@
-package com.qdcz.elsearch.elk;
+package com.qdcz.index.elsearch.elk;
 
-import com.qdcz.elsearch.conf.ELKConfig;
+import com.qdcz.index.elsearch.conf.ELKConfig;
 import com.qdcz.graph.entity.IGraphEntity;
-import com.qdcz.graph.neo4jkernel.entity._Edge;
-import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.bulk.byscroll.BulkByScrollResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 import org.elasticsearch.xpack.security.authc.support.SecuredString;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -111,8 +98,8 @@ public class ElasticSearchClient {
         BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
         for (int i = 0; i < entities.length; i++){
             JSONObject obj=entities[i].toJSON();
-            bulkRequestBuilder.add(client.prepareIndex("graph", "edges")
-                    .setId(entities[i].getId())
+            bulkRequestBuilder.add(client.prepareIndex("graph", entities[i].getGraphType())
+                    .setId(entities[i].getGraphId())
                     .setSource(obj.toString()));
 
             if(i%20==1 && i!=1){
@@ -199,13 +186,32 @@ public class ElasticSearchClient {
         return result;
     }
 
+    private void bulkdelete(IGraphEntity... entities){
+        if(entities.length==0){
+            return;
+        }
 
+
+        for (IGraphEntity entity:entities){
+            DeleteResponse response = client.prepareDelete("graph", entity.getGraphType(), entity.getGraphId())
+                    .get();
+
+        }
+
+
+
+
+
+
+
+
+    }
 
     public static void main(String[] args) {//test
         ElasticSearchClient client = new ElasticSearchClient();
         client.init();
 //        client.Index(null);
-//        client.BulkIndex(null,null);
+        client.BulkIndex(new IGraphEntity[3]);
 
         client.queryAllMatch(null);
        // client.delete();
@@ -244,25 +250,5 @@ public class ElasticSearchClient {
                 .get();
 
     }
-    private void bulkdelete(){
-        BulkByScrollResponse response =
-                DeleteByQueryAction.INSTANCE.newRequestBuilder(client)
-                        .filter(QueryBuilders.matchQuery("gender"   , "male"))
-                        .source("persons")
-                        .get();
-        long deleted = response.getDeleted();
-        DeleteByQueryAction.INSTANCE.newRequestBuilder(client)
-                .filter(QueryBuilders.matchQuery("gender", "male"))
-                .source("persons")
-                .execute(new ActionListener<BulkByScrollResponse>() {
-                    @Override
-                    public void onResponse(BulkByScrollResponse response) {
-                        long deleted = response.getDeleted();
-                    }
-                    @Override
-                    public void onFailure(Exception e) {
-                        // Handle the exception
-                    }
-                });
-    }
+
 }

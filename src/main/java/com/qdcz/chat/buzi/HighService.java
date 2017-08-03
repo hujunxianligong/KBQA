@@ -7,6 +7,7 @@ import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 import com.qdcz.graph.neo4jkernel.BankLawService;
 import com.qdcz.service.bean.RequestParameter;
+
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;

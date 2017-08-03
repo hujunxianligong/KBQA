@@ -1,14 +1,14 @@
 
 package com.qdcz.graph.service;
 
-import com.qdcz.common.MyComparetor;
+import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.neo4jkernel.BankLawService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.graph.neo4jkernel.ExpanderService;
 import com.qdcz.graph.neo4jkernel.LegacyIndexService;
 import com.qdcz.graph.neo4jkernel.LoopDataService;
-import com.qdcz.graph.neo4jkernel.entity.Edge;
-import com.qdcz.graph.neo4jkernel.entity.Vertex;
+
+import com.qdcz.graph.entity.Edge;
 import com.qdcz.service.bean.RequestParameter;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;

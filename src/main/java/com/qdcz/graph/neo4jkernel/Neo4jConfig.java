@@ -1,9 +1,8 @@
-package com.qdcz.config;
+package com.qdcz.graph.neo4jkernel;
 
+import com.qdcz.config.MyConnConfigure;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;

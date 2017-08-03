@@ -1,10 +1,11 @@
 package com.qdcz.chat.buzi;
 
 
+import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.neo4jkernel.LegacyIndexService;
 import com.qdcz.graph.neo4jkernel.LoopDataService;
-import com.qdcz.graph.neo4jkernel.BankLawService;
-import com.qdcz.graph.neo4jkernel.entity.Vertex;
+
+import com.qdcz.graph.neo4jkernel.BankLawService;;
 import com.qdcz.graph.service.TransactionService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.common.CommonTool;
