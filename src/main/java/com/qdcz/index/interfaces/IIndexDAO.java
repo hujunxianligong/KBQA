@@ -1,4 +1,4 @@
-package com.qdcz.index;
+package com.qdcz.index.interfaces;
 
 import com.qdcz.graph.entity.IGraphEntity;
 

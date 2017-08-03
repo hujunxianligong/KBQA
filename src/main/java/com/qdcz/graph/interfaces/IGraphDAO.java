@@ -1,4 +1,4 @@
-package com.qdcz.graph.service;
+package com.qdcz.graph.interfaces;
 
 import com.qdcz.graph.entity._Edge;
 import com.qdcz.graph.entity._Vertex;

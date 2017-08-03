@@ -1,23 +1,26 @@
 package com.qdcz.graph.service;
 
-import com.qdcz.index.IIndexDAO;
+import com.qdcz.graph.interfaces.IGraphBuzi;
+import com.qdcz.index.interfaces.IIndexBuzi;
 import com.qdcz.graph.entity._Edge;
 import com.qdcz.graph.entity._Vertex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by star on 17-8-2.
  */
+@Service
 public class NewTrasa {
 
     @Autowired
-    @Qualifier()
-    private IIndexDAO indexDAO;
+    @Qualifier("elasearchBuzi")
+    private IIndexBuzi indexBuzi;
 
     @Autowired
-    @Qualifier()
-    private IGraphDAO graphDAO;
+    @Qualifier("neo4jCypherBuzi")
+    private IGraphBuzi graphBuzi;
 
     /**
      * 创建节点
@@ -25,12 +28,12 @@ public class NewTrasa {
      * @return
      */
     public String addVertex(_Vertex vertex){
-        String graphId = graphDAO.addVertex(vertex);
+        String graphId = graphBuzi.addVertex(vertex);
 
 
         vertex.setGraphId(graphId);
 
-        indexDAO.addIndex(vertex);
+        indexBuzi.addIndex(vertex);
 
         return "success";
     }
@@ -42,9 +45,9 @@ public class NewTrasa {
      */
     public String deleteVertex(_Vertex vertex){
 
-        graphDAO.addVertex(vertex);
+        graphBuzi.addVertex(vertex);
 
-        indexDAO.delIndex(vertex);
+        indexBuzi.delIndex(vertex);
 
         return "success";
     }
@@ -56,9 +59,9 @@ public class NewTrasa {
      * @return
      */
     public String changeVertex(_Vertex vertex){
-        graphDAO.changeVertex(vertex);
+        graphBuzi.changeVertex(vertex);
 
-        indexDAO.changeIndex(vertex);
+        indexBuzi.changeIndex(vertex);
 
         return "success";
     }
@@ -70,11 +73,11 @@ public class NewTrasa {
      * @return
      */
     public String addEgde(_Edge edge){
-        String graphId = graphDAO.addEdges(edge);
+        String graphId = graphBuzi.addEdges(edge);
 
         edge.setGraphId(graphId);
 
-        indexDAO.addIndex(edge);
+        indexBuzi.addIndex(edge);
 
         return "success";
     }
@@ -85,9 +88,9 @@ public class NewTrasa {
      * @return
      */
     public String deleteEgde(_Edge edge){
-        graphDAO.deleteEdge(edge);
+        graphBuzi.deleteEdge(edge);
 
-        indexDAO.delIndex(edge);
+        indexBuzi.delIndex(edge);
 
         return "success";
     }
@@ -99,9 +102,9 @@ public class NewTrasa {
      * @return
      */
     public String changeEgde(_Edge edge){
-        graphDAO.changeEdge(edge);
+        graphBuzi.changeEdge(edge);
 
-        indexDAO.changeIndex(edge);
+        indexBuzi.changeIndex(edge);
 
         return "success";
     }
@@ -115,18 +118,18 @@ public class NewTrasa {
      */
     public String addNodeEdge(_Vertex vertex,_Edge edge){
 
-        String vertexId = graphDAO.addVertex(vertex);
+        String vertexId = graphBuzi.addVertex(vertex);
 
         vertex.setGraphId(vertexId);
 
-        indexDAO.addIndex(edge);
+        indexBuzi.addIndex(edge);
 
 
-        String edgeId = graphDAO.addEdges(edge);
+        String edgeId = graphBuzi.addEdges(edge);
 
         edge.setGraphId(edgeId);
 
-        indexDAO.addIndex(edge);
+        indexBuzi.addIndex(edge);
 
         return "success";
     }
