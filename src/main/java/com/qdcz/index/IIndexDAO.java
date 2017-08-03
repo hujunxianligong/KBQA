@@ -3,6 +3,7 @@ package com.qdcz.index;
 import com.qdcz.graph.entity.IGraphEntity;
 
 /**
+ * 索引模块DAO接口
  * Created by star on 17-8-2.
  */
 public interface IIndexDAO {
