@@ -6,6 +6,7 @@ import com.qdcz.index.interfaces.IIndexDAO;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -32,7 +33,12 @@ public class ElasearchDAO implements IIndexDAO {
 
     @Override
     public void addIndex(IGraphEntity entity) {
-
+        System.out.println("mm:"+entity.toJSON());
+        IndexResponse response = client.prepareIndex(index, entity.getGraphType())
+                .setSource(entity.toJSON().toString())
+                .setId(entity.getGraphId())//自己设置了id，也可以使用ES自带的，但是看文档说，ES的会因为删除id发生变动。
+                .execute()
+                .actionGet();
     }
 
     @Override
@@ -43,7 +49,8 @@ public class ElasearchDAO implements IIndexDAO {
 
     @Override
     public void changeIndex(IGraphEntity entity) {
-
+        //elk插入原则：没有则创建，否则更新。id必须自设
+        addIndex(entity);
     }
 
     @Override

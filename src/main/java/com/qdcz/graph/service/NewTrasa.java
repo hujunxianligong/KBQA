@@ -31,7 +31,7 @@ public class NewTrasa {
         String graphId = graphBuzi.addVertex(vertex);
 
 
-        vertex.setGraphId(graphId);
+//        vertex.setGraphId(graphId);
 
         indexBuzi.addIndex(vertex);
 

@@ -32,7 +32,8 @@ import java.util.*;
 @Service
 public class TransactionService {
 
-
+    @Autowired
+    private NewTrasa newTrasa;
     @Autowired
     private GraphDatabaseService graphDatabaseService;
     @Autowired
@@ -64,8 +65,12 @@ public class TransactionService {
                     Vertex v = new Vertex( obj.getString("type").trim(), obj.getString("name").trim(),obj.getString("identity").trim(),obj.getString("root").trim(),obj.getJSONObject("content"));
                     if("del".equals(type))
                         deleteVertex(requestParameter,v.name);
-                    else
-                    addVertex(requestParameter,v);
+                    else {
+                        long dd = addVertex(requestParameter, v);
+
+                        v.setGraphId(String.valueOf(dd));
+                        newTrasa.addVertex(v);
+                    }
 //
                 } catch (Exception e) {
                     e.printStackTrace();
