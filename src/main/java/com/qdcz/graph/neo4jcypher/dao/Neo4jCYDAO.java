@@ -6,6 +6,7 @@ import com.qdcz.graph.entity.IGraphEntity;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
 import org.json.JSONObject;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 import org.neo4j.driver.v1.*;
 
 import org.neo4j.driver.v1.types.Node;
@@ -149,18 +150,21 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public String deleteEdge(Edge edge) {
+    public boolean deleteEdge(Edge edge) {
 
         String delString = "MATCH (f:"+edge.getLabel()+")-[r:"+edge.getRelationship()+"]->(t:"+edge.getLabel()+") WHERE id(r)="+edge.getGraphId()+" DELETE r";
-
-        StatementResult execute = execute(delString);
         long id=0l;
-        while(execute.hasNext()){
-            Node n =  execute.next().get("n").asNode();
-            id=n.id();
-            System.out.println(id+"");
+        try ( Session session = driver.session() )
+        {
+            StatementResult run=null;
+            Transaction transaction = session.beginTransaction();
+            run = transaction.run(delString);
+            transaction.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
         }
-        return id+"";
+        return true;
     }
 
     @Override

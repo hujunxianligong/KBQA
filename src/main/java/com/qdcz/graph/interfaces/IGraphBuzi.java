@@ -56,7 +56,7 @@ public interface IGraphBuzi {
      * @param edge
      * @return
      */
-    public String deleteEdge(Edge edge);
+    public boolean deleteEdge(Edge edge);
 
     /**
      * 根据节点查询广搜查询
