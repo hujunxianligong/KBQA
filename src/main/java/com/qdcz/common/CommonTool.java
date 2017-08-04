@@ -9,7 +9,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import org.neo4j.ogm.json.JSONException;
 
 import java.io.*;
 import java.nio.ByteBuffer;

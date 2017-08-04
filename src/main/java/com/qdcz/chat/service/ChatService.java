@@ -3,7 +3,7 @@ package com.qdcz.chat.service;
 import com.qdcz.chat.buzi.HighService;
 import com.qdcz.config.MyConnConfigure;
 import com.qdcz.service.bean.RequestParameter;
-import org.neo4j.ogm.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
