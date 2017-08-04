@@ -9,140 +9,41 @@ import org.json.JSONObject;
  */
 public class Edge implements IGraphEntity{
 
-    private String graphId;
+    private String id;
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    private String content;
-    private Long edgeId;
-    public String name;
-    public String root;
+    private String name;
+    private String root;
 
 
-    public String relation;
-    public Long from;
-    public Vertex fromVertex;
-    public Long to;
-    public Vertex toVertex;
-
-
-
-
-
-
-
-
-    public String getRelation() {
-        return relation;
-    }
-    public Long getEdgeId() {
-        return edgeId;
-    }
-
-    public void setEdgeId(Long edgeId) {
-        this.edgeId = edgeId;
-    }
-    public String getContent() {
-        return content;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(String relationship) {
-        this.relationship = relationship;
-    }
-
-    private String relationship;
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    private String label;
-    public Long getfrom() {
-        return from;
-    }
-
-    public void setfrom(Long from) {
-        this.from = from;
-    }
-
-    public Long getto() {
-        return to;
-    }
-
-    public void setto(Long to) {
-        this.to = to;
-    }
+    private String from;
+    private String to;
+    private String relationShip;//表名
 
     public Edge(){
 
     }
 
-    @JsonCreator
-    public Edge( String relation,
-                 Vertex fromVertex,
-                 Vertex toVertex) {
-        this.relation = relation;
-        this.fromVertex = fromVertex;
-        this.toVertex = toVertex;
-        this.name = fromVertex.getName()+"-"+toVertex.getName();
-        this.root =null ;
-        this.from=this.fromVertex.getId();
-        this.to=this.toVertex.getId();
+    public Edge(String name, String root, String from, String to, String relationShip) {
+        this.name = name;
+        this.root = root;
+        this.from = from;
+        this.to = to;
+        this.relationShip = relationShip;
     }
 
-    public Edge( String relation,
-                Vertex fromVertex,
-                Vertex toVertex,
-                 String root) {
-        this.relation = relation;
-        this.fromVertex = fromVertex;
-        this.toVertex = toVertex;
-        this.name = fromVertex.getName()+"-"+toVertex.getName();
-        this.root = root;
-        this.from=this.fromVertex.getId();
-        this.to=this.toVertex.getId();
-    }
-
-    public Edge( String relation,
-                Vertex fromVertex,
-                 Vertex toVertex,
-                 String root,
-                JSONObject content) {
-        this.relation = relation;
-        this.fromVertex = fromVertex;
-        this.toVertex = toVertex;
-        this.name = fromVertex.getName()+"-"+toVertex.getName();
-        this.root = root;
-        this.from=this.fromVertex.getId();
-        this.to=this.toVertex.getId();
-        this.content=content.toString();
-    }
     @Override
     public String toString() {
-        return String.format("%s/%s/%s", fromVertex, relation, toVertex);
+        return String.format("%s/%s/%s", from, name, to);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-            obj.put("from",fromVertex.getName());
-            obj.put("to",toVertex.getName());
+            obj.put("from",from);
+            obj.put("to",to);
             obj.put("root",root);
-            obj.put("relation",relation);
+            obj.put("name",name);
 
 
         return obj;
@@ -151,40 +52,79 @@ public class Edge implements IGraphEntity{
     @Override
     public String getGraphId() {
 
-        return graphId;
+        return id;
     }
 
     @Override
     public String getGraphType() {
-        return "edges";
+        return relationShip;
     }
 
     @Override
     public JSONObject toQueryJSON() {
         JSONObject obj = new JSONObject();
 
-        if(fromVertex!=null && !fromVertex.getName().isEmpty()) {
-
-                obj.put("from", fromVertex.getName());
-
-        }
-
-        if(toVertex!=null && !toVertex.getName().isEmpty()) {
-            obj.put("to", toVertex);
-        }
-
         if(root!=null && !root.isEmpty()) {
             obj.put("root",root);
         }
-        if(relation!=null && !relation.isEmpty()) {
-            obj.put("relation",relation);
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
         }
 
         return obj;
     }
 
+    public Long getId(){
+        return Long.parseLong(id);
+    }
 
-    public void setGraphId(String graphId) {
-        this.graphId = graphId;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRoot() {
+        return root;
+    }
+
+    public void setRoot(String root) {
+        this.root = root;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getRelationShip() {
+        return relationShip;
+    }
+
+    public void setRelationShip(String relationShip) {
+        this.relationShip = relationShip;
     }
 }

@@ -61,7 +61,6 @@ public class GraphService {
         String result =null;
         try {
             if(parameterMap.containsKey("data")){
-                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
@@ -69,12 +68,14 @@ public class GraphService {
             }
             Vertex vertex = null;
             Edge edge = null;
+
+
             //TODO   将请求序列化成实体
 
-
             vertex = new Vertex();
+
+            vertex.setId(obj.getJSONObject("info").getJSONObject("node").getString("id"));
             vertex.setContent(obj.getJSONObject("info").getJSONObject("node").getString("content"));
-            vertex.setIdentity(obj.getJSONObject("info").getJSONObject("node").getString("identity"));
             vertex.setName(obj.getJSONObject("info").getJSONObject("node").getString("name"));
             vertex.setRoot(obj.getJSONObject("info").getJSONObject("node").getString("root"));
             vertex.setLabel(obj.getJSONObject("info").getJSONObject("node").getString("label"));
@@ -82,15 +83,12 @@ public class GraphService {
 
 
             edge = new Edge();
-            edge.setfrom(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("from")));
-            edge.setto(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("to")));
-            edge.setRelationship(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
+            edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
+            edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
+            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
 
             String type = obj.getString("type");
-            System.out.println(obj);
-
-
-
+            System.out.println(type+"\t"+obj);
 
 
             switch (type){
@@ -98,60 +96,38 @@ public class GraphService {
                     //通过名称查询
                     result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
-//                    result =transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                     break;
                 case "checkByNameAndDepth":
                     int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
 
                     result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
 
-
-
-//                    result=transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name"),depth).toString();
                     break;
                 case "checkByIndex":
 
                     result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
-
-//                    result=transactionService.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                     break;
                 case "checkById":
                     //TODO  应该要改成通过名称多层搜索
 
                     result=newTrasa.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth")));
 
-
-//                    result=transactionService.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth"))).toString();
                     break;
                 case "addNode":
                     //新增节点
 
-
-
                     result = newTrasa.addVertex(vertex);
 
-
-
-
-
-//                    node = obj.getJSONObject("info").getJSONObject("node");
-//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-//                    id= transactionService.addVertex(requestParameter,vertex);
-//                    result = "success";
                     break;
 
 
                 case "deleteNode":
                     //删除节点
 
-
                     result = newTrasa.deleteVertex(vertex);
 
 
-//                    node = obj.getJSONObject("info").getJSONObject("node");
-//                    transactionService.deleteVertex(requestParameter,Long.parseLong(node.getString("id")));
-//                    result = "success";
                     break;
                 case "changeNode":
                     //修改节点
@@ -160,21 +136,13 @@ public class GraphService {
                     result = newTrasa.changeVertex(vertex);
 
 
-//                    node = obj.getJSONObject("info").getJSONObject("node");
-//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-//                    id  = transactionService.changeVertex(requestParameter,Long.parseLong(node.getString("id")), vertex);
-//                    result = "success";
                     break;
 
                 case "addEdge":
                     //新增边
 
 
-//                    result = newTrasa.addEgde(edge);
-//                    node = obj.getJSONObject("info").getJSONObject("edge");
-//                    JSONObject content=obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
-//                    id=transactionService.addEgde(requestParameter,Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"),content);
-//                    result = "success";
+                    result = newTrasa.addEgde(edge);
                     break;
 
 
@@ -184,11 +152,6 @@ public class GraphService {
 
                     result = newTrasa.changeEgde(edge);
 
-
-//                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
-//                    transactionService.changeEgde(requestParameter,Long.parseLong(Edge.getString("id")),Edge);
-////                Long id  = transactionService.changeEgde(Long.parseLong(Edge.getString("id")),Long.parseLong(Edge.getString("from")),Long.parseLong(Edge.getString("to")),Edge);
-//                    result = "success";
                     break;
                 case "deleteEdge":
                     //修改边
@@ -196,13 +159,6 @@ public class GraphService {
 
                     result = newTrasa.deleteEgde(edge);
 
-//                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
-//                    edge = transactionService.deleteEgde(requestParameter,Long.parseLong(Edge.getString("id")));
-//                    if(edge==null) {
-//                        result = "fail delete Edge,has`t this id of edge by" + Edge.getString("id");
-//                    }
-//                    id =edge.getEdgeId();
-//                    result = "success";
                     break;
 
                 case "addNodeEdge":
@@ -210,16 +166,6 @@ public class GraphService {
 
                     result = newTrasa.addNodeEdge(vertex,edge);
 
-
-//                    node = obj.getJSONObject("info").getJSONObject("node");
-//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-//                    Long end_id= transactionService.addVertex(requestParameter,vertex);
-//                    System.out.println("新增节点"+end_id);
-//                    Edge = obj.getJSONObject("info").getJSONObject("edge");
-//                    content = obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
-//                    Long id2=transactionService.addEgde(requestParameter,Long.parseLong(Edge.getString("from")),end_id,Edge.getString("relation"),content);
-//                    System.out.println("新增边");
-//                    result = "success";
                     break;
 
                 default:
