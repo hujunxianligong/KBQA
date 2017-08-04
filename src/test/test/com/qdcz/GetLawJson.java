@@ -1,9 +1,9 @@
 package com.qdcz;
 
 import com.qdcz.common.CommonTool;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -121,7 +121,7 @@ public class GetLawJson {
         read.close();
      //   System.out.println(result);
     }
-    public void getVertexEdge(String filePath) throws IOException, JSONException {
+    public void getVertexEdge(String filePath) throws IOException {
         FileReader re =  new FileReader(filePath);
         BufferedReader read = new BufferedReader(re);
         String str = null;
@@ -201,7 +201,7 @@ public class GetLawJson {
         HashMap<String, JSONObject> stringJSONObjectHashMap = dealJianXin();
         JSONObject obj = new JSONObject(str);
         JSONObject elements = obj.getJSONObject("diagram").getJSONObject("elements").getJSONObject("elements");
-        Set<String> set = elements.toMap().keySet();
+        Set<String> set = elements.keySet();
         JSONArray nodes = new JSONArray();
         JSONArray edges = new JSONArray();
         String root = "银团贷款业务";
@@ -296,12 +296,10 @@ public class GetLawJson {
                 String title=split1[1];
                 String summary= split1[2];
                 JSONObject obj =new JSONObject();
-                try {
-                    obj.put("url",url);
-                    obj.put("abstract",summary);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+
+                obj.put("url",url);
+                obj.put("abstract",summary);
+
                 maps.put(title,obj) ;
             }
         }
