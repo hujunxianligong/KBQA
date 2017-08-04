@@ -27,8 +27,8 @@ public class GraphService {
     private CypherSearchService cypherSearchService;
 
 
-    @RequestMapping(path = "/testadd", method = RequestMethod.POST)
-    public boolean testadd(@RequestBody String obj_str){
+    @RequestMapping(path = "/testadd", method = {RequestMethod.POST,RequestMethod.GET})
+    public boolean testadd(@RequestParam String obj_str){
         System.out.println("obj_str:"+obj_str);
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
@@ -40,7 +40,7 @@ public class GraphService {
 
         return flag;
     }
-    @RequestMapping(path = "/testdel", method = RequestMethod.POST)
+    @RequestMapping(path = "/testdel", method = {RequestMethod.POST,RequestMethod.GET})
     public boolean testdek(@RequestBody String obj_str){
         Boolean flag=true;
         RequestParameter requestParameter =null;
@@ -49,11 +49,7 @@ public class GraphService {
         transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","del");
         return flag;
     }
-    @RequestMapping(path = "/testask", method = {RequestMethod.POST,RequestMethod.GET})
-    public void  testQuery(@RequestParam String question){
-        cypherSearchService.queryWithCypher(question);
 
-    }
 
     @CrossOrigin
     @RequestMapping(path = "/graphOp", method = {RequestMethod.POST,RequestMethod.GET})
