@@ -1,45 +1,42 @@
 package com.qdcz.graph.neo4jcypher.dao;
 
+import com.qdcz.common.CommonTool;
 import com.qdcz.graph.entity.Edge;
+import com.qdcz.graph.entity.IGraphEntity;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
+import org.neo4j.driver.v1.*;
+
+import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Relationship;
-import org.neo4j.graphdb.Node;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * neo4j的dao操作
  * Created by star on 17-8-3.
  */
 public class Neo4jCYDAO implements IGraphDAO{
-    private TranClient client;
+    private Driver driver;
 
 
-    public Neo4jCYDAO(TranClient client){
-        this.client = client;
+    public Neo4jCYDAO(Driver driver){
+        this.driver = driver;
     }
 
 
-    private String execute(String sql){
-        long id=0l;
-        try ( Session session = client.driver.session() )
+    public StatementResult execute(String sql){
+        StatementResult run=null;
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
-            StatementResult run = transaction.run(sql);
-            while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
-            }
+             run = transaction.run(sql);
+
         }
-        return id+"";
+        return run;
     }
     @Override
     public String addVertex(Vertex vertex) {
@@ -57,15 +54,16 @@ public class Neo4jCYDAO implements IGraphDAO{
         parameters.put("identity",vertex.getIdentity());
         parameters.put("root",vertex.getRoot());
         parameters.put("content",vertex.getContent());
-        try ( Session session = client.driver.session() )
+        parameters.put("type",vertex.getType());
+        try ( Session session = driver.session() )
         {
             StatementResult run = session.run(addString, parameters);
 //            Transaction transaction = session.beginTransaction();
 //            StatementResult run = transaction.run(addString);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
+                Node n =  run.next().get("n").asNode();
+                id=n.id();
+                System.out.println(id+"");
             }
         }
         return id+"";
@@ -77,32 +75,70 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public String deleteVertex(Vertex vertex) {
-        String delString="Match (n:"+vertex.getLabel()+"  )where id(n)="+vertex.getId()+" delete n";
-        return execute(delString);
+    public List<IGraphEntity> deleteVertex(Vertex vertex) {
+        List<IGraphEntity> results=new ArrayList<>();
+        Set<String> nodeIds=new HashSet<>();
+        String select ="match (n:"+vertex.getLabel()+")-[r*1]-(m) where id(n)="+vertex.getId()+" return n,r";
+        try ( Session session = driver.session() )
+        {
+            StatementResult run = session.run(select);
+            while(run.hasNext()){
+                Record next = run.next();
+                Node n = next.get("n").asNode();
+                Map<String, Object> nodeInfo = n.asMap();
+                Vertex newVertex=new Vertex();
+                CommonTool.transMap2Bean(nodeInfo,newVertex);
+                newVertex.setGraphId(n.id()+"");
+                if(!nodeIds.contains(newVertex.getGraphId())) {
+                    results.add(newVertex);
+                }
+                nodeIds.add(n.id()+"");
+
+                List<Object> rels =  next.get( "r" ).asList();
+                for (Object rel : rels) {
+                    Relationship one_gra = (Relationship) rel;
+                    Map<String, Object> edgeInfo = one_gra.asMap();
+                    Edge newEdge=new Edge();
+                    newEdge.setGraphId(one_gra.id()+"");
+                    //CommonTool.transMap2Bean(edgeInfo,newEdge);
+                    results.add(newEdge);
+                }
+            }
+        }
+        String delString=  "MATCH (n:"+vertex.getLabel()+")-[r]-(m) where id(n)="+vertex.getId()+" DELETE n,r";
+
+        try ( Session session = driver.session() )
+        {
+            StatementResult run=null;
+            Transaction transaction = session.beginTransaction();
+            run = transaction.run(delString);
+            transaction.success();
+        }
+        System.out.println();
+        return results;
     }
 
     @Override
     public String addEdges(Edge edge) {
-        String sql = "MATCH (m:"+edge.getLabel()+"  {identity:$fromIdentity }) MATCH (n:"+edge.getLabel()+" {identity:$toIdentity }) " +
+        String sql = "MATCH (m  {identity:$fromIdentity }) MATCH (n {identity:$toIdentity }) " +
                 "MERGE (m)-[r:"+edge.getRelationship()+"]-(n) ON CREATE SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId " +
                 "on match SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
         long id=0l;
         Map<String, Object> parameters=new HashMap();
-        parameters.put("fromIdentity",edge.from.getIdentity());
-        parameters.put("toIdentity",edge.to.getIdentity());
-        parameters.put("fromId",edge.to.getId());
-        parameters.put("toId",edge.from.getId());
+        parameters.put("fromIdentity",edge.fromVertex.getIdentity());
+        parameters.put("toIdentity",edge.toVertex.getIdentity());
+        parameters.put("fromId",edge.toVertex.getId());
+        parameters.put("toId",edge.fromVertex.getId());
         parameters.put("name",edge.getName());
         parameters.put("relation",edge.getRelation());
-        try ( Session session = client.driver.session() )
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
             StatementResult run = transaction.run(sql);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
+                Node n = (Node) run.next().get("n").asNode();
+                id=n.get("id").asLong();
+//                System.out.println( n.getId()+""+n.getAllProperties());
             }
         }
         return id+"";
@@ -115,31 +151,93 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public String deleteEdge(Edge edge) {
+    public boolean deleteEdge(Edge edge) {
+
         String delString = "MATCH (f:"+edge.getLabel()+")-[r:"+edge.getRelationship()+"]->(t:"+edge.getLabel()+") WHERE id(r)="+edge.getGraphId()+" DELETE r";
-        return execute(delString);
+        long id=0l;
+        try ( Session session = driver.session() )
+        {
+            StatementResult run=null;
+            Transaction transaction = session.beginTransaction();
+            run = transaction.run(delString);
+            transaction.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
     public JSONObject bfExtersion(Vertex vertex,int depth) {
-        String sql = "MATCH (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return r,relateNode,n";
-
-        try ( Session session = client.driver.session())
-        {
-            try ( Transaction tx = session.beginTransaction() )
-            {
-//				 System.out.println(sql);
-                StatementResult result = tx.run(sql);
-                while ( result.hasNext() )
-                {
-                    Record record = result.next();
-
+        JSONArray nodesJarry=new JSONArray();
+        JSONArray edgesJarry=new JSONArray();
+        Set<String> nodeIds=new HashSet<>();
+        Set<String> edgeIds=new HashSet<>();
+        String sql = "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
+       //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
+        StatementResult execute = execute(sql);
+        while ( execute.hasNext() ) {
+            Record record = execute.next();
+            System.out.println();
+            List<Object> nodes = record.get("nodes(p)").asList();
+            for(Object node:nodes){
+                Node n=(Node) node;
+                Map<String, Object> nodeInfo = n.asMap();
+                Vertex newVertex=new Vertex();
+                CommonTool.transMap2Bean(nodeInfo,newVertex);
+                newVertex.setGraphId(n.id()+"");
+                if(!nodeIds.contains(newVertex.getGraphId())) {
+                    nodesJarry.put(newVertex);
                 }
-
+                nodeIds.add(n.id()+"");
+            }
+            List<Object> rels =  record.get( "relationships(p)" ).asList();
+            for (Object rel : rels) {
+                Relationship one_gra = (Relationship) rel;
+                Map<String, Object> edgeInfo = one_gra.asMap();
+                Edge newEdge=new Edge();
+                CommonTool.transMap2Bean(edgeInfo,newEdge);
+                newEdge.setGraphId(one_gra.id()+"");
+                if(!edgeIds.contains(newEdge.getGraphId())) {
+                    edgesJarry.put(newEdge);
+                }
+                edgeIds.add(one_gra.id()+"");
             }
         }
+        nodeIds.clear();
+        edgeIds.clear();
 
+        JSONObject result =new JSONObject();
+        result.put("nodes",nodesJarry);
+        result.put("edges",edgesJarry);
+        System.out.println(result);
         return null;
+    }
+    @Override
+    public void dfExection(long fromId,long toId,int depth){
+        String sql= "MATCH path = shortestPath ( (a ) -[*1.."+depth+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
+        StatementResult execute = execute(sql);
+        while ( execute.hasNext() ) {
+                Value path = execute.next().get("path");
+                System.out.println(path);
+
+        }
+    }
+    public Vertex checkVertexByIdentity(String label,String  identity){
+        String quertString="MATCH (n:"+label+" {identity:'"+identity+"' }) RETURN n";
+        Vertex vertex=new Vertex();
+        StatementResult execute = execute(quertString);
+        while ( execute.hasNext() ){
+                Node n =  execute.next().get("n").asNode();
+                vertex.setContent(n.get("content").toString());
+                vertex.setRoot(n.get("root").toString());
+                vertex.setType(n.get("type").toString());
+                vertex.setId(n.id());
+                vertex.setName(n.get("name").toString());
+                vertex.setIdentity(n.get("identity").toString());
+        }
+        return vertex;
     }
 
 }

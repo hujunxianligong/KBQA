@@ -5,15 +5,13 @@ import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
-import com.qdcz.graph.neo4jkernel.BankLawService;
 import com.qdcz.service.bean.RequestParameter;
 
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -27,10 +25,7 @@ public class HighService {
     private QuestionPaserService questionPaserService;
 
 
-    @Autowired
-    private BankLawService bankLawService;
 
-    @Transactional
     public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
 

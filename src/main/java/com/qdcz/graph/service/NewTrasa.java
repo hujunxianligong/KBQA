@@ -37,10 +37,10 @@ public class NewTrasa {
     public String addVertex(Vertex vertex){
         String graphId = graphBuzi.addVertex(vertex);
 
+        System.out.println("graphId:"+graphId);
+        vertex.setId(graphId);
 
-//        vertex.setGraphId(graphId);
-
-        indexBuzi.addIndex(vertex);
+        indexBuzi.addOrUpdateIndex(vertex);
 
         return "success";
     }
@@ -68,7 +68,7 @@ public class NewTrasa {
     public String changeVertex(Vertex vertex){
         graphBuzi.changeVertex(vertex);
 
-        indexBuzi.changeIndex(vertex);
+        indexBuzi.addOrUpdateIndex(vertex);
 
         return "success";
     }
@@ -82,9 +82,9 @@ public class NewTrasa {
     public String addEgde(Edge edge){
         String graphId = graphBuzi.addEdges(edge);
 
-        edge.setGraphId(graphId);
+        edge.setId(graphId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }
@@ -111,7 +111,7 @@ public class NewTrasa {
     public String changeEgde(Edge edge){
         graphBuzi.changeEdge(edge);
 
-        indexBuzi.changeIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }
@@ -127,16 +127,16 @@ public class NewTrasa {
 
         String vertexId = graphBuzi.addVertex(vertex);
 
-        vertex.setGraphId(vertexId);
+        vertex.setId(vertexId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
 
         String edgeId = graphBuzi.addEdges(edge);
 
-        edge.setGraphId(edgeId);
+        edge.setId(edgeId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }
@@ -185,7 +185,7 @@ public class NewTrasa {
     /**
      *批量导入或删除数据节点
      */
-    public long addVertexsByPath(RequestParameter requestParameter, String filePath, String type){//批量导入／删除数据节点
+    public long addVertexsByPath(RequestParameter requestParameter, String filePath){//批量导入／删除数据节点
 
         FileReader re = null;
         try {
@@ -196,7 +196,17 @@ public class NewTrasa {
                 try {
                     System.out.println(str);
                     JSONObject obj = new JSONObject(str);
-                    Vertex v = new Vertex( obj.getString("type").trim(), obj.getString("name").trim(),obj.getString("identity").trim(),obj.getString("root").trim(),obj.getJSONObject("content"));
+                    String type = obj.getString("type").trim();
+                    String root = obj.getString("root").trim();
+                    String label = obj.getString("label").trim();
+                    String content = obj.getString("content").trim();
+                    String name = obj.getString("name").trim();
+
+
+                    Vertex v = new Vertex(name, root, label, type );
+                    v.setContent(content);
+
+
                     if("del".equals(type))
                         deleteVertex(v);
                     else
@@ -236,7 +246,14 @@ public class NewTrasa {
                     JSONObject obj = new JSONObject(str);
                     Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
                     Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
-                    Edge newEdge=new Edge(obj.getString("relation"),vertex1,vertex2,vertex1.getRoot());
+
+
+
+
+
+                    //TODO
+                    Edge newEdge=new Edge();
+//                    newEdge.setLabel(requestParameter.label);
                     addEgde(newEdge);
 
                 } catch (Exception e) {

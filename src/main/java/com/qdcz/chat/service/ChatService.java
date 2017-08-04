@@ -2,9 +2,8 @@ package com.qdcz.chat.service;
 
 import com.qdcz.chat.buzi.HighService;
 import com.qdcz.config.MyConnConfigure;
-import com.qdcz.graph.neo4jkernel.CypherSearchService;
 import com.qdcz.service.bean.RequestParameter;
-import org.neo4j.ogm.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +19,12 @@ public class ChatService {
     @Autowired
     private HighService highService;
 
-    @Autowired
-    private CypherSearchService cypherSearchService;
 
 
 
     @RequestMapping(path = "/testask", method = {RequestMethod.POST,RequestMethod.GET})
     public void  testQuery(@RequestParam String question){
-        cypherSearchService.queryWithCypher(question);
+//        cypherSearchService.queryWithCypher(question);
 
     }
 

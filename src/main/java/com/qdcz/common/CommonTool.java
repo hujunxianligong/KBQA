@@ -9,9 +9,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import org.neo4j.ogm.json.JSONException;
-
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -188,5 +190,29 @@ public class CommonTool {
         list.clear();
         list.addAll(newList);
   //      System.out.println( " remove duplicate "   +  list);
+    }
+
+
+    // Map --> Bean 1: 利用Introspector,PropertyDescriptor实现 Map --> Bean
+    public static void transMap2Bean(Map<String, Object> map, Object obj) {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor property : propertyDescriptors) {
+                String key = property.getName();
+
+                if (map.containsKey(key)) {
+                    Object value = map.get(key);
+                    // 得到property对应的setter方法
+                    Method setter = property.getWriteMethod();
+                    setter.invoke(obj, value);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("transMap2Bean Error " + e);
+        }
+        return;
+
     }
 }
