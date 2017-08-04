@@ -8,21 +8,13 @@ import org.json.JSONObject;
  * Created by hadoop on 17-6-22.
  */
 public class Edge implements IGraphEntity{
-    public Long getEdgeId() {
-        return edgeId;
-    }
-
-    public void setEdgeId(Long edgeId) {
-        this.edgeId = edgeId;
-    }
 
     private String graphId;
     private String content;
     private Long edgeId;
+    public String name;
+    public String root;
 
-    public String getRelation() {
-        return relation;
-    }
 
     public String relation;
     public Long from_id;
@@ -30,6 +22,59 @@ public class Edge implements IGraphEntity{
     public Long to_id;
     public Vertex to;
 
+    @JsonCreator
+    public Edge( String relation,
+                 Vertex from,
+                 Vertex to) {
+        this.relation = relation;
+        this.from = from;
+        this.to = to;
+        this.name = from+"-"+to;
+        this.root =null ;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
+    }
+
+    public Edge( String relation,
+                 Vertex from,
+                 Vertex to,
+                 String root) {
+        this.relation = relation;
+        this.from = from;
+        this.to = to;
+        this.name = from.getName()+"-"+to.getName();
+        this.root = root;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
+    }
+
+    public Edge( String relation,
+                 Vertex from,
+                 Vertex to,
+                 String root,
+                 JSONObject content) {
+        this.relation = relation;
+        this.from = from;
+        this.to = to;
+        this.name = from.getName()+"-"+to.getName();
+        this.root = root;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
+        this.content=content.toString();
+    }
+
+
+
+    public String getRelation() {
+        return relation;
+    }
+    public Long getEdgeId() {
+        return edgeId;
+    }
+
+    public void setEdgeId(Long edgeId) {
+        this.edgeId = edgeId;
+    }
     public String getContent() {
         return content;
     }
@@ -38,8 +83,6 @@ public class Edge implements IGraphEntity{
         return name;
     }
 
-    public String name;
-    public String root;
     public String getRelationship() {
         return relationship;
     }
@@ -77,46 +120,7 @@ public class Edge implements IGraphEntity{
     public Edge(){
 
     }
-    @JsonCreator
-    public Edge( String relation,
-                 Vertex from,
-                 Vertex to) {
-        this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from+"-"+to;
-        this.root =null ;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
-    }
 
-    public Edge( String relation,
-                Vertex from,
-                Vertex to,
-                 String root) {
-        this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from.name+"-"+to.name;
-        this.root = root;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
-    }
-
-    public Edge( String relation,
-                Vertex from,
-                 Vertex to,
-                 String root,
-                JSONObject content) {
-        this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from.name+"-"+to.name;
-        this.root = root;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
-        this.content=content.toString();
-    }
     @Override
     public String toString() {
         return String.format("%s/%s/%s", from, relation, to);

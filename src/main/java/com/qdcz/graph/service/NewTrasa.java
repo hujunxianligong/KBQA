@@ -37,10 +37,10 @@ public class NewTrasa {
     public String addVertex(Vertex vertex){
         String graphId = graphBuzi.addVertex(vertex);
 
-
+        System.out.println("graphId:"+graphId);
         vertex.setGraphId(graphId);
 
-        indexBuzi.addIndex(vertex);
+        indexBuzi.addOrUpdateIndex(vertex);
 
         return "success";
     }
@@ -68,7 +68,7 @@ public class NewTrasa {
     public String changeVertex(Vertex vertex){
         graphBuzi.changeVertex(vertex);
 
-        indexBuzi.changeIndex(vertex);
+        indexBuzi.addOrUpdateIndex(vertex);
 
         return "success";
     }
@@ -84,7 +84,7 @@ public class NewTrasa {
 
         edge.setGraphId(graphId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }
@@ -111,7 +111,7 @@ public class NewTrasa {
     public String changeEgde(Edge edge){
         graphBuzi.changeEdge(edge);
 
-        indexBuzi.changeIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }
@@ -129,14 +129,14 @@ public class NewTrasa {
 
         vertex.setGraphId(vertexId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
 
         String edgeId = graphBuzi.addEdges(edge);
 
         edge.setGraphId(edgeId);
 
-        indexBuzi.addIndex(edge);
+        indexBuzi.addOrUpdateIndex(edge);
 
         return "success";
     }

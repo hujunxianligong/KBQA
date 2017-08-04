@@ -8,7 +8,9 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -31,9 +33,11 @@ public class ElasearchDAO implements IIndexDAO {
     }
 
 
+
+
     @Override
-    public void addIndex(IGraphEntity entity) {
-        System.out.println("mm:"+entity.toJSON());
+    public void addOrUpdateIndex(IGraphEntity entity) {
+        System.out.println("mm:"+entity.getGraphId());
         IndexResponse response = client.prepareIndex(index, entity.getGraphType())
                 .setSource(entity.toJSON().toString())
                 .setId(entity.getGraphId())//自己设置了id，也可以使用ES自带的，但是看文档说，ES的会因为删除id发生变动。
@@ -47,11 +51,7 @@ public class ElasearchDAO implements IIndexDAO {
                 .get();
     }
 
-    @Override
-    public void changeIndex(IGraphEntity entity) {
-        //elk插入原则：没有则创建，否则更新。id必须自设
-        addIndex(entity);
-    }
+
 
     @Override
     public void bulkIndex(IGraphEntity... entities) {
@@ -76,7 +76,6 @@ public class ElasearchDAO implements IIndexDAO {
         }
 
         BulkResponse bulkResponse = bulkRequestBuilder.get();
-        System.out.println(bulkResponse);
         if (bulkResponse.hasFailures()){
             System.out.println("Bulk add index failures"+bulkResponse.buildFailureMessage());
         }
@@ -87,8 +86,6 @@ public class ElasearchDAO implements IIndexDAO {
         if(entities.length==0){
             return;
         }
-
-
         for (IGraphEntity entity:entities){
             DeleteResponse response = client.prepareDelete(index, entity.getGraphType(), entity.getGraphId())
                     .get();
@@ -96,8 +93,65 @@ public class ElasearchDAO implements IIndexDAO {
         }
     }
 
+    @Override
+    public JSONObject queryById(IGraphEntity queryEctity){
+        QueryBuilder matchQuery = QueryBuilders.idsQuery().addIds(queryEctity.getGraphId());
+
+        SearchResponse response = client.prepareSearch(index ).setTypes(queryEctity.getGraphType())
+                .setQuery(matchQuery)
+                .execute().actionGet();
 
 
+        SearchHits searchHits = response.getHits();
+        //遍历结果
+
+        JSONObject result = null;
+        if(searchHits.totalHits>0){
+            SearchHit hit = searchHits.iterator().next();
+            JSONObject source = new JSONObject(hit.getSourceAsString());
+            source.put("_id",hit.getId());
+            source.put("score",hit.getScore());
+            result =source;
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<JSONObject> queryByName(String graphtype,String name) {
+
+        QueryBuilder matchQuery = QueryBuilders.termQuery("name",name);
+
+
+        // 搜索数据
+        SearchResponse response = client.prepareSearch(index).setTypes(graphtype)
+                .setQuery(matchQuery)
+                .execute().actionGet();
+
+
+        int page=1;
+        int pagesize=10;
+        // 搜索数据(分页)
+
+        //获取查询结果集
+        SearchHits searchHits = response.getHits();
+        System.out.println(searchHits.totalHits);
+        List<JSONObject> result= new ArrayList<>();
+        //遍历结果
+        for(SearchHit hit:searchHits){
+            JSONObject source = new JSONObject(hit.getSourceAsString());
+            source.put("_id",hit.getId());
+            source.put("score",hit.getScore());
+
+            result.add(source);
+
+        }
+
+        System.out.println("共搜到:"+result.size()+"条结果!");
+        System.out.println(result);
+        return result;
+    }
 
 
     public List<String> queryAllMatch(IGraphEntity queryEntity) {

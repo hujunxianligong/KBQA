@@ -11,13 +11,52 @@ import org.json.JSONObject;
 public class Vertex implements IGraphEntity {
 
     private String graphId;
-    private Long id;
-    public String type;
-    public String name;
-    public String identity;
-    public String content;
-    public String root;
-    public String label;
+    private String type;
+    private String name;
+    private String identity;
+    private String content;
+    private String root;
+    private String label;
+    private String relationship;
+
+    public Vertex( String type,
+                   String name,
+                   String identity) {
+        this.type = type;
+        this.name = name;
+        this.identity = identity;
+        this.root = null;
+    }
+
+    public Vertex( String type,
+                   String name,
+                   String identity,
+                   String root) {
+        this.type = type;
+        this.name = name;
+        this.identity = identity;
+        this.root =root;
+        this.content = "";
+    }
+    @JsonCreator
+    public Vertex(@JsonProperty("type") String type,
+                  @JsonProperty("name") String name,
+                  @JsonProperty("identity") String identity,
+                  @JsonProperty("root") String root,
+                  @JsonProperty("content") JSONObject content) {
+        this.type = type;
+        this.name = name;
+        this.identity = identity;
+        this.root =root;
+        this.content = content.toString();
+    }
+
+    public void setId(long id){
+        this.graphId = String.valueOf(id);
+    }
+    public long getId(){
+        return Long.parseLong(graphId);
+    }
 
     public String getRelationship() {
         return relationship;
@@ -27,7 +66,6 @@ public class Vertex implements IGraphEntity {
         this.relationship = relationship;
     }
 
-    public String relationship;
     public String getLabel() {
         return label;
     }
@@ -40,9 +78,6 @@ public class Vertex implements IGraphEntity {
         return identity;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getType() {
         return type;
@@ -90,44 +125,11 @@ public class Vertex implements IGraphEntity {
 
     }
 
-    public Vertex( String type,
-                  String name,
-                   String identity) {
-        this.type = type;
-        this.name = name;
-        this.identity = identity;
-        this.root = null;
-    }
 
-    public Vertex( String type,
-                  String name,
-                   String identity,
-                   String root) {
-        this.type = type;
-        this.name = name;
-        this.identity = identity;
-        this.root =root;
-        this.content = "";
-    }
-    @JsonCreator
-    public Vertex(@JsonProperty("type") String type,
-                  @JsonProperty("name") String name,
-                  @JsonProperty("identity") String identity,
-                  @JsonProperty("root") String root,
-                  @JsonProperty("content") JSONObject content) {
-        this.type = type;
-        this.name = name;
-        this.identity = identity;
-        this.root =root;
-        this.content = content.toString();
-    }
 
     @Override
     public String toString() {
         return String.format("%s/%s/%s", type, name, identity);
-    }
-    public Long getId() {
-        return id;
     }
 
 
