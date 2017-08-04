@@ -1,15 +1,12 @@
 package com.qdcz.graph.neo4jcypher.buzi;
 
+import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.connect.Neo4jClientFactory;
 import com.qdcz.graph.neo4jcypher.dao.Neo4jCYDAO;
-import com.qdcz.graph.neo4jcypher.dao.TranClient;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.springframework.stereotype.Service;
@@ -21,14 +18,42 @@ import org.springframework.stereotype.Service;
 @Service("neo4jCypherBuzi")
 public class Neo4jCYBuzi implements IGraphBuzi {
 
+    public static void main(String[] args) {
+        LoadConfigListener loadConfigListener=new LoadConfigListener();
+        loadConfigListener.contextInitialized(null);
+
+        Vertex vertex =  new Vertex();
+        vertex.setType("");
+        vertex.setLabel("ddd");
+        vertex.setRelationship("gra");
+        vertex.setRoot("root");
+        vertex.setIdentity("gdflgjdfklj");
+        vertex.setName("gfdfggf");
+
+
+
+
+        Neo4jCYBuzi instance=  new Neo4jCYBuzi();
+        instance.addVertex(vertex);
+    }
+
+
+
     private Neo4jCYDAO neo4jCYDAO;
 
-    private TranClient client;
+    private Driver driver;
 
     public Neo4jCYBuzi(){
-        client =  Neo4jClientFactory.create();
-        neo4jCYDAO = new Neo4jCYDAO(client);
+        driver =  Neo4jClientFactory.create();
+        neo4jCYDAO = new Neo4jCYDAO(driver);
     }
+
+
+
+
+
+
+
     @Override
     public String addVertex(Vertex vertex) {
 
@@ -67,7 +92,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
             depthstr=depth+"";
         }
         String add= "MATCH path = shortestPath ( (a ) -[*1.."+depthstr+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
-        try ( Session session = client.driver.session() )
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
             StatementResult run = transaction.run(add);
@@ -80,7 +105,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     public Vertex checkVertexByIdentity(String label,String  identity){
         String quertString="MATCH (n:"+label+" {identity:'"+identity+"' }) RETURN n";
         Vertex vertex=new Vertex();
-        try ( Session session = client.driver.session() )
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
             StatementResult run = transaction.run(quertString);

@@ -2,7 +2,6 @@ package com.qdcz.graph.service;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
-import com.qdcz.graph.neo4jkernel.CypherSearchService;
 import com.qdcz.service.bean.RequestParameter;
 
 import org.json.JSONObject;
@@ -20,11 +19,8 @@ public class GraphService {
 
     @Autowired
     private NewTrasa newTrasa;
-    @Autowired
-    private TransactionService transactionService;
+//    @Autowired
 
-    @Autowired
-    private CypherSearchService cypherSearchService;
 
 
     @RequestMapping(path = "/testadd", method = {RequestMethod.POST,RequestMethod.GET})
@@ -35,8 +31,8 @@ public class GraphService {
         requestParameter.label="law";
         Boolean flag=true;
 
-        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","add");
-        transactionService.addEdgesByPath(requestParameter,obj_str+"/edges.txt");
+//        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","add");
+//        transactionService.addEdgesByPath(requestParameter,obj_str+"/edges.txt");
 
         return flag;
     }
@@ -46,7 +42,7 @@ public class GraphService {
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
         requestParameter.label="law";
-        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","del");
+//        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","del");
         return flag;
     }
 
@@ -56,34 +52,45 @@ public class GraphService {
     @ResponseBody
     public String graphOp(HttpServletRequest request){
         JSONObject obj=null;
-        String project=null;
         RequestParameter requestParameter =null;
         Map<String, String[]> parameterMap = request.getParameterMap();
         if(parameterMap.size()==0){
             return "param is null";
         }
+
+        String result =null;
         try {
             if(parameterMap.containsKey("data")){
-//                System.out.println(parameterMap.get("data")[0]);
+                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
                 return "failure";
             }
-            String result =null;
             Vertex vertex = null;
             Edge edge = null;
             //TODO   将请求序列化成实体
 
+
+            vertex = new Vertex();
+            vertex.setContent(obj.getJSONObject("info").getJSONObject("node").getString("content"));
+            vertex.setIdentity(obj.getJSONObject("info").getJSONObject("node").getString("identity"));
+            vertex.setName(obj.getJSONObject("info").getJSONObject("node").getString("name"));
+            vertex.setRoot(obj.getJSONObject("info").getJSONObject("node").getString("root"));
+            vertex.setLabel(obj.getJSONObject("info").getJSONObject("node").getString("label"));
+            vertex.setType(obj.getJSONObject("info").getJSONObject("node").getString("type"));
+
+
+            edge = new Edge();
+            edge.setFrom_id(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("from")));
+            edge.setTo_id(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("to")));
+            edge.setRelationship(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
 
             String type = obj.getString("type");
             System.out.println(obj);
 
 
 
-            Long id;
-            JSONObject node;
-            JSONObject Edge;
 
 
             switch (type){
@@ -91,7 +98,7 @@ public class GraphService {
                     //通过名称查询
                     result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
-                    result =transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
+//                    result =transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                     break;
                 case "checkByNameAndDepth":
                     int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
@@ -100,14 +107,14 @@ public class GraphService {
 
 
 
-                    result=transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name"),depth).toString();
+//                    result=transactionService.exactMatchQuery(requestParameter,obj.getJSONObject("info").getJSONObject("node").getString("name"),depth).toString();
                     break;
                 case "checkByIndex":
 
                     result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
 
-                    result=transactionService.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
+//                    result=transactionService.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name")).toString();
                     break;
                 case "checkById":
                     //TODO  应该要改成通过名称多层搜索
@@ -115,7 +122,7 @@ public class GraphService {
                     result=newTrasa.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth")));
 
 
-                    result=transactionService.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth"))).toString();
+//                    result=transactionService.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth"))).toString();
                     break;
                 case "addNode":
                     //新增节点
@@ -128,10 +135,10 @@ public class GraphService {
 
 
 
-                    node = obj.getJSONObject("info").getJSONObject("node");
-                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-                    id= transactionService.addVertex(requestParameter,vertex);
-                    result = "success";
+//                    node = obj.getJSONObject("info").getJSONObject("node");
+//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+//                    id= transactionService.addVertex(requestParameter,vertex);
+//                    result = "success";
                     break;
 
 
@@ -142,9 +149,9 @@ public class GraphService {
                     result = newTrasa.deleteVertex(vertex);
 
 
-                    node = obj.getJSONObject("info").getJSONObject("node");
-                    transactionService.deleteVertex(requestParameter,Long.parseLong(node.getString("id")));
-                    result = "success";
+//                    node = obj.getJSONObject("info").getJSONObject("node");
+//                    transactionService.deleteVertex(requestParameter,Long.parseLong(node.getString("id")));
+//                    result = "success";
                     break;
                 case "changeNode":
                     //修改节点
@@ -153,21 +160,21 @@ public class GraphService {
                     result = newTrasa.changeVertex(vertex);
 
 
-                    node = obj.getJSONObject("info").getJSONObject("node");
-                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-                    id  = transactionService.changeVertex(requestParameter,Long.parseLong(node.getString("id")), vertex);
-                    result = "success";
+//                    node = obj.getJSONObject("info").getJSONObject("node");
+//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+//                    id  = transactionService.changeVertex(requestParameter,Long.parseLong(node.getString("id")), vertex);
+//                    result = "success";
                     break;
 
                 case "addEdge":
                     //新增边
 
 
-                    result = newTrasa.addEgde(edge);
-                    node = obj.getJSONObject("info").getJSONObject("edge");
-                    JSONObject content=obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
-                    id=transactionService.addEgde(requestParameter,Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"),content);
-                    result = "success";
+//                    result = newTrasa.addEgde(edge);
+//                    node = obj.getJSONObject("info").getJSONObject("edge");
+//                    JSONObject content=obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
+//                    id=transactionService.addEgde(requestParameter,Long.parseLong(obj.getString("from")),Long.parseLong(obj.getString("to")),node.getString("relation"),content);
+//                    result = "success";
                     break;
 
 
@@ -178,10 +185,10 @@ public class GraphService {
                     result = newTrasa.changeEgde(edge);
 
 
-                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
-                    transactionService.changeEgde(requestParameter,Long.parseLong(Edge.getString("id")),Edge);
-//                Long id  = transactionService.changeEgde(Long.parseLong(Edge.getString("id")),Long.parseLong(Edge.getString("from")),Long.parseLong(Edge.getString("to")),Edge);
-                    result = "success";
+//                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
+//                    transactionService.changeEgde(requestParameter,Long.parseLong(Edge.getString("id")),Edge);
+////                Long id  = transactionService.changeEgde(Long.parseLong(Edge.getString("id")),Long.parseLong(Edge.getString("from")),Long.parseLong(Edge.getString("to")),Edge);
+//                    result = "success";
                     break;
                 case "deleteEdge":
                     //修改边
@@ -189,13 +196,13 @@ public class GraphService {
 
                     result = newTrasa.deleteEgde(edge);
 
-                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
-                    edge = transactionService.deleteEgde(requestParameter,Long.parseLong(Edge.getString("id")));
-                    if(edge==null) {
-                        result = "fail delete Edge,has`t this id of edge by" + Edge.getString("id");
-                    }
-                    id =edge.getEdgeId();
-                    result = "success";
+//                    Edge =  obj.getJSONObject("info").getJSONObject("edge");
+//                    edge = transactionService.deleteEgde(requestParameter,Long.parseLong(Edge.getString("id")));
+//                    if(edge==null) {
+//                        result = "fail delete Edge,has`t this id of edge by" + Edge.getString("id");
+//                    }
+//                    id =edge.getEdgeId();
+//                    result = "success";
                     break;
 
                 case "addNodeEdge":
@@ -204,15 +211,15 @@ public class GraphService {
                     result = newTrasa.addNodeEdge(vertex,edge);
 
 
-                    node = obj.getJSONObject("info").getJSONObject("node");
-                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
-                    Long end_id= transactionService.addVertex(requestParameter,vertex);
-                    System.out.println("新增节点"+end_id);
-                    Edge = obj.getJSONObject("info").getJSONObject("edge");
-                    content = obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
-                    Long id2=transactionService.addEgde(requestParameter,Long.parseLong(Edge.getString("from")),end_id,Edge.getString("relation"),content);
-                    System.out.println("新增边");
-                    result = "success";
+//                    node = obj.getJSONObject("info").getJSONObject("node");
+//                    vertex =new Vertex(node.getString("type"),node.getString("name"),node.getString("identity"),node.getString("root"));
+//                    Long end_id= transactionService.addVertex(requestParameter,vertex);
+//                    System.out.println("新增节点"+end_id);
+//                    Edge = obj.getJSONObject("info").getJSONObject("edge");
+//                    content = obj.getJSONObject("info").getJSONObject("edge").getJSONObject("content");
+//                    Long id2=transactionService.addEgde(requestParameter,Long.parseLong(Edge.getString("from")),end_id,Edge.getString("relation"),content);
+//                    System.out.println("新增边");
+//                    result = "success";
                     break;
 
                 default:
@@ -226,6 +233,6 @@ public class GraphService {
             e.printStackTrace();
         }
 
-        return "failure";
+        return result;
     }
 }

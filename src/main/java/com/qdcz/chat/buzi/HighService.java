@@ -5,7 +5,6 @@ import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
-import com.qdcz.graph.neo4jkernel.BankLawService;
 import com.qdcz.service.bean.RequestParameter;
 
 import org.neo4j.ogm.json.JSONArray;
@@ -27,8 +26,6 @@ public class HighService {
     private QuestionPaserService questionPaserService;
 
 
-    @Autowired
-    private BankLawService bankLawService;
 
     @Transactional
     public String smartQA(RequestParameter requestParameter, String question)  {//智能问答

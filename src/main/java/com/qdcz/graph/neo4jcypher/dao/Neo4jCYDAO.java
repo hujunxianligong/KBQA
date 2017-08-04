@@ -4,12 +4,9 @@ import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
 import org.json.JSONObject;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
+import org.neo4j.driver.v1.*;
+import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Relationship;
-import org.neo4j.graphdb.Node;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,24 +16,24 @@ import java.util.Map;
  * Created by star on 17-8-3.
  */
 public class Neo4jCYDAO implements IGraphDAO{
-    private TranClient client;
+    private Driver driver;
 
 
-    public Neo4jCYDAO(TranClient client){
-        this.client = client;
+    public Neo4jCYDAO(Driver driver){
+        this.driver = driver;
     }
 
 
     private String execute(String sql){
         long id=0l;
-        try ( Session session = client.driver.session() )
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
             StatementResult run = transaction.run(sql);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
+                Node n = (Node) run.next().get("n").asNode();
+                id=n.get("id").asLong();
+//                System.out.println( n.getid()+"");
             }
         }
         return id+"";
@@ -57,15 +54,18 @@ public class Neo4jCYDAO implements IGraphDAO{
         parameters.put("identity",vertex.getIdentity());
         parameters.put("root",vertex.getRoot());
         parameters.put("content",vertex.getContent());
-        try ( Session session = client.driver.session() )
+        parameters.put("type",vertex.getType());
+        try ( Session session = driver.session() )
         {
             StatementResult run = session.run(addString, parameters);
 //            Transaction transaction = session.beginTransaction();
 //            StatementResult run = transaction.run(addString);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
+                Node n =  run.next().get("n").asNode();
+
+
+                id=n.id();
+                System.out.println(id+"");
             }
         }
         return id+"";
@@ -95,14 +95,14 @@ public class Neo4jCYDAO implements IGraphDAO{
         parameters.put("toId",edge.from.getId());
         parameters.put("name",edge.getName());
         parameters.put("relation",edge.getRelation());
-        try ( Session session = client.driver.session() )
+        try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
             StatementResult run = transaction.run(sql);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n");
-                id=n.getId();
-                System.out.println( n.getId()+""+n.getAllProperties());
+                Node n = (Node) run.next().get("n").asNode();
+                id=n.get("id").asLong();
+//                System.out.println( n.getId()+""+n.getAllProperties());
             }
         }
         return id+"";
@@ -124,7 +124,7 @@ public class Neo4jCYDAO implements IGraphDAO{
     public JSONObject bfExtersion(Vertex vertex,int depth) {
         String sql = "MATCH (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return r,relateNode,n";
 
-        try ( Session session = client.driver.session())
+        try ( Session session = driver.session())
         {
             try ( Transaction tx = session.beginTransaction() )
             {
