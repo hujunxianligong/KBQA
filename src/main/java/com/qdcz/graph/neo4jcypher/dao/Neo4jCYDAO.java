@@ -188,7 +188,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 CommonTool.transMap2Bean(nodeInfo,newVertex);
                 newVertex.setGraphId(n.id()+"");
                 if(!nodeIds.contains(newVertex.getGraphId())) {
-                    nodesJarry.put(newVertex);
+                    nodesJarry.put(newVertex.toQueryJSON());
                 }
                 nodeIds.add(n.id()+"");
             }
@@ -200,7 +200,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 CommonTool.transMap2Bean(edgeInfo,newEdge);
                 newEdge.setGraphId(one_gra.id()+"");
                 if(!edgeIds.contains(newEdge.getGraphId())) {
-                    edgesJarry.put(newEdge);
+                    edgesJarry.put(newEdge.toQueryJSON());
                 }
                 edgeIds.add(one_gra.id()+"");
             }
