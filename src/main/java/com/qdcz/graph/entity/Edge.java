@@ -1,17 +1,13 @@
 package com.qdcz.graph.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 import org.json.JSONObject;
-import org.neo4j.ogm.annotation.*;
+
 
 /**
  * Created by hadoop on 17-6-22.
  */
-@Data
-@RelationshipEntity(type="gra")
-public class _Edge implements IGraphEntity{
+public class Edge implements IGraphEntity{
     public Long getEdgeId() {
         return edgeId;
     }
@@ -21,17 +17,47 @@ public class _Edge implements IGraphEntity{
     }
 
     private String graphId;
-
-
-    @GraphId
+    private String content;
     private Long edgeId;
-    @Relationship(type = "gra", direction=Relationship.OUTGOING)
-    public String relation;
-    @Property(name="from")
-    public Long from_id;
-    @StartNode
-    public _Vertex from;
 
+    public String getRelation() {
+        return relation;
+    }
+
+    public String relation;
+    public Long from_id;
+    public Vertex from;
+    public Long to_id;
+    public Vertex to;
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String name;
+    public String root;
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    private String relationship;
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    private String label;
     public Long getFrom_id() {
         return from_id;
     }
@@ -48,23 +74,13 @@ public class _Edge implements IGraphEntity{
         this.to_id = to_id;
     }
 
-    @Property(name="to")
-
-    public Long to_id;
-
-    @EndNode
-    public _Vertex to;
-    @Property(name="name")
-    public String name;
-    @Property
-    public String root;
-    public _Edge(){
+    public Edge(){
 
     }
     @JsonCreator
-    public _Edge(@JsonProperty("relation") String relation,
-                 @JsonProperty("from") _Vertex from,
-                 @JsonProperty("to") _Vertex to) {
+    public Edge( String relation,
+                 Vertex from,
+                 Vertex to) {
         this.relation = relation;
         this.from = from;
         this.to = to;
@@ -73,11 +89,11 @@ public class _Edge implements IGraphEntity{
         this.from_id=this.from.getId();
         this.to_id=this.to.getId();
     }
-    @JsonCreator
-    public _Edge(@JsonProperty("relation") String relation,
-                 @JsonProperty("from") _Vertex from,
-                 @JsonProperty("to") _Vertex to,
-                 @JsonProperty("root") String root) {
+
+    public Edge( String relation,
+                Vertex from,
+                Vertex to,
+                 String root) {
         this.relation = relation;
         this.from = from;
         this.to = to;
@@ -85,6 +101,21 @@ public class _Edge implements IGraphEntity{
         this.root = root;
         this.from_id=this.from.getId();
         this.to_id=this.to.getId();
+    }
+
+    public Edge( String relation,
+                Vertex from,
+                 Vertex to,
+                 String root,
+                JSONObject content) {
+        this.relation = relation;
+        this.from = from;
+        this.to = to;
+        this.name = from.name+"-"+to.name;
+        this.root = root;
+        this.from_id=this.from.getId();
+        this.to_id=this.to.getId();
+        this.content=content.toString();
     }
     @Override
     public String toString() {
@@ -94,10 +125,13 @@ public class _Edge implements IGraphEntity{
     @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
-        obj.put("from",from.getName());
-        obj.put("to",to.getName());
-        obj.put("root",root);
-        obj.put("relation",relation);
+
+            obj.put("from",from.getName());
+            obj.put("to",to.getName());
+            obj.put("root",root);
+            obj.put("relation",relation);
+
+
         return obj;
     }
 
@@ -117,7 +151,9 @@ public class _Edge implements IGraphEntity{
         JSONObject obj = new JSONObject();
 
         if(from!=null && !from.getName().isEmpty()) {
-            obj.put("from", from.getName());
+
+                obj.put("from", from.getName());
+
         }
 
         if(to!=null && !to.getName().isEmpty()) {
@@ -130,6 +166,7 @@ public class _Edge implements IGraphEntity{
         if(relation!=null && !relation.isEmpty()) {
             obj.put("relation",relation);
         }
+
         return obj;
     }
 

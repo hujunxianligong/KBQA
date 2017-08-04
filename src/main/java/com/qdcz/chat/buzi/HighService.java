@@ -1,14 +1,13 @@
 package com.qdcz.chat.buzi;
 
 import com.hankcs.hanlp.seg.common.Term;
-import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.ConceptRuler;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 import com.qdcz.graph.neo4jkernel.BankLawService;
-import com.qdcz.graph.entity._Vertex;
+import com.qdcz.service.bean.RequestParameter;
+
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
@@ -32,36 +31,16 @@ public class HighService {
     private BankLawService bankLawService;
 
     @Transactional
-    public String smartQA(String methodName,String question)  {//智能问答
+    public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
-        try {
-            String s = ConceptRuler.RegexKey(question);//正则模式
-            if(s!=null){
-                List<_Vertex> vertices = bankLawService.checkVertexByName(s);
-                String result="";
-                for(_Vertex vertex:vertices){
-                    Map<String, Object> map=new HashMap<>();
-                    map.put("name",vertex.getName());
-                    map.put("id",vertex.getId());
-                    map.put("regex",true);
-                    String str = questionPaserService.findDefine(question, map);
-                    result+=str;
-                }
-                if(!"learning".equals(result)&&!"".equals(result)){
-                    return result;
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
-        List<Term> termList = NLPTokenizer.segment(question);
+        List<Term> termList = StandardTokenizer.segment(question);
         for(int i=0;i<termList.size();i++){
             Term term=termList.get(i);
             if(i<termList.size()-1){
                 Term nextTerm=termList.get(i+1);
-                if(("a".equals(term.nature.name())||"n".equals(term.nature.name()))&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
+                if("a".equals(term.nature.name())&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
                     term.nature=nextTerm.nature;
                     term.word+=nextTerm.word;
                     nextTerm.nature= term.nature;
@@ -71,7 +50,6 @@ public class HighService {
             }
 
         }
-
         CommonTool.removeDuplicateWithOrder(termList);
         MyComparetor mc = new MyComparetor("score");
         List<Map<String, Object>> maps= new ArrayList();
@@ -84,10 +62,10 @@ public class HighService {
 
         String result= null;
         if(maps.size()==2){
-            result = questionPaserService.traversePathBynode(maps);
+            result = questionPaserService.traversePathBynode(requestParameter,maps);
         }
         else if(maps.size()==0){
-            if("askOfWeChat".equals(methodName)){
+            if("askOfWeChat".equals(requestParameter.requestSource)){
                 JSONObject obj=new JSONObject();
 
                 JSONArray data=new JSONArray();
@@ -151,7 +129,7 @@ public class HighService {
                 List<Map<String, Object>> maps2 = new ArrayList();
                 maps2.add(vertexNode);
                 maps2.add(edgeNode);
-                result = questionPaserService.traversePathBynode(maps2);
+                result = questionPaserService.traversePathBynode(requestParameter,maps2);
             }else if(vertexNode!=null&&edgeNode==null) {
                 maps.remove(vertexNode);
                 //查找分数第二高的索引
@@ -160,7 +138,7 @@ public class HighService {
                 List<Map<String, Object>> maps2 = new ArrayList();
                 maps2.add(vertexNode);
                 maps2.add(vertexNode2);
-                result = questionPaserService.traversePathBynode(maps2);
+                result = questionPaserService.traversePathBynode(requestParameter,maps2);
             }else if(edgeNode!=null&&vertexNode==null){
                 maps.remove(edgeNode);
                 Map<String, Object> edgeNode2=questionPaserService.getCloestMaps(maps);
@@ -168,34 +146,32 @@ public class HighService {
                 List<Map<String, Object>> maps2 = new ArrayList();
                 maps2.add(edgeNode);
                 maps2.add(edgeNode2);
-                result = questionPaserService.traversePathBynode(maps2);
+                result = questionPaserService.traversePathBynode(requestParameter,maps2);
             }else{
                 result = "learning";
             }
         }
 
-        if(result==null||"learning".equals(result)||"".equals(result)){
+        if(result==null||"learning".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;
-            try {
-                //降序后，第一个node就是分数最大的点
-                Map<String, Object> maxNode=null;
-                for(Map<String, Object> node:maps){
-                    if("node".equals(node.get("type"))){
-                        maxNode=node;
-                        break;
-                    }
+
+            //降序后，第一个node就是分数最大的点
+            Map<String, Object> maxNode=null;
+            for(Map<String, Object> node:maps){
+                if("node".equals(node.get("type"))){
+                    maxNode=node;
+                    break;
                 }
-                if(maxNode!=null) {
-                    str = questionPaserService.findDefine(question, maxNode);
-                }
-            } catch (JSONException  e) {
-                e.printStackTrace();
             }
+            if(maxNode!=null) {
+                str = questionPaserService.findDefine(question, maxNode);
+            }
+
             if(str==null||"learning".equals(str)||"".equals(str)) {
-                if("askOfWeChat".equals(methodName)){
+                if("askOfWeChat".equals(requestParameter.requestSource)){
                     JSONObject obj=new JSONObject();
                     JSONArray data=new JSONArray();
                     data.put(questionPaserService.requestTuring(question));
@@ -212,7 +188,7 @@ public class HighService {
                 result= str;
             }
         }
-        if("askOfWeChat".equals(methodName)){
+        if("askOfWeChat".equals(requestParameter.requestSource)){
             boolean flag=false;//判断是否是之前获取案例json
             JSONObject obj=null;
             try{

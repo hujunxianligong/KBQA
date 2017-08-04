@@ -1,7 +1,7 @@
 package com.qdcz.graph.interfaces;
 
-import com.qdcz.graph.entity._Edge;
-import com.qdcz.graph.entity._Vertex;
+import com.qdcz.graph.entity.Edge;
+import com.qdcz.graph.entity.Vertex;
 
 /**
  * 每个图对外提供的操作业务
@@ -14,7 +14,7 @@ public interface IGraphBuzi {
      * @param vertex
      * @return
      */
-    public String addVertex(_Vertex vertex);
+    public String addVertex(Vertex vertex);
 
 
     /**
@@ -22,13 +22,13 @@ public interface IGraphBuzi {
      * @param vertex
      * @return
      */
-    public String changeVertex(_Vertex vertex);
+    public String changeVertex(Vertex vertex);
 
 
     /**
      *删除点
      */
-    public String deleteVertex(_Vertex vertex);
+    public String deleteVertex(Vertex vertex);
 
 
     /**
@@ -36,7 +36,7 @@ public interface IGraphBuzi {
      * @param edge
      * @return
      */
-    public String addEdges(_Edge edge);
+    public String addEdges(Edge edge);
 
 
     /**
@@ -44,12 +44,28 @@ public interface IGraphBuzi {
      * @param edge
      * @return
      */
-    public String changeEdge(_Edge edge);
+    public String changeEdge(Edge edge);
 
     /**
      * 删除边
      * @param edge
      * @return
      */
-    public String deleteEdge(_Edge edge);
+    public String deleteEdge(Edge edge);
+
+    /**
+     * 深度优先遍历
+     * @param fromId
+     * @param toId
+     * @return
+     */
+    public void dfExection(long fromId,long toId,int depth);
+
+
+    /**
+     * 根据identity查询系统点信息
+     * @param label
+     * @param identity
+     */
+    public Vertex checkVertexByIdentity(String label,String  identity);
 }

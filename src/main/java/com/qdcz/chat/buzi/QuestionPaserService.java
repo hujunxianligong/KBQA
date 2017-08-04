@@ -1,19 +1,22 @@
 package com.qdcz.chat.buzi;
 
+
+import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.neo4jkernel.LegacyIndexService;
 import com.qdcz.graph.neo4jkernel.LoopDataService;
-import com.qdcz.graph.entity._Edge;
-import com.qdcz.graph.entity._Vertex;
-import com.qdcz.graph.neo4jkernel.BankLawService;
+
+import com.qdcz.graph.neo4jkernel.BankLawService;;
 import com.qdcz.graph.service.TransactionService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
+
+import com.qdcz.service.bean.RequestParameter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.neo4j.graphdb.*;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -112,7 +115,7 @@ public class QuestionPaserService
     }
 
 
-    public String findDefine(String question,Map<String, Object> map) throws JSONException {
+    public String findDefine(String question,Map<String, Object> map) {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{"是什么","是怎么样","是啥","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
         BuildReresult buildReresult = new BuildReresult();
@@ -135,14 +138,15 @@ public class QuestionPaserService
             JSONArray resultArray=new JSONArray();
             String name = null;
             //此处判断是否必要？
-            if (map.containsKey("relation")) {//边
-                name = (String) map.get("relation");
-                _Edge edge = bankLawService.checkEdgeById((Long) map.get("id"));
-                JSONObject graphById = transactionService.getGraphById(edge.getFrom_id(), 1);
-                resultArray.put(graphById);
-                JSONObject graphById1 = transactionService.getGraphById(edge.getTo_id(), 1);
-                resultArray.put(graphById1);
-            }else{//点
+//            if (map.containsKey("relation")) {//边
+//                name = (String) map.get("relation");
+//                _Edge edge = bankLawService.checkEdgeById((Long) map.get("id"));
+//                JSONObject graphById = transactionService.getGraphById(edge.getFrom_id(), 1);
+//                resultArray.put(graphById);
+//                JSONObject graphById1 = transactionService.getGraphById(edge.getTo_id(), 1);
+//                resultArray.put(graphById1);
+//            }else
+            {//点
                 name = (String) map.get("name");
                 JSONObject object = transactionService.getGraphById((Long) map.get("id"), 1);
                 resultArray.put(object);
@@ -225,7 +229,7 @@ public class QuestionPaserService
         }
         return "learning";
     }
-    public String traversePathBynode(List<Map<String, Object>> maps){
+    public String traversePathBynode(RequestParameter requestParameter, List<Map<String, Object>> maps){
         if(maps.size()==2){
             Map<String, Object> vertex1=null;
             Map<String, Object> vertex2=null;
@@ -252,11 +256,11 @@ public class QuestionPaserService
             }
             String result =null;
             if(vertex2==null&&edge2==null){
-                result =  getByNodeAndEdgeName(vertex1,edge1);
+                result =  getByNodeAndEdgeName(requestParameter,vertex1,edge1);
             }else if(vertex2==null&&vertex1==null){
                 result = getByEdgeAndEdgeName(edge1,edge2);
             }else if(edge2==null&&edge1==null){
-                result = getByNodeAndNodeName(vertex1,vertex2,false);
+                result = getByNodeAndNodeName(requestParameter,vertex1,vertex2,false);
             }
             return result;
         }
@@ -311,14 +315,14 @@ public class QuestionPaserService
             return sb.toString();
         }
     }
-    private String getByNodeAndNodeName(Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
+    private String getByNodeAndNodeName(RequestParameter requestParameter,Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
         String vertexName1=(String)vertex1.get("name");
         String vertexName2=(String)vertex2.get("name");
-        List<_Vertex> verticesStart = bankLawService.checkVertexByName(vertexName1);
-        List<_Vertex> verticesEnd = bankLawService.checkVertexByName(vertexName2);
+        List<Vertex> verticesStart = bankLawService.checkVertexByName(requestParameter.label,vertexName1);
+        List<Vertex> verticesEnd = bankLawService.checkVertexByName(requestParameter.label,vertexName2);
         Set<String>  resultPaths= new HashSet<>();
-        for(_Vertex vertexeE:verticesEnd){
-            for(_Vertex vertexL:verticesStart){
+        for(Vertex vertexeE:verticesEnd){
+            for(Vertex vertexL:verticesStart){
                 Long startid = vertexL.getId();
                 long endid = vertexeE.getId();
                 Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
@@ -334,16 +338,16 @@ public class QuestionPaserService
                 return "learning";
             }
             else{
-                return  getByNodeAndNodeName(vertex2,vertex1,true);
+                return  getByNodeAndNodeName(requestParameter,vertex2,vertex1,true);
             }
         }else{
             return sb.toString();
         }
     }
-    private String getByNodeAndEdgeName(Map<String, Object> vertex,Map<String, Object> edge)  {
+    private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertex,Map<String, Object> edge)  {
         Set<String>  resultPaths= new HashSet<>();
         String vertexName=(String)vertex.get("name");
-        List<_Vertex> vertices = bankLawService.checkVertexByName(vertexName);
+        List<Vertex> vertices = bankLawService.checkVertexByName(requestParameter.label,vertexName);
         //边索引
         String[] fields= new String[]{"relation"};
         String edgeName=(String)edge.get("relation");
@@ -360,7 +364,7 @@ public class QuestionPaserService
                 tx.success();
             }
             if(node!=null) {
-                for(_Vertex vertexL:vertices){
+                for(Vertex vertexL:vertices){
                     Long startid = vertexL.getId();
                     long endid = node.getId();
                     Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
@@ -448,14 +452,11 @@ public class QuestionPaserService
                 Vector<String> value = entry.getValue();
                 result += key+"为";
                 for(String str:value){
-                    try{
-                        JSONObject object = new JSONObject(str);
-                        result="";
-                        jsonArray.put(object.toString());
-                    }catch ( JSONException je){
-//                        je.printStackTrace();
-                        result+=str+"、";
-                    }
+
+                    JSONObject object = new JSONObject(str);
+                    result="";
+                    jsonArray.put(object.toString());
+
                 }
                 if(!"".equals(result)) {
                     result = result.substring(0, result.length() - 1) + "。";
@@ -475,17 +476,13 @@ public class QuestionPaserService
     }
     public   String requestTuring(String question) {
         JSONObject request= new JSONObject();
-        try {
+
             request.put("key","149c02a9f63a463f8b55f74b75d2d1c7");
             request.put("info",question);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
         String respone=null;
         try {
             respone = CommonTool.query(request.toString(), "http://www.tuling123.com/openapi/api");
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -496,7 +493,6 @@ public class QuestionPaserService
 
 
     public   String turingDataParser(String str ){
-        try {
             JSONObject obj=new JSONObject( str);
             int code = Integer.parseInt(obj.getString("code"));
             if(code==100000){
@@ -526,9 +522,6 @@ public class QuestionPaserService
             }else{
                 return "还在学习中，请多多关照哦！^-^";
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "还在学习中，请多多关照哦！^-^";
+
     }
 }

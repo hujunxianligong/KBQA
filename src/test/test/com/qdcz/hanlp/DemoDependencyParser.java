@@ -21,6 +21,7 @@ import java.util.List;
 public class DemoDependencyParser
 {
     public static void main(String[] args)
+
     {
         String content = " 回购协议市场的定义";
         List<String> keywordList = HanLP.extractKeyword(content, 2);

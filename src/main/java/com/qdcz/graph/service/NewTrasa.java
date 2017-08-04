@@ -2,11 +2,18 @@ package com.qdcz.graph.service;
 
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.index.interfaces.IIndexBuzi;
-import com.qdcz.graph.entity._Edge;
-import com.qdcz.graph.entity._Vertex;
+import com.qdcz.graph.entity.Edge;
+import com.qdcz.graph.entity.Vertex;
+import com.qdcz.service.bean.RequestParameter;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by star on 17-8-2.
@@ -27,11 +34,11 @@ public class NewTrasa {
      * @param vertex
      * @return
      */
-    public String addVertex(_Vertex vertex){
+    public String addVertex(Vertex vertex){
         String graphId = graphBuzi.addVertex(vertex);
 
 
-        vertex.setGraphId(graphId);
+//        vertex.setGraphId(graphId);
 
         indexBuzi.addIndex(vertex);
 
@@ -43,7 +50,7 @@ public class NewTrasa {
      * @param vertex
      * @return
      */
-    public String deleteVertex(_Vertex vertex){
+    public String deleteVertex(Vertex vertex){
 
         graphBuzi.addVertex(vertex);
 
@@ -58,7 +65,7 @@ public class NewTrasa {
      * @param vertex
      * @return
      */
-    public String changeVertex(_Vertex vertex){
+    public String changeVertex(Vertex vertex){
         graphBuzi.changeVertex(vertex);
 
         indexBuzi.changeIndex(vertex);
@@ -72,7 +79,7 @@ public class NewTrasa {
      * @param edge
      * @return
      */
-    public String addEgde(_Edge edge){
+    public String addEgde(Edge edge){
         String graphId = graphBuzi.addEdges(edge);
 
         edge.setGraphId(graphId);
@@ -87,7 +94,7 @@ public class NewTrasa {
      * @param edge
      * @return
      */
-    public String deleteEgde(_Edge edge){
+    public String deleteEgde(Edge edge){
         graphBuzi.deleteEdge(edge);
 
         indexBuzi.delIndex(edge);
@@ -101,7 +108,7 @@ public class NewTrasa {
      * @param edge
      * @return
      */
-    public String changeEgde(_Edge edge){
+    public String changeEgde(Edge edge){
         graphBuzi.changeEdge(edge);
 
         indexBuzi.changeIndex(edge);
@@ -116,7 +123,7 @@ public class NewTrasa {
      * @param edge
      * @return
      */
-    public String addNodeEdge(_Vertex vertex,_Edge edge){
+    public String addNodeEdge(Vertex vertex, Edge edge){
 
         String vertexId = graphBuzi.addVertex(vertex);
 
@@ -174,5 +181,77 @@ public class NewTrasa {
     public String getGraphById(Long id,int depth){
         return null;
     }
+
+    /**
+     *批量导入或删除数据节点
+     */
+    public long addVertexsByPath(RequestParameter requestParameter, String filePath, String type){//批量导入／删除数据节点
+
+        FileReader re = null;
+        try {
+            re = new FileReader(filePath);
+            BufferedReader read = new BufferedReader(re );
+            String str = null;
+            while((str=read.readLine())!=null){
+                try {
+                    System.out.println(str);
+                    JSONObject obj = new JSONObject(str);
+                    Vertex v = new Vertex( obj.getString("type").trim(), obj.getString("name").trim(),obj.getString("identity").trim(),obj.getString("root").trim(),obj.getJSONObject("content"));
+                    if("del".equals(type))
+                        deleteVertex(v);
+                    else
+                        addVertex(v);
+//
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            read.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("完毕！");
+        return 0l;
+    }
+
+    /**
+     * //批量导入边
+     * @param filePath
+     * @return
+     */
+    public long addEdgesByPath(RequestParameter requestParameter,String filePath){//批量导入边
+        String label = requestParameter.label;
+
+
+        FileReader re = null;
+        try {
+            re = new FileReader(filePath);
+            BufferedReader read = new BufferedReader(re );
+            String str = null;
+            while((str=read.readLine())!=null){
+                try {
+                    System.out.println(str);
+                    JSONObject obj = new JSONObject(str);
+                    Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
+                    Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
+                    Edge newEdge=new Edge(obj.getString("relation"),vertex1,vertex2,vertex1.getRoot());
+                    addEgde(newEdge);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            read.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("完毕！");
+        return 0l;
+    }
+
 
 }

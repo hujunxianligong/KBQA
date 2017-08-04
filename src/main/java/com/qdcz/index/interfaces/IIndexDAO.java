@@ -13,8 +13,8 @@ public interface IIndexDAO {
     public void delIndex(IGraphEntity entity);
     public void changeIndex(IGraphEntity entity);
 
-    public void BulkIndex(IGraphEntity... entities);
+    public void bulkIndex(IGraphEntity... entities);
 
 
-    public void bulkdelete(IGraphEntity... entities);
+    public void bulkDelete(IGraphEntity... entities);
 }

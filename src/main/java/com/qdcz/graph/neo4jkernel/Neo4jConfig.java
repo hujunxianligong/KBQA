@@ -50,7 +50,8 @@ public class Neo4jConfig extends Neo4jConfiguration implements EmbeddedServletCo
     @Bean
     public GraphDatabaseService graphDatabaseService(){
         getSessionFactory();
-        EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();
+
+        EmbeddedDriver embeddedDriver = (EmbeddedDriver) Components.driver();;
         return embeddedDriver.getGraphDatabaseService();
     }
 
