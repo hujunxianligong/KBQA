@@ -27,11 +27,10 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         LoadConfigListener loadConfigListener=new LoadConfigListener();
         loadConfigListener.contextInitialized(null);
         Vertex vertex=new Vertex();
-        vertex.setIdentity("87");
         vertex.setRoot("起点");
         vertex.setName("王倪东");
         vertex.setType("挖掘部");
-        vertex.setId(4114l);
+        vertex.setId("4114");
         vertex.setContent("");
         vertex.setLabel("test");
 

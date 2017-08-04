@@ -39,11 +39,9 @@ public class ElasearchBuzi implements IIndexBuzi {
         Vertex vertex =  new Vertex();
         vertex.setType("");
         vertex.setLabel("ddd");
-        vertex.setRelationship("gra");
         vertex.setRoot("root");
-        vertex.setIdentity("gdflgjdfklj");
         vertex.setName("完善组织架构");
-        vertex.setGraphId("4105");
+        vertex.setId("4105");
 
 
         ElasearchBuzi instance = new ElasearchBuzi();
@@ -56,12 +54,12 @@ public class ElasearchBuzi implements IIndexBuzi {
 
 //        instance.bulkIndex(vertex);
 
-//        instance.bulkDelete(vertex);
+        instance.bulkDelete(vertex);
 
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("vertex","组织");
+//        instance.queryByName("vertex","组织");
 
 
     }
