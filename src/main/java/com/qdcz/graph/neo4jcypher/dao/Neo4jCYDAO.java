@@ -33,7 +33,7 @@ public class Neo4jCYDAO implements IGraphDAO{
             StatementResult run = transaction.run(sql);
             while(run.hasNext()){
                 Node n = (Node) run.next().get("n").asNode();
-                id=n.get("id").asLong();
+                id=n.id();
 //                System.out.println( n.getid()+"");
             }
         }
