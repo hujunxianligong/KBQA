@@ -2,11 +2,7 @@ package com.qdcz.chat.buzi;
 
 
 import com.qdcz.graph.entity.Vertex;
-import com.qdcz.graph.neo4jkernel.LegacyIndexService;
-import com.qdcz.graph.neo4jkernel.LoopDataService;
 
-import com.qdcz.graph.neo4jkernel.BankLawService;;
-import com.qdcz.graph.service.TransactionService;
 import com.qdcz.common.BuildReresult;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
@@ -30,16 +26,16 @@ import java.util.*;
 @Service
 public class QuestionPaserService
 {
-    @Autowired
-    private TransactionService transactionService;
-    @Autowired
-    private GraphDatabaseService graphDatabaseService;
-    @Autowired
-    private LegacyIndexService legacyIndexService;
-    @Autowired
-    private LoopDataService loopDataService;
-    @Autowired
-    private BankLawService bankLawService;
+//    @Autowired
+//    private TransactionService transactionService;
+//    @Autowired
+//    private GraphDatabaseService graphDatabaseService;
+//    @Autowired
+//    private LegacyIndexService legacyIndexService;
+//    @Autowired
+//    private LoopDataService loopDataService;
+//    @Autowired
+//    private BankLawService bankLawService;
 
 
     public  Map<String, Object> getNode(String question){
@@ -48,7 +44,8 @@ public class QuestionPaserService
         Map<String, Object> node =null;
         String type="node";
         Levenshtein lt=new Levenshtein();
-        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
+        List<Map<String, Object>> maps = null;
+//        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
         MyComparetor mc = new MyComparetor("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
@@ -69,7 +66,8 @@ public class QuestionPaserService
             }
         }
         fields= new String[]{"relation"};
-        maps = legacyIndexService.selectByFullTextIndex(fields, question,"edge");
+        maps = null;
+//        maps = legacyIndexService.selectByFullTextIndex(fields, question,"edge");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         for(Map<String, Object> map:maps){
@@ -148,7 +146,8 @@ public class QuestionPaserService
 //            }else
             {//点
                 name = (String) map.get("name");
-                JSONObject object = transactionService.getGraphById((Long) map.get("id"), 1);
+                JSONObject object = null;
+//                JSONObject object = transactionService.getGraphById((Long) map.get("id"), 1);
                 resultArray.put(object);
             }
             JSONObject merge=new JSONObject();
@@ -271,8 +270,10 @@ public class QuestionPaserService
         String[] fields= new String[]{"relation"};
         String edgeName1=(String)edge1.get("relation");
         String edgeName2=(String)edge2.get("relation");
-        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
-        List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
+        List<Map<String, Object>> mapsEdge = null;
+        List<Map<String, Object>> mapsEdge2 = null;
+//        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
+//        List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
         if(mapsEdge.size()==0){
             mapsEdge.add(edge1);
         }
@@ -282,8 +283,10 @@ public class QuestionPaserService
         Set<String> resultPaths= new HashSet<>();
         for(Map<String, Object> map:mapsEdge){
             Node nodeStart    =   null;
-            try (   Transaction tx = graphDatabaseService.beginTx()) {
-                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
+            try (   Transaction tx =null) {
+//            try (   Transaction tx = graphDatabaseService.beginTx()) {
+                Relationship r = null;
+//                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
                 tx.acquireReadLock(r);
                 nodeStart = r.getStartNode();
                 tx.success();
@@ -291,15 +294,18 @@ public class QuestionPaserService
             if(nodeStart!=null) {
                 for(Map<String, Object> map2:mapsEdge2){
                     Node nodeEnd    =   null;
-                    try (   Transaction tx = graphDatabaseService.beginTx()) {
-                        Relationship r = graphDatabaseService.getRelationshipById((Long)map2.get("id"));
+                    try (   Transaction tx = null) {
+                        Relationship r = null;
+//                    try (   Transaction tx = graphDatabaseService.beginTx()) {
+//                        Relationship r = graphDatabaseService.getRelationshipById((Long)map2.get("id"));
                         tx.acquireReadLock(r);
                         nodeEnd = r.getEndNode();
                         tx.success();
                     }
                     Long startid = nodeStart.getId();
                     long endid = nodeEnd.getId();
-                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    Set<String> strings = null;
+//                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
                     resultPaths.addAll(strings);
                 }
             }
@@ -318,14 +324,17 @@ public class QuestionPaserService
     private String getByNodeAndNodeName(RequestParameter requestParameter,Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
         String vertexName1=(String)vertex1.get("name");
         String vertexName2=(String)vertex2.get("name");
-        List<Vertex> verticesStart = bankLawService.checkVertexByName(requestParameter.label,vertexName1);
-        List<Vertex> verticesEnd = bankLawService.checkVertexByName(requestParameter.label,vertexName2);
+        List<Vertex> verticesStart = null;
+        List<Vertex> verticesEnd = null;
+//        List<Vertex> verticesStart = bankLawService.checkVertexByName(requestParameter.label,vertexName1);
+//        List<Vertex> verticesEnd = bankLawService.checkVertexByName(requestParameter.label,vertexName2);
         Set<String>  resultPaths= new HashSet<>();
         for(Vertex vertexeE:verticesEnd){
             for(Vertex vertexL:verticesStart){
                 Long startid = vertexL.getId();
                 long endid = vertexeE.getId();
-                Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                Set<String> strings = null;
+//                Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
                 resultPaths.addAll(strings);
             }
         }
@@ -347,18 +356,22 @@ public class QuestionPaserService
     private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertex,Map<String, Object> edge)  {
         Set<String>  resultPaths= new HashSet<>();
         String vertexName=(String)vertex.get("name");
-        List<Vertex> vertices = bankLawService.checkVertexByName(requestParameter.label,vertexName);
+        List<Vertex> vertices = null;
+//        List<Vertex> vertices = bankLawService.checkVertexByName(requestParameter.label,vertexName);
         //边索引
         String[] fields= new String[]{"relation"};
         String edgeName=(String)edge.get("relation");
-        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
+        List<Map<String, Object>> mapsEdge = null;
+//        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
         if(mapsEdge.size()==0){//索引找不到的时候直接取id去找
             mapsEdge.add(edge);
         }
         for(Map<String, Object> map:mapsEdge){
             Node node    =   null;
-            try (   Transaction tx = graphDatabaseService.beginTx()) {
-                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
+            try (   Transaction tx = null) {
+                Relationship r = null;
+//            try (   Transaction tx = graphDatabaseService.beginTx()) {
+//                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
                 tx.acquireReadLock(r);
                 node = r.getEndNode();
                 tx.success();
@@ -367,7 +380,8 @@ public class QuestionPaserService
                 for(Vertex vertexL:vertices){
                     Long startid = vertexL.getId();
                     long endid = node.getId();
-                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
+                    Set<String> strings = null;
+//                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
                     resultPaths.addAll(strings);
                 }
             }
