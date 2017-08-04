@@ -27,21 +27,22 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         LoadConfigListener loadConfigListener=new LoadConfigListener();
         loadConfigListener.contextInitialized(null);
         Vertex vertex=new Vertex();
-        vertex.setIdentity("87");
-        vertex.setRoot("起点");
-        vertex.setName("王倪东");
-        vertex.setType("挖掘部");
-        vertex.setId(4114l);
-        vertex.setContent("");
-        vertex.setLabel("test");
-
+//        vertex.setIdentity("87");
+//        vertex.setRoot("起点");
+//        vertex.setName("王倪东");
+//        vertex.setType("挖掘部");
+//        vertex.setId(4114l);
+//        vertex.setContent("");
+//        vertex.setLabel("test");
+        vertex.setLabel("law");
+        vertex.setName("牵头行");
         Neo4jCYBuzi instance=  new Neo4jCYBuzi();
       //  instance.deleteVertex(vertex);
         Edge edge=new Edge();
         edge.setRelationship("gra");
         edge.setLabel("test");
         edge.setGraphId(2181l+"");
-        instance.deleteEdge(edge);
+        instance.bfExtersion(vertex,1);
     }
 
 
