@@ -82,8 +82,8 @@ public class GraphService {
 
 
             edge = new Edge();
-            edge.setFrom_id(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("from")));
-            edge.setTo_id(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("to")));
+            edge.setfrom(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("from")));
+            edge.setto(Long.parseLong(obj.getJSONObject("info").getJSONObject("edge").getString("to")));
             edge.setRelationship(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
 
             String type = obj.getString("type");

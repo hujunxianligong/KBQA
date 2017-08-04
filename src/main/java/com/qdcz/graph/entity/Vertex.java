@@ -124,7 +124,7 @@ public class Vertex implements IGraphEntity {
 
     @Override
     public String toString() {
-        return String.format("%s/%s/%s", type, name, identity);
+        return String.format("%s/%s/%s/%s", type, name, identity,graphId);
     }
     public Long getId() {
         return id;

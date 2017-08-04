@@ -17,6 +17,11 @@ public class Edge implements IGraphEntity{
     }
 
     private String graphId;
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     private String content;
     private Long edgeId;
 
@@ -25,10 +30,10 @@ public class Edge implements IGraphEntity{
     }
 
     public String relation;
-    public Long from_id;
-    public Vertex from;
-    public Long to_id;
-    public Vertex to;
+    public Long from;
+    public Vertex fromVertex;
+    public Long to;
+    public Vertex toVertex;
 
     public String getContent() {
         return content;
@@ -58,20 +63,20 @@ public class Edge implements IGraphEntity{
     }
 
     private String label;
-    public Long getFrom_id() {
-        return from_id;
+    public Long getfrom() {
+        return from;
     }
 
-    public void setFrom_id(Long from_id) {
-        this.from_id = from_id;
+    public void setfrom(Long from) {
+        this.from = from;
     }
 
-    public Long getTo_id() {
-        return to_id;
+    public Long getto() {
+        return to;
     }
 
-    public void setTo_id(Long to_id) {
-        this.to_id = to_id;
+    public void setto(Long to) {
+        this.to = to;
     }
 
     public Edge(){
@@ -79,55 +84,55 @@ public class Edge implements IGraphEntity{
     }
     @JsonCreator
     public Edge( String relation,
-                 Vertex from,
-                 Vertex to) {
+                 Vertex fromVertex,
+                 Vertex toVertex) {
         this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from+"-"+to;
+        this.fromVertex = fromVertex;
+        this.toVertex = toVertex;
+        this.name = fromVertex.getName()+"-"+toVertex.getName();
         this.root =null ;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
+        this.from=this.fromVertex.getId();
+        this.to=this.toVertex.getId();
     }
 
     public Edge( String relation,
-                Vertex from,
-                Vertex to,
+                Vertex fromVertex,
+                Vertex toVertex,
                  String root) {
         this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from.name+"-"+to.name;
+        this.fromVertex = fromVertex;
+        this.toVertex = toVertex;
+        this.name = fromVertex.getName()+"-"+toVertex.getName();
         this.root = root;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
+        this.from=this.fromVertex.getId();
+        this.to=this.toVertex.getId();
     }
 
     public Edge( String relation,
-                Vertex from,
-                 Vertex to,
+                Vertex fromVertex,
+                 Vertex toVertex,
                  String root,
                 JSONObject content) {
         this.relation = relation;
-        this.from = from;
-        this.to = to;
-        this.name = from.name+"-"+to.name;
+        this.fromVertex = fromVertex;
+        this.toVertex = toVertex;
+        this.name = fromVertex.getName()+"-"+toVertex.getName();
         this.root = root;
-        this.from_id=this.from.getId();
-        this.to_id=this.to.getId();
+        this.from=this.fromVertex.getId();
+        this.to=this.toVertex.getId();
         this.content=content.toString();
     }
     @Override
     public String toString() {
-        return String.format("%s/%s/%s", from, relation, to);
+        return String.format("%s/%s/%s", fromVertex, relation, toVertex);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-            obj.put("from",from.getName());
-            obj.put("to",to.getName());
+            obj.put("from",fromVertex.getName());
+            obj.put("to",toVertex.getName());
             obj.put("root",root);
             obj.put("relation",relation);
 
@@ -150,14 +155,14 @@ public class Edge implements IGraphEntity{
     public JSONObject toQueryJSON() {
         JSONObject obj = new JSONObject();
 
-        if(from!=null && !from.getName().isEmpty()) {
+        if(fromVertex!=null && !fromVertex.getName().isEmpty()) {
 
-                obj.put("from", from.getName());
+                obj.put("from", fromVertex.getName());
 
         }
 
-        if(to!=null && !to.getName().isEmpty()) {
-            obj.put("to", to);
+        if(toVertex!=null && !toVertex.getName().isEmpty()) {
+            obj.put("to", toVertex);
         }
 
         if(root!=null && !root.isEmpty()) {

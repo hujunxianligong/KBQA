@@ -1,8 +1,12 @@
 package com.qdcz.graph.interfaces;
 
 import com.qdcz.graph.entity.Edge;
+import com.qdcz.graph.entity.IGraphEntity;
 import com.qdcz.graph.entity.Vertex;
 import org.json.JSONObject;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * 图谱操作类接口
@@ -29,7 +33,7 @@ public interface IGraphDAO {
     /**
      *删除点
      */
-    public String deleteVertex(Vertex vertex);
+    public List<IGraphEntity> deleteVertex(Vertex vertex);
 
 
     /**
