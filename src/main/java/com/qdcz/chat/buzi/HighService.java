@@ -157,21 +157,19 @@ public class HighService {
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;
-            try {
-                //降序后，第一个node就是分数最大的点
-                Map<String, Object> maxNode=null;
-                for(Map<String, Object> node:maps){
-                    if("node".equals(node.get("type"))){
-                        maxNode=node;
-                        break;
-                    }
+
+            //降序后，第一个node就是分数最大的点
+            Map<String, Object> maxNode=null;
+            for(Map<String, Object> node:maps){
+                if("node".equals(node.get("type"))){
+                    maxNode=node;
+                    break;
                 }
-                if(maxNode!=null) {
-                    str = questionPaserService.findDefine(question, maxNode);
-                }
-            } catch (JSONException  e) {
-                e.printStackTrace();
             }
+            if(maxNode!=null) {
+                str = questionPaserService.findDefine(question, maxNode);
+            }
+
             if(str==null||"learning".equals(str)||"".equals(str)) {
                 if("askOfWeChat".equals(requestParameter.requestSource)){
                     JSONObject obj=new JSONObject();

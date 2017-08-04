@@ -13,10 +13,10 @@ import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
 import com.qdcz.service.bean.RequestParameter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.neo4j.graphdb.*;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -115,7 +115,7 @@ public class QuestionPaserService
     }
 
 
-    public String findDefine(String question,Map<String, Object> map) throws JSONException {
+    public String findDefine(String question,Map<String, Object> map) {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{"是什么","是怎么样","是啥","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
         BuildReresult buildReresult = new BuildReresult();
@@ -452,14 +452,11 @@ public class QuestionPaserService
                 Vector<String> value = entry.getValue();
                 result += key+"为";
                 for(String str:value){
-                    try{
-                        JSONObject object = new JSONObject(str);
-                        result="";
-                        jsonArray.put(object.toString());
-                    }catch ( JSONException je){
-//                        je.printStackTrace();
-                        result+=str+"、";
-                    }
+
+                    JSONObject object = new JSONObject(str);
+                    result="";
+                    jsonArray.put(object.toString());
+
                 }
                 if(!"".equals(result)) {
                     result = result.substring(0, result.length() - 1) + "。";
@@ -479,17 +476,13 @@ public class QuestionPaserService
     }
     public   String requestTuring(String question) {
         JSONObject request= new JSONObject();
-        try {
+
             request.put("key","149c02a9f63a463f8b55f74b75d2d1c7");
             request.put("info",question);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
         String respone=null;
         try {
             respone = CommonTool.query(request.toString(), "http://www.tuling123.com/openapi/api");
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -500,7 +493,6 @@ public class QuestionPaserService
 
 
     public   String turingDataParser(String str ){
-        try {
             JSONObject obj=new JSONObject( str);
             int code = Integer.parseInt(obj.getString("code"));
             if(code==100000){
@@ -530,9 +522,6 @@ public class QuestionPaserService
             }else{
                 return "还在学习中，请多多关照哦！^-^";
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "还在学习中，请多多关照哦！^-^";
+
     }
 }

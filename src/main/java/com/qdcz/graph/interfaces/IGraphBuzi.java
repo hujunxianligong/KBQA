@@ -52,4 +52,20 @@ public interface IGraphBuzi {
      * @return
      */
     public String deleteEdge(Edge edge);
+
+    /**
+     * 深度优先遍历
+     * @param fromId
+     * @param toId
+     * @return
+     */
+    public void dfExection(long fromId,long toId,int depth);
+
+
+    /**
+     * 根据identity查询系统点信息
+     * @param label
+     * @param identity
+     */
+    public Vertex checkVertexByIdentity(String label,String  identity);
 }

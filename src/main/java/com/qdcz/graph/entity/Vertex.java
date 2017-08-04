@@ -2,26 +2,47 @@ package com.qdcz.graph.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.qdcz.graph.entity.IGraphEntity;
-import lombok.Data;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.json.JSONObject;
+import org.json.JSONObject;
+
 
 /**
  * Created by hadoop on 17-6-22.
  */
-@Data
-@NodeEntity(label="law")
 public class Vertex implements IGraphEntity {
+
+    private String graphId;
+    private Long id;
+    public String type;
+    public String name;
+    public String identity;
+    public String content;
+    public String root;
+    public String label;
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public String relationship;
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
 
     public void setId(Long id) {
         this.id = id;
     }
-
-    private String graphId;
-
 
     public String getType() {
         return type;
@@ -35,9 +56,6 @@ public class Vertex implements IGraphEntity {
         this.name = name;
     }
 
-    public String getIdentity() {
-        return identity;
-    }
 
     public void setIdentity(String identity) {
         this.identity = identity;
@@ -55,46 +73,36 @@ public class Vertex implements IGraphEntity {
         this.root = root;
     }
 
-    @GraphId
-    private Long id;
-
-    public String type;
-
     public String getName() {
         return name;
     }
-
-    @Property(name="name")
-    public String name;
-    public String identity;
-
 
     public String getRoot() {
         return root;
     }
 
-    @Property
-    public String content;
-    @Property
-    public String root;
+
+    public void setGraphId(String graphId) {
+        this.graphId = graphId;
+    }
 
     public Vertex(){
 
     }
-    @JsonCreator
-    public Vertex(@JsonProperty("type") String type,
-                  @JsonProperty("name") String name,
-                  @JsonProperty("identity") String identity) {
+
+    public Vertex( String type,
+                  String name,
+                   String identity) {
         this.type = type;
         this.name = name;
         this.identity = identity;
         this.root = null;
     }
-    @JsonCreator
-    public Vertex(@JsonProperty("type") String type,
-                  @JsonProperty("name") String name,
-                  @JsonProperty("identity") String identity,
-                  @JsonProperty("root") String root) {
+
+    public Vertex( String type,
+                  String name,
+                   String identity,
+                   String root) {
         this.type = type;
         this.name = name;
         this.identity = identity;
@@ -124,13 +132,15 @@ public class Vertex implements IGraphEntity {
 
 
     @Override
-    public org.json.JSONObject toJSON() {
-        org.json.JSONObject obj = new org.json.JSONObject();
-        obj.put("type",type);
-        obj.put("name",name);
-        obj.put("root",root);
-        obj.put("identity",identity);
-        obj.put("content",content);
+    public JSONObject toJSON() {
+        JSONObject obj = new JSONObject();
+
+            obj.put("type",type);
+            obj.put("name",name);
+            obj.put("root",root);
+            obj.put("identity",identity);
+            obj.put("content",content);
+
         return obj;
     }
 
@@ -146,11 +156,13 @@ public class Vertex implements IGraphEntity {
 
 
     @Override
-    public org.json.JSONObject toQueryJSON() {
-        org.json.JSONObject obj = new org.json.JSONObject();
+    public JSONObject toQueryJSON() {
+       JSONObject obj = new JSONObject();
 
         if(type!=null && !type.isEmpty()) {
-            obj.put("type", type);
+
+                obj.put("type", type);
+
         }
 
         if(name!=null && !name.isEmpty()) {
@@ -166,11 +178,8 @@ public class Vertex implements IGraphEntity {
         if(content!=null && !content.isEmpty()) {
             obj.put("content",content);
         }
+
         return obj;
     }
 
-
-    public void setGraphId(String graphId) {
-        this.graphId = graphId;
-    }
 }

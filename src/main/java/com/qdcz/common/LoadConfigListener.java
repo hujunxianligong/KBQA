@@ -1,7 +1,7 @@
 package com.qdcz.common;
 
 import com.qdcz.config.MongoConfigure;
-import com.qdcz.config.MyConnConfigure;
+import com.qdcz.graph.neo4jcypher.conf.Neo4jConfiger;
 import com.qdcz.index.elsearch.conf.ELKConfig;
 
 import javax.servlet.ServletContextEvent;
@@ -25,9 +25,11 @@ public class LoadConfigListener implements ServletContextListener {
         try {
             //------------加载neo4j的配置------------
             System.out.println("------------加载neo4j的配置------------");
-            MyConnConfigure myConnConfigure = new MyConnConfigure();
+            //MyConnConfigure myConnConfigure = new MyConnConfigure();
             //System.out.println(LoadConfigListener.class.getResource("/com/wfxl/common/myconfig.properties"));
-            myConnConfigure.load(LoadConfigListener.class.getResourceAsStream("/neo4j.properties"));
+           // myConnConfigure.load(LoadConfigListener.class.getResourceAsStream("/neo4j.properties"));
+            Neo4jConfiger neo4jConfiger=new Neo4jConfiger();
+            neo4jConfiger.load(LoadConfigListener.class.getResourceAsStream("/neo4j.properties"));
             System.out.println("------------加载MongoDB配置文件------------");
             MongoConfigure mongoConf = new MongoConfigure();
             mongoConf.load(LoadConfigListener.class.getResourceAsStream("/mongo.properties"));

@@ -4,7 +4,8 @@ import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.neo4jkernel.CypherSearchService;
 import com.qdcz.service.bean.RequestParameter;
-import org.neo4j.ogm.json.JSONObject;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

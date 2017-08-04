@@ -10,11 +10,10 @@ import com.qdcz.graph.neo4jkernel.LoopDataService;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.service.bean.RequestParameter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Traverser;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -174,17 +173,15 @@ public class TransactionService {
         Traverser traverser = loopDataService.loopDataByLoopApi(vertex.getId(),1);
         JSONObject jsonObject = buildReresult.graphResult(traverser);
         //3.删除关系
-        try {
-            JSONArray edges = jsonObject.getJSONArray("edges");
-            for(int i=0;i<edges.length();i++){
-                JSONObject jsonObject1 = edges.getJSONObject(i);
-                String edgeId = jsonObject1.getString("id");
-                System.out.println(id);
-                deleteEgde(requestParameter,Long.parseLong(edgeId));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+        JSONArray edges = jsonObject.getJSONArray("edges");
+        for(int i=0;i<edges.length();i++){
+            JSONObject jsonObject1 = edges.getJSONObject(i);
+            String edgeId = jsonObject1.getString("id");
+            System.out.println(id);
+            deleteEgde(requestParameter,Long.parseLong(edgeId));
         }
+
         //4.删除索引
         if(vertex.name.length()<30){
             List<String > propKeys=new ArrayList<>();
@@ -318,11 +315,9 @@ public class TransactionService {
         JSONObject merge=new JSONObject();
         //5.组织返回结果
         for(int i=0;i<resultArray.length();i++){
-            try {
-                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+            merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
+
         }
         JSONObject result= buildReresult.cleanRestult(merge);
         System.out.println(result);
@@ -378,11 +373,9 @@ public class TransactionService {
         JSONObject merge=new JSONObject();
         //4.结果组织返回
         for(int i=0;i<resultArray.length();i++){
-            try {
-                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+            merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
+
         }
         JSONObject result= buildReresult.cleanRestult(merge);
         return result;
@@ -420,11 +413,9 @@ public class TransactionService {
         JSONObject merge=new JSONObject();
         //5.组织返回结果
         for(int i=0;i<resultArray.length();i++){
-            try {
-                merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
+            merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
+
         }
         JSONObject result= buildReresult.cleanRestult(merge);
 
@@ -528,15 +519,13 @@ public class TransactionService {
 
         deleteEgde(requestParameter,id);
         long newId=0l;
-        try {
-            String relation=newEgdeInfo.getString("relation");
-            Vertex from = bankLawService.checkVertexById(label,fromId);
-            Vertex to = bankLawService.checkVertexById(label,toId);
-            Edge newEdge=new Edge(relation,from,to,from.getRoot());
-            newId=addEgde(requestParameter,newEdge);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+        String relation=newEgdeInfo.getString("relation");
+        Vertex from = bankLawService.checkVertexById(label,fromId);
+        Vertex to = bankLawService.checkVertexById(label,toId);
+        Edge newEdge=new Edge(relation,from,to,from.getRoot());
+        newId=addEgde(requestParameter,newEdge);
+
         return  newId;
     }
 
@@ -545,15 +534,13 @@ public class TransactionService {
         String label = requestParameter.label;
         Edge edge = deleteEgde(requestParameter,id);
         long newId=0l;
-        try {
-            String relation=newEgdeInfo.getString("relation");
-            Vertex from = bankLawService.checkVertexById(label,edge.getFrom_id());
-            Vertex to = bankLawService.checkVertexById(label,edge.getTo_id());
-            Edge newEdge=new Edge(relation,from,to,from.getRoot(),newEgdeInfo.getJSONObject("content"));
-            newId=addEgde(requestParameter,newEdge);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+        String relation=newEgdeInfo.getString("relation");
+        Vertex from = bankLawService.checkVertexById(label,edge.getFrom_id());
+        Vertex to = bankLawService.checkVertexById(label,edge.getTo_id());
+        Edge newEdge=new Edge(relation,from,to,from.getRoot(),newEgdeInfo.getJSONObject("content"));
+        newId=addEgde(requestParameter,newEdge);
+
         System.out.println(newId);
     }
 

@@ -2,6 +2,7 @@ package com.qdcz.graph.interfaces;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
+import org.json.JSONObject;
 
 /**
  * 图谱操作类接口
@@ -53,5 +54,12 @@ public interface IGraphDAO {
      */
     public String deleteEdge(Edge edge);
 
+    /**
+     * 根据节点查询广搜查询
+     * @param vertex
+     * @param depth
+     * @return
+     */
+    public JSONObject bfExtersion(Vertex vertex,int depth);
 
 }

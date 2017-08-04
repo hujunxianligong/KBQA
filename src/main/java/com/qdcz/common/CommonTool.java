@@ -45,7 +45,7 @@ public class CommonTool {
         }
         return result;
     }
-    public static String query(String content, String url) throws JSONException, ClientProtocolException, IOException {
+    public static String query(String content, String url) throws ClientProtocolException, IOException {
 //        long qTest_st = System.currentTimeMillis();
         CloseableHttpClient httpclient = HttpClients.createDefault();
 //        long qTest_end = System.currentTimeMillis();
