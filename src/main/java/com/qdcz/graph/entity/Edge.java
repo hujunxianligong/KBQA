@@ -8,13 +8,6 @@ import org.json.JSONObject;
  * Created by hadoop on 17-6-22.
  */
 public class Edge implements IGraphEntity{
-    public Long getEdgeId() {
-        return edgeId;
-    }
-
-    public void setEdgeId(Long edgeId) {
-        this.edgeId = edgeId;
-    }
 
     private String graphId;
 
@@ -24,10 +17,9 @@ public class Edge implements IGraphEntity{
 
     private String content;
     private Long edgeId;
+    public String name;
+    public String root;
 
-    public String getRelation() {
-        return relation;
-    }
 
     public String relation;
     public Long from;
@@ -35,6 +27,23 @@ public class Edge implements IGraphEntity{
     public Long to;
     public Vertex toVertex;
 
+
+
+
+
+
+
+
+    public String getRelation() {
+        return relation;
+    }
+    public Long getEdgeId() {
+        return edgeId;
+    }
+
+    public void setEdgeId(Long edgeId) {
+        this.edgeId = edgeId;
+    }
     public String getContent() {
         return content;
     }
@@ -43,8 +52,6 @@ public class Edge implements IGraphEntity{
         return name;
     }
 
-    public String name;
-    public String root;
     public String getRelationship() {
         return relationship;
     }
@@ -82,6 +89,7 @@ public class Edge implements IGraphEntity{
     public Edge(){
 
     }
+
     @JsonCreator
     public Edge( String relation,
                  Vertex fromVertex,
