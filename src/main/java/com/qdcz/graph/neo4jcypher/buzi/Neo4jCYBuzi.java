@@ -36,7 +36,12 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         vertex.setLabel("test");
 
         Neo4jCYBuzi instance=  new Neo4jCYBuzi();
-        instance.deleteVertex(vertex);
+      //  instance.deleteVertex(vertex);
+        Edge edge=new Edge();
+        edge.setRelationship("gra");
+        edge.setLabel("test");
+        edge.setGraphId(2181l+"");
+        instance.deleteEdge(edge);
     }
 
 
@@ -77,7 +82,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     }
 
     @Override
-    public String deleteEdge(Edge edge) {
+    public boolean deleteEdge(Edge edge) {
         return neo4jCYDAO.deleteEdge(edge);
     }
 
