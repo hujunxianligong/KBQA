@@ -61,5 +61,20 @@ public interface IGraphDAO {
      * @return
      */
     public JSONObject bfExtersion(Vertex vertex,int depth);
+    /**
+     * 深度优先遍历
+     * @param fromId
+     * @param toId
+     * @return
+     */
+    public void dfExection(long fromId,long toId,int depth);
+
+
+    /**
+     * 根据identity查询系统点信息
+     * @param label
+     * @param identity
+     */
+    public Vertex checkVertexByIdentity(String label,String  identity);
 
 }

@@ -197,6 +197,7 @@ public class NewTrasa {
                     System.out.println(str);
                     JSONObject obj = new JSONObject(str);
                     Vertex v = new Vertex( obj.getString("type").trim(), obj.getString("name").trim(),obj.getString("identity").trim(),obj.getString("root").trim(),obj.getJSONObject("content"));
+                    v.setLabel(requestParameter.label);
                     if("del".equals(type))
                         deleteVertex(v);
                     else
@@ -237,6 +238,7 @@ public class NewTrasa {
                     Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
                     Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
                     Edge newEdge=new Edge(obj.getString("relation"),vertex1,vertex2,vertex1.getRoot());
+                    newEdge.setLabel(requestParameter.label);
                     addEgde(newEdge);
 
                 } catch (Exception e) {

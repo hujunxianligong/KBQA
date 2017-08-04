@@ -2,6 +2,7 @@ package com.qdcz.graph.interfaces;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
+import org.json.JSONObject;
 
 /**
  * 每个图对外提供的操作业务
@@ -53,6 +54,13 @@ public interface IGraphBuzi {
      */
     public String deleteEdge(Edge edge);
 
+    /**
+     * 根据节点查询广搜查询
+     * @param vertex
+     * @param depth
+     * @return
+     */
+    public JSONObject bfExtersion(Vertex vertex,int depth);
     /**
      * 深度优先遍历
      * @param fromId

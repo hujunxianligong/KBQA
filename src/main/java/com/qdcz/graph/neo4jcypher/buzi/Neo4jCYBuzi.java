@@ -6,12 +6,8 @@ import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.connect.Neo4jClientFactory;
 import com.qdcz.graph.neo4jcypher.dao.Neo4jCYDAO;
 import com.qdcz.graph.neo4jcypher.dao.TranClient;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Result;
+import org.json.JSONObject;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -60,41 +56,21 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     public String deleteEdge(Edge edge) {
         return neo4jCYDAO.deleteEdge(edge);
     }
+
     @Override
-    public void dfExection(long fromId,long toId,int depth){
-        String depthstr="";
-        if(depth>1){
-            depthstr=depth+"";
-        }
-        String add= "MATCH path = shortestPath ( (a ) -[*1.."+depthstr+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
-        try ( Session session = client.driver.session() )
-        {
-            Transaction transaction = session.beginTransaction();
-            StatementResult run = transaction.run(add);
-            while(run.hasNext()){
-                Value path = run.next().get("path");
-                System.out.println(path);
-            }
-        }
+    public JSONObject bfExtersion(Vertex vertex, int depth) {
+        return neo4jCYDAO.bfExtersion(vertex,depth);
     }
-    public Vertex checkVertexByIdentity(String label,String  identity){
-        String quertString="MATCH (n:"+label+" {identity:'"+identity+"' }) RETURN n";
-        Vertex vertex=new Vertex();
-        try ( Session session = client.driver.session() )
-        {
-            Transaction transaction = session.beginTransaction();
-            StatementResult run = transaction.run(quertString);
-            while(run.hasNext()) {
-                Node n = (Node) run.next().get("n");
-                vertex.setContent(n.getProperty("content").toString());
-                vertex.setRoot(n.getProperty("root").toString());
-                vertex.setType(n.getProperty("type").toString());
-                vertex.setId(n.getId());
-                vertex.setName(n.getProperty("name").toString());
-                vertex.setIdentity(n.getProperty("identity").toString());
-                System.out.println(n.getAllProperties());
-            }
-        }
-        return vertex;
+
+    @Override
+    public void dfExection(long fromId, long toId, int depth) {
+        neo4jCYDAO.dfExection(fromId,toId,depth);
     }
+
+    @Override
+    public Vertex checkVertexByIdentity(String label, String identity) {
+        return neo4jCYDAO.checkVertexByIdentity(label,identity);
+    }
+
+
 }
