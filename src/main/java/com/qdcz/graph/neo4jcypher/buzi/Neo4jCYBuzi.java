@@ -40,7 +40,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         edge.setRelationship("gra");
         edge.setLabel("test");
         edge.setGraphId(2181l+"");
-        instance.deleteEdge(edge);
+        instance.bfExtersion(vertex,1);
     }
 
 
