@@ -51,7 +51,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("name",vertex.getName());
-  //      parameters.put("identity",vertex.getIdentity());
+        parameters.put("identity",vertex.getIdentity());
         parameters.put("root",vertex.getRoot());
         parameters.put("content",vertex.getContent());
         parameters.put("type",vertex.getType());
@@ -170,7 +170,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         JSONArray edgesJarry=new JSONArray();
         Set<String> nodeIds=new HashSet<>();
         Set<String> edgeIds=new HashSet<>();
-        String sql = "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
+        String sql = "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
        //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
         StatementResult execute = execute(sql);
         while ( execute.hasNext() ) {
@@ -213,7 +213,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
         System.out.println(result);
-        return null;
+        return result;
     }
     @Override
     public void dfExection(long fromId,long toId,int depth){
