@@ -45,7 +45,6 @@ public class Vertex implements IGraphEntity {
         obj.put("root",root);
         obj.put("content",content);
         obj.put("identity",identity);
-
         return obj;
     }
 
