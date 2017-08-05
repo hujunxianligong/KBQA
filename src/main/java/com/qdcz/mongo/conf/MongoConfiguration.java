@@ -1,6 +1,4 @@
-package com.qdcz.config;
-
-import org.springframework.beans.factory.annotation.Value;
+package com.qdcz.mongo.conf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +7,7 @@ import java.util.Properties;
 /**
  * Created by hadoop on 17-7-3.
  */
-public class MongoConfigure extends Properties {
+public class MongoConfiguration extends Properties {
 
     public static String host = null;
 

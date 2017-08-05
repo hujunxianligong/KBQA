@@ -1,7 +1,8 @@
-package com.qdcz.graph.service;
+package com.qdcz.graph.controller;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
+import com.qdcz.graph.service.GraphOperateService;
 import com.qdcz.service.bean.RequestParameter;
 
 import org.json.JSONObject;
@@ -15,10 +16,10 @@ import java.util.Map;
  * Created by star on 17-8-1.
  */
 @RestController
-public class GraphService {
+public class GraphControler {
 
     @Autowired
-    private NewTrasa newTrasa;
+    private GraphOperateService newTrasa;
 //    @Autowired
 
 
@@ -70,31 +71,37 @@ public class GraphService {
             Edge edge = null;
 
 
+            System.out.println(obj);
             //TODO   将请求序列化成实体
+
+//            {"project":"think-tank","type":"addNode","info":{"node":{"identity":"","root":"社会科学知识库","name":"测试","id":"","type":""},"edge":{"root":"","from":"","to":"","id":"","relation":""}}}
+
 
             vertex = new Vertex();
 
             vertex.setId(obj.getJSONObject("info").getJSONObject("node").getString("id"));
-            vertex.setContent(obj.getJSONObject("info").getJSONObject("node").getString("content"));
+            vertex.setContent("");
             vertex.setName(obj.getJSONObject("info").getJSONObject("node").getString("name"));
             vertex.setRoot(obj.getJSONObject("info").getJSONObject("node").getString("root"));
-            vertex.setLabel(obj.getJSONObject("info").getJSONObject("node").getString("label"));
+            vertex.setLabel("vertex");
             vertex.setType(obj.getJSONObject("info").getJSONObject("node").getString("type"));
 
 
             edge = new Edge();
+            edge.setId(obj.getJSONObject("info").getJSONObject("edge").getString("id"));
             edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
             edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
-            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
+            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
 
             String type = obj.getString("type");
+
             System.out.println(type+"\t"+obj);
 
 
             switch (type){
                 case "checkByName":
                     //通过名称查询
-                    result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
+                    result = newTrasa.exactMatchQuery(vertex);
 
                     break;
                 case "checkByNameAndDepth":

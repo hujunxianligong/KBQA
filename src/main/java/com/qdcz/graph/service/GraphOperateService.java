@@ -19,7 +19,7 @@ import java.io.IOException;
  * Created by star on 17-8-2.
  */
 @Service
-public class NewTrasa {
+public class GraphOperateService {
 
     @Autowired
     @Qualifier("elasearchBuzi")
@@ -38,6 +38,7 @@ public class NewTrasa {
         String graphId = graphBuzi.addVertex(vertex);
 
         System.out.println("graphId:"+graphId);
+
         vertex.setId(graphId);
 
         indexBuzi.addOrUpdateIndex(vertex);
@@ -142,14 +143,14 @@ public class NewTrasa {
     }
 
 
-
     /**
      * 通过名称查询
-     * @param name
+     * @param vertex
      * @return
      */
-    public String exactMatchQuery(String name){
-        return null;
+    public String exactMatchQuery(Vertex vertex){
+
+        return graphBuzi.bfExtersion(vertex,3).toString();
     }
 
     /**

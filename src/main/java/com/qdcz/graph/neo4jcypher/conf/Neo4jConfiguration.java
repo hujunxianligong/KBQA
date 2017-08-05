@@ -7,7 +7,7 @@ import java.util.Properties;
 /**
  * Created by hadoop on 17-8-3.
  */
-public class Neo4jConfiger extends Properties {
+public class Neo4jConfiguration extends Properties {
 
     public static String driver;
     public static String url;

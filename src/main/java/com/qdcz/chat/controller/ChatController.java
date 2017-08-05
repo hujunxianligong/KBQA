@@ -1,7 +1,6 @@
-package com.qdcz.chat.service;
+package com.qdcz.chat.controller;
 
-import com.qdcz.chat.buzi.HighService;
-import com.qdcz.config.MyConnConfigure;
+import com.qdcz.chat.service.HighService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import java.util.Map;
  * Created by star on 17-8-1.
  */
 @RestController
-public class ChatService {
+public class ChatController {
 
     @Autowired
     private HighService highService;
@@ -52,7 +51,17 @@ public class ChatService {
             System.out.println(obj);
             if (obj.has("project")) {
                 project = obj.getString("project");
-                String[] hasProjects = MyConnConfigure.project;
+
+
+
+
+                //TODO
+
+                String[] hasProjects = null;
+//                String[] hasProjects = MyConnConfigure.project;
+
+
+
                 boolean flag = false;
                 for (String hasProject : hasProjects) {
                     if (hasProject.equals(project)) {

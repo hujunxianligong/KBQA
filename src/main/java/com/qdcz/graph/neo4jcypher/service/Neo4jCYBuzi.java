@@ -1,4 +1,4 @@
-package com.qdcz.graph.neo4jcypher.buzi;
+package com.qdcz.graph.neo4jcypher.service;
 
 import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
@@ -14,7 +14,6 @@ import org.neo4j.driver.v1.StatementResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * cypher语句，neo4j对外提供的操作
@@ -28,18 +27,17 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         loadConfigListener.contextInitialized(null);
         Vertex vertex=new Vertex();
         vertex.setRoot("起点");
-        vertex.setName("王倪东");
+        vertex.setName("牵头行");
         vertex.setType("挖掘部");
-        vertex.setId("4114");
+        vertex.setId("55");
         vertex.setContent("");
-        vertex.setLabel("test");
+        vertex.setLabel("law");
 
         Neo4jCYBuzi instance=  new Neo4jCYBuzi();
       //  instance.deleteVertex(vertex);
         Edge edge=new Edge();
-        edge.setRelationship("gra");
-        edge.setLabel("test");
-        edge.setGraphId(2181l+"");
+        edge.setRelationShip("gra");
+        edge.setId(2181l+"");
         instance.bfExtersion(vertex,1);
     }
 
@@ -81,13 +79,18 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     }
 
     @Override
-    public boolean deleteEdge(Edge edge) {
+    public String deleteEdge(Edge edge) {
         return neo4jCYDAO.deleteEdge(edge);
     }
 
     @Override
     public JSONObject bfExtersion(Vertex vertex, int depth) {
-        return neo4jCYDAO.bfExtersion(vertex,depth);
+        try {
+            return neo4jCYDAO.bfExtersion(vertex,depth);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new JSONObject();
     }
 
     @Override
@@ -103,7 +106,6 @@ public class Neo4jCYBuzi implements IGraphBuzi {
 
     public void testExtersion(String sql){
         StatementResult execute = neo4jCYDAO.execute(sql);
-
     }
 
 }

@@ -56,7 +56,7 @@ public interface IGraphDAO {
      * @param edge
      * @return
      */
-    public boolean deleteEdge(Edge edge);
+    public String deleteEdge(Edge edge);
 
     /**
      * 根据节点查询广搜查询
@@ -64,7 +64,7 @@ public interface IGraphDAO {
      * @param depth
      * @return
      */
-    public JSONObject bfExtersion(Vertex vertex,int depth);
+    public JSONObject bfExtersion(Vertex vertex,int depth) throws Exception;
     /**
      * 深度优先遍历
      * @param fromId
