@@ -37,9 +37,8 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         Neo4jCYBuzi instance=  new Neo4jCYBuzi();
       //  instance.deleteVertex(vertex);
         Edge edge=new Edge();
-        edge.setRelationship("gra");
-        edge.setLabel("test");
-        edge.setGraphId(2181l+"");
+        edge.setRelationShip("gra");
+        edge.setId(2181l+"");
         instance.bfExtersion(vertex,1);
     }
 

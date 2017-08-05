@@ -51,7 +51,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("name",vertex.getName());
-        parameters.put("identity",vertex.getIdentity());
+  //      parameters.put("identity",vertex.getIdentity());
         parameters.put("root",vertex.getRoot());
         parameters.put("content",vertex.getContent());
         parameters.put("type",vertex.getType());
@@ -88,7 +88,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 Map<String, Object> nodeInfo = n.asMap();
                 Vertex newVertex=new Vertex();
                 CommonTool.transMap2Bean(nodeInfo,newVertex);
-                newVertex.setGraphId(n.id()+"");
+                newVertex.setId(n.id()+"");
                 if(!nodeIds.contains(newVertex.getGraphId())) {
                     results.add(newVertex);
                 }
@@ -99,7 +99,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                     Relationship one_gra = (Relationship) rel;
                     Map<String, Object> edgeInfo = one_gra.asMap();
                     Edge newEdge=new Edge();
-                    newEdge.setGraphId(one_gra.id()+"");
+                    newEdge.setId(one_gra.id()+"");
                     //CommonTool.transMap2Bean(edgeInfo,newEdge);
                     results.add(newEdge);
                 }
@@ -121,16 +121,13 @@ public class Neo4jCYDAO implements IGraphDAO{
     @Override
     public String addEdges(Edge edge) {
         String sql = "MATCH (m  {identity:$fromIdentity }) MATCH (n {identity:$toIdentity }) " +
-                "MERGE (m)-[r:"+edge.getRelationship()+"]-(n) ON CREATE SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId " +
+                "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId " +
                 "on match SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
         long id=0l;
         Map<String, Object> parameters=new HashMap();
-        parameters.put("fromIdentity",edge.fromVertex.getIdentity());
-        parameters.put("toIdentity",edge.toVertex.getIdentity());
-        parameters.put("fromId",edge.toVertex.getId());
-        parameters.put("toId",edge.fromVertex.getId());
+        parameters.put("fromId",edge.getFrom());
+        parameters.put("toId",edge.getTo());
         parameters.put("name",edge.getName());
-        parameters.put("relation",edge.getRelation());
         try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
@@ -153,7 +150,7 @@ public class Neo4jCYDAO implements IGraphDAO{
     @Override
     public boolean deleteEdge(Edge edge) {
 
-        String delString = "MATCH (f:"+edge.getLabel()+")-[r:"+edge.getRelationship()+"]->(t:"+edge.getLabel()+") WHERE id(r)="+edge.getGraphId()+" DELETE r";
+        String delString = "MATCH (f)-[r:"+edge.getRelationShip()+"]->(t) WHERE id(r)="+edge.getGraphId()+" DELETE r";
         long id=0l;
         try ( Session session = driver.session() )
         {
@@ -186,9 +183,9 @@ public class Neo4jCYDAO implements IGraphDAO{
                 Map<String, Object> nodeInfo = n.asMap();
                 Vertex newVertex=new Vertex();
                 CommonTool.transMap2Bean(nodeInfo,newVertex);
-                newVertex.setGraphId(n.id()+"");
+                newVertex.setId(n.id()+"");
                 if(!nodeIds.contains(newVertex.getGraphId())) {
-                    nodesJarry.put(newVertex);
+                    nodesJarry.put(newVertex.toQueryJSON());
                 }
                 nodeIds.add(n.id()+"");
             }
@@ -198,9 +195,9 @@ public class Neo4jCYDAO implements IGraphDAO{
                 Map<String, Object> edgeInfo = one_gra.asMap();
                 Edge newEdge=new Edge();
                 CommonTool.transMap2Bean(edgeInfo,newEdge);
-                newEdge.setGraphId(one_gra.id()+"");
+                newEdge.setId(one_gra.id()+"");
                 if(!edgeIds.contains(newEdge.getGraphId())) {
-                    edgesJarry.put(newEdge);
+                    edgesJarry.put(newEdge.toQueryJSON());
                 }
                 edgeIds.add(one_gra.id()+"");
             }
@@ -233,7 +230,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 vertex.setContent(n.get("content").toString());
                 vertex.setRoot(n.get("root").toString());
                 vertex.setType(n.get("type").toString());
-                vertex.setId(n.id());
+                vertex.setId(n.id()+"");
                 vertex.setName(n.get("name").toString());
         }
         return vertex;
