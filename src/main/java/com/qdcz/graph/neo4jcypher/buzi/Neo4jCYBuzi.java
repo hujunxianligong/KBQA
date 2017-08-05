@@ -102,7 +102,6 @@ public class Neo4jCYBuzi implements IGraphBuzi {
 
     public void testExtersion(String sql){
         StatementResult execute = neo4jCYDAO.execute(sql);
-
     }
 
 }
