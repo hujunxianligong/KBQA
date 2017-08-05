@@ -130,9 +130,10 @@ public class GraphOperateService {
 
         vertex.setId(vertexId);
 
-        indexBuzi.addOrUpdateIndex(edge);
+        indexBuzi.addOrUpdateIndex(vertex);
 
 
+        edge.setTo(vertexId);
         String edgeId = graphBuzi.addEdges(edge);
 
         edge.setId(edgeId);

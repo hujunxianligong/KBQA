@@ -90,15 +90,19 @@ public class GraphControler {
 
             edge = new Edge();
 
-            edge.setId("");
+            edge.setRelationShip("gra");
+            edge.setId(obj.getJSONObject("info").getJSONObject("edge").getString("id"));
             edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
             edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
             edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
 
             String type = obj.getString("type");
 
-            System.out.println(type+"\t"+obj);
 
+
+            System.out.println(type+"\t"+obj);
+            vertex.setRoot("社会科学知识库");
+            edge.setRoot("社会科学知识库");
 
             switch (type){
                 case "checkByName":

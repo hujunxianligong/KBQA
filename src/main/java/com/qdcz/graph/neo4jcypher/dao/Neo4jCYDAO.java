@@ -119,11 +119,15 @@ public class Neo4jCYDAO implements IGraphDAO{
 
     @Override
     public String addEdges(Edge edge) {
-        String sql = "MATCH (m  ) MATCH (n ) where id(m)=$fromId AND id(n)=$toId" +
-                "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.root =$root ,r.name=$name,r.from=$fromId,r.to=$toId " +
-                "on match SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
+        String sql = "MATCH (m  ) MATCH (n ) where id(m)=$fId_L AND id(n)=$tId_L " +
+                "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId " +
+                "on match SET  r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
+
+         System.out.println(edge.toJSON());
         long id=0l;
         Map<String, Object> parameters=new HashMap();
+        parameters.put("fId_L",Long.parseLong(edge.getFrom()));
+        parameters.put("tId_L",Long.parseLong(edge.getTo()));
         parameters.put("fromId",edge.getFrom());
         parameters.put("toId",edge.getTo());
         parameters.put("name",edge.getName());
@@ -131,12 +135,13 @@ public class Neo4jCYDAO implements IGraphDAO{
         try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
-            StatementResult run = transaction.run(sql);
+            StatementResult run = transaction.run(sql,parameters);
             while(run.hasNext()){
-                Node n = (Node) run.next().get("n").asNode();
-                id=n.get("id").asLong();
+                Relationship r = (Relationship) run.next().get("r").asRelationship();
+                id=r.id();
 //                System.out.println( n.getId()+""+n.getAllProperties());
             }
+            transaction.success();
         }
         return id+"";
     }
@@ -241,10 +246,16 @@ public class Neo4jCYDAO implements IGraphDAO{
         }
         nodeIds.clear();
         edgeIds.clear();
+        String center = "";
+        if(centreNodeObj!=null){
+            center = centreNodeObj.getString("id");
+        }
+
+
         JSONObject result =new JSONObject();
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
-        result.put("center",centreNodeObj.getString("id"));
+        result.put("center",center);
         System.out.println(result);
         return result;
     }
