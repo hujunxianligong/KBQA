@@ -11,6 +11,7 @@ import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 import org.neo4j.driver.v1.*;
 
 import org.neo4j.driver.v1.types.Node;
+import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
 
 import java.util.*;
@@ -71,7 +72,29 @@ public class Neo4jCYDAO implements IGraphDAO{
 
     @Override
     public String changeVertex(Vertex vertex) {
-       return  addVertex(vertex);
+        String changeString = "merge (n:"+vertex.getLabel()+" ) where id(n)= $id on " +
+                "create set n.type= $type ,n.identity= $identity,n.root= $root,n.content=$content on " +
+                "match set n.type=$type ,n.identity=$identity,n.root=$root,n.content=$content return n";
+        long id=0l;
+        Map<String, Object> parameters=new HashMap();
+        parameters.put("id",vertex.getId());
+        parameters.put("name",vertex.getName());
+        parameters.put("identity",vertex.getIdentity());
+        parameters.put("root",vertex.getRoot());
+        parameters.put("content",vertex.getContent());
+        parameters.put("type",vertex.getType());
+        try ( Session session = driver.session() )
+        {
+            Transaction transaction = session.beginTransaction();
+            StatementResult run = transaction.run(changeString, parameters);
+            while(run.hasNext()){
+                Node n =  run.next().get("n").asNode();
+                id=n.id();
+                System.out.println(id+"");
+            }
+            transaction.success();
+        }
+        return id+"";
     }
 
     @Override
@@ -249,14 +272,18 @@ public class Neo4jCYDAO implements IGraphDAO{
         return result;
     }
     @Override
-    public void dfExection(long fromId,long toId,int depth){
-        String sql= "MATCH path = shortestPath ( (a ) -[*1.."+depth+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
+    public Path dfExection(long fromId,long toId,int depth){
+        String sql= "MATCH path = shortestPath ( (a ) -[*0.."+depth+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
+       // String sql=" MATCH path = shortestPath((a)-[r*1..4]->(b)) WHERE id(a)="+fromId+" AND id(b) ="+toId+ " AND ALL(x IN nodes(path) WHERE (x:law)) RETURN path";
+       // String sql="MATCH  p=(a)-[r*1..4]->(b)" + "WHERE id(a)="+fromId+" AND id(b) ="+toId+" " + "RETURN p AS shortestPath, reduce(distance=0, r in relationships(p)| distance+r.distance) AS totalDistance ORDER BY totalDistance ASC LIMIT 1";
+        Path segments=null;
         StatementResult execute = execute(sql);
         while ( execute.hasNext() ) {
                 Value path = execute.next().get("path");
-                System.out.println(path);
-
+             segments = path.asPath();
+            System.out.println(path);
         }
+        return segments;
     }
     public Vertex checkVertexByIdentity(String label,String  identity){
         String quertString="MATCH (n:"+label+" {identity:'"+identity+"' }) RETURN n";
