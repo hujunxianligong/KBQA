@@ -240,7 +240,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         JSONObject result =new JSONObject();
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
-        result.put("center",centreNodeObj);
+        result.put("center",centreNodeObj.getString("id"));
         System.out.println(result);
         return result;
     }
