@@ -1,4 +1,4 @@
-package com.qdcz.common;
+package com.qdcz.graph.tools;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by hadoop on 17-6-23.
  * Result set operations entity
  */
-public class BuildReresult {
+public class ResultBuilder {
     //对结果集去重组合
     public JSONObject cleanRestult(JSONObject merge){
         JSONObject result=new JSONObject();

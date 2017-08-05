@@ -106,7 +106,6 @@ public class Neo4jCYDAO implements IGraphDAO{
             }
         }
         String delString=  "MATCH (n:"+vertex.getLabel()+")-[r]-(m) where id(n)="+vertex.getId()+" DELETE n,r";
-
         try ( Session session = driver.session() )
         {
             StatementResult run=null;
@@ -148,7 +147,7 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public boolean deleteEdge(Edge edge) {
+    public String  deleteEdge(Edge edge) {
 
         String delString = "MATCH (f)-[r:"+edge.getRelationShip()+"]->(t) WHERE id(r)="+edge.getGraphId()+" DELETE r";
         long id=0l;
@@ -160,9 +159,9 @@ public class Neo4jCYDAO implements IGraphDAO{
             transaction.success();
         }catch (Exception e){
             e.printStackTrace();
-            return false;
+            return -1l+"";
         }
-        return true;
+        return id+"";
     }
 
     @Override
@@ -185,7 +184,10 @@ public class Neo4jCYDAO implements IGraphDAO{
                 CommonTool.transMap2Bean(nodeInfo,newVertex);
                 newVertex.setId(n.id()+"");
                 if(!nodeIds.contains(newVertex.getGraphId())) {
-                   // nodesJarry.put();
+                    JSONObject resultobj = newVertex.toJSON();
+                    resultobj.put("id",newVertex.getId());
+
+                     nodesJarry.put(resultobj);
                 }
                 nodeIds.add(n.id()+"");
             }
@@ -197,7 +199,9 @@ public class Neo4jCYDAO implements IGraphDAO{
                 CommonTool.transMap2Bean(edgeInfo,newEdge);
                 newEdge.setId(one_gra.id()+"");
                 if(!edgeIds.contains(newEdge.getGraphId())) {
-                    edgesJarry.put(newEdge.toQueryJSON());
+                    JSONObject resultobj = newEdge.toJSON();
+                    resultobj.put("id",newEdge.getId());
+                    edgesJarry.put(resultobj);
                 }
                 edgeIds.add(one_gra.id()+"");
             }

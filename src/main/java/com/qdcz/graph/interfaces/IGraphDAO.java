@@ -56,7 +56,7 @@ public interface IGraphDAO {
      * @param edge
      * @return
      */
-    public boolean deleteEdge(Edge edge);
+    public String deleteEdge(Edge edge);
 
     /**
      * 根据节点查询广搜查询

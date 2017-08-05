@@ -3,7 +3,7 @@ package com.qdcz.chat.buzi;
 
 import com.qdcz.graph.entity.Vertex;
 
-import com.qdcz.common.BuildReresult;
+import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.neo4j.graphdb.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -116,7 +115,7 @@ public class QuestionPaserService
     public String findDefine(String question,Map<String, Object> map) {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{"是什么","是怎么样","是啥","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
-        BuildReresult buildReresult = new BuildReresult();
+        ResultBuilder resultBuilder = new ResultBuilder();
         boolean flag=false;
         if(map.containsKey("regex")){
             flag=true;
@@ -153,10 +152,10 @@ public class QuestionPaserService
             JSONObject merge=new JSONObject();
             //5.组织返回结果
             for(int i=0;i<resultArray.length();i++){
-                    merge=buildReresult.mergeResult(merge,resultArray.getJSONObject(i));
+                    merge= resultBuilder.mergeResult(merge,resultArray.getJSONObject(i));
 
             }
-            JSONObject result= buildReresult.cleanRestult(merge);
+            JSONObject result= resultBuilder.cleanRestult(merge);
             String rootName = result.getString("root");
 
             JSONArray edges = result.getJSONArray("edges");

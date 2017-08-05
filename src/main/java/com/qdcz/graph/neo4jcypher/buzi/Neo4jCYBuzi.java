@@ -80,7 +80,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     }
 
     @Override
-    public boolean deleteEdge(Edge edge) {
+    public String deleteEdge(Edge edge) {
         return neo4jCYDAO.deleteEdge(edge);
     }
 

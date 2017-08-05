@@ -30,7 +30,6 @@ public class Edge implements IGraphEntity{
         this.to = to;
         this.relationShip = relationShip;
     }
-
     @Override
     public String toString() {
         return String.format("%s/%s/%s", from, name, to);
