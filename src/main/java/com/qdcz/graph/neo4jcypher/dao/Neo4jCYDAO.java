@@ -119,14 +119,15 @@ public class Neo4jCYDAO implements IGraphDAO{
 
     @Override
     public String addEdges(Edge edge) {
-        String sql = "MATCH (m  {identity:$fromIdentity }) MATCH (n {identity:$toIdentity }) " +
-                "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId " +
+        String sql = "MATCH (m  ) MATCH (n ) where id(m)=$fromId AND id(n)=$toId" +
+                "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.root =$root ,r.name=$name,r.from=$fromId,r.to=$toId " +
                 "on match SET r.relation =$relation ,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("fromId",edge.getFrom());
         parameters.put("toId",edge.getTo());
         parameters.put("name",edge.getName());
+        parameters.put("root",edge.getRoot());
         try ( Session session = driver.session() )
         {
             Transaction transaction = session.beginTransaction();
@@ -139,6 +140,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         }
         return id+"";
     }
+
 
     @Override
     public String changeEdge(Edge edge) {
@@ -173,7 +175,7 @@ public class Neo4jCYDAO implements IGraphDAO{
 
         JSONObject centreNodeObj =null;
         String sql =
-        "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]->(relateNode) return nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
+        "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
 
        //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
        //"MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
