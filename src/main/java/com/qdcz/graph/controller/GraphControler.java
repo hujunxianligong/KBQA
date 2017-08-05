@@ -1,7 +1,8 @@
-package com.qdcz.graph.service;
+package com.qdcz.graph.controller;
 
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
+import com.qdcz.graph.service.GraphOperateService;
 import com.qdcz.service.bean.RequestParameter;
 
 import org.json.JSONObject;
@@ -15,10 +16,10 @@ import java.util.Map;
  * Created by star on 17-8-1.
  */
 @RestController
-public class GraphService {
+public class GraphControler {
 
     @Autowired
-    private NewTrasa newTrasa;
+    private GraphOperateService newTrasa;
 //    @Autowired
 
 

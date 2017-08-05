@@ -1,4 +1,4 @@
-package com.qdcz.chat.buzi;
+package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;

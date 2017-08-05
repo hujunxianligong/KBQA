@@ -1,4 +1,4 @@
-package com.qdcz.chat.buzi;
+package com.qdcz.chat.service;
 
 
 import com.qdcz.graph.entity.Vertex;
@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.neo4j.graphdb.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

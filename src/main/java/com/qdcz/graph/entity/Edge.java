@@ -9,13 +9,13 @@ import org.json.JSONObject;
  */
 public class Edge implements IGraphEntity{
 
-    private String id;
+    private String id = "";
 
-    private String name;
-    private String root;
+    private String name = "";
+    private String root = "";
 
 
-    private String from;
+    private String from = "";
     private String to;
     private String relationShip;//表名
 

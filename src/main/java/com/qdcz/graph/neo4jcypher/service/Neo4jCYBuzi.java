@@ -1,4 +1,4 @@
-package com.qdcz.graph.neo4jcypher.buzi;
+package com.qdcz.graph.neo4jcypher.service;
 
 import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
@@ -14,7 +14,6 @@ import org.neo4j.driver.v1.StatementResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * cypher语句，neo4j对外提供的操作

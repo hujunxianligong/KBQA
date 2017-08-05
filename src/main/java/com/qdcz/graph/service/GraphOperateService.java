@@ -19,7 +19,7 @@ import java.io.IOException;
  * Created by star on 17-8-2.
  */
 @Service
-public class NewTrasa {
+public class GraphOperateService {
 
     @Autowired
     @Qualifier("elasearchBuzi")
