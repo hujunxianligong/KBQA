@@ -38,6 +38,7 @@ public class NewTrasa {
         String graphId = graphBuzi.addVertex(vertex);
 
         System.out.println("graphId:"+graphId);
+
         vertex.setId(graphId);
 
         indexBuzi.addOrUpdateIndex(vertex);

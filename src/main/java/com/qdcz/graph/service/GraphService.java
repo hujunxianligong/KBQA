@@ -88,6 +88,7 @@ public class GraphService {
             edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
 
             String type = obj.getString("type");
+
             System.out.println(type+"\t"+obj);
 
 
