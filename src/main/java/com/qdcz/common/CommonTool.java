@@ -205,7 +205,11 @@ public class CommonTool {
                     Object value = map.get(key);
                     // 得到property对应的setter方法
                     Method setter = property.getWriteMethod();
-                    setter.invoke(obj, value);
+                    try {
+                        setter.invoke(obj, value);
+                    }catch (Exception e){
+                        setter.invoke(obj, value+"");
+                    }
                 }
             }
         } catch (Exception e) {

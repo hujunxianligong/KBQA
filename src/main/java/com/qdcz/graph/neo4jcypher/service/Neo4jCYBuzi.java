@@ -27,11 +27,11 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         loadConfigListener.contextInitialized(null);
         Vertex vertex=new Vertex();
         vertex.setRoot("起点");
-        vertex.setName("王倪东");
+        vertex.setName("牵头行");
         vertex.setType("挖掘部");
-        vertex.setId("4114");
+        vertex.setId("55");
         vertex.setContent("");
-        vertex.setLabel("test");
+        vertex.setLabel("law");
 
         Neo4jCYBuzi instance=  new Neo4jCYBuzi();
       //  instance.deleteVertex(vertex);
@@ -85,7 +85,12 @@ public class Neo4jCYBuzi implements IGraphBuzi {
 
     @Override
     public JSONObject bfExtersion(Vertex vertex, int depth) {
-        return neo4jCYDAO.bfExtersion(vertex,depth);
+        try {
+            return neo4jCYDAO.bfExtersion(vertex,depth);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new JSONObject();
     }
 
     @Override
