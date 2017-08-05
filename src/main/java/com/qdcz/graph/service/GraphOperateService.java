@@ -143,14 +143,14 @@ public class GraphOperateService {
     }
 
 
-
     /**
      * 通过名称查询
-     * @param name
+     * @param vertex
      * @return
      */
-    public String exactMatchQuery(String name){
-        return null;
+    public String exactMatchQuery(Vertex vertex){
+
+        return graphBuzi.bfExtersion(vertex,3).toString();
     }
 
     /**

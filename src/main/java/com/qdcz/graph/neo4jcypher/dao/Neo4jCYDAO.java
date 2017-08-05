@@ -170,9 +170,11 @@ public class Neo4jCYDAO implements IGraphDAO{
         JSONArray edgesJarry=new JSONArray();
         Set<String> nodeIds=new HashSet<>();
         Set<String> edgeIds=new HashSet<>();
+
         JSONObject centreNodeObj =null;
         String sql =
         "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]->(relateNode) return nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
+
        //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
        //"MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
 
