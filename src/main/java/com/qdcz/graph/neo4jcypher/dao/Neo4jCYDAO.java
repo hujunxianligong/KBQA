@@ -212,7 +212,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 newVertex.setLabel(label);
                 if(!nodeIds.contains(newVertex.getGraphId())) {
                     JSONObject resultobj = newVertex.toJSON();
-                    resultobj.put("id",newVertex.getId());
+                    resultobj.put("id",newVertex.getId()+"");
                     resultobj.put("label",newVertex.getLabel());
                     if(centreNodeObj==null){
                         centreNodeObj=resultobj;
@@ -230,7 +230,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 newEdge.setRelationShip(relationship);
                 if(!edgeIds.contains(newEdge.getGraphId())) {
                     JSONObject resultobj = newEdge.toJSON();
-                    resultobj.put("id",newEdge.getId());
+                    resultobj.put("id",newEdge.getId()+"");
                     resultobj.put("relationship",newEdge.getRelationShip());
                     edgesJarry.put(resultobj);
                 }
