@@ -128,6 +128,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 }
             }
         }
+
         String delString=  "MATCH (n:"+vertex.getLabel()+")-[r]-(m) where id(n)="+vertex.getId()+" DELETE n,r";
         try ( Session session = driver.session() )
         {
@@ -136,9 +137,11 @@ public class Neo4jCYDAO implements IGraphDAO{
             run = transaction.run(delString);
             transaction.success();
         }
+
         System.out.println();
         return results;
     }
+
 
     @Override
     public String addEdges(Edge edge) {

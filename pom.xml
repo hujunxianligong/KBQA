@@ -103,13 +103,11 @@
         </dependency>-->
 
 
-
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
             <version>1.2.9-SNAPSHOT</version>
         </dependency>
-
 
 
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
@@ -118,9 +116,6 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.4.2</version>
         </dependency>
-
-
-
 
 
         <dependency>
@@ -136,12 +131,6 @@
             <artifactId>json</artifactId>
             <version>20140107</version>
         </dependency>
-
-
-
-
-
-
 
 
         <dependency>
