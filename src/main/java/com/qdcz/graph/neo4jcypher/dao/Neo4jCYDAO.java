@@ -128,7 +128,8 @@ public class Neo4jCYDAO implements IGraphDAO{
                 }
             }
         }
-        String delString=  "MATCH (n:"+vertex.getLabel()+")-[r]-(m) where id(n)="+vertex.getId()+" DELETE n,r";
+        String delString=  "MATCH (n:"+vertex.getLabel()+") where id(n)="+vertex.getId()+" DETACH DELETE n";
+
         try ( Session session = driver.session() )
         {
             StatementResult run=null;
@@ -272,6 +273,8 @@ public class Neo4jCYDAO implements IGraphDAO{
         String center = "";
         if(centreNodeObj!=null){
             center = centreNodeObj.getString("id");
+        }else{
+            return new JSONObject();
         }
 
 

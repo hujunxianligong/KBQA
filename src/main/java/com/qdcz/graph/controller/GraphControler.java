@@ -62,7 +62,6 @@ public class GraphControler {
         String result =null;
         try {
             if(parameterMap.containsKey("data")){
-                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
@@ -94,7 +93,7 @@ public class GraphControler {
             edge.setId(obj.getJSONObject("info").getJSONObject("edge").getString("id"));
             edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
             edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
-            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
+            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
 
             String type = obj.getString("type");
 

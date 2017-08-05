@@ -53,7 +53,7 @@ public class GraphOperateService {
      */
     public String deleteVertex(Vertex vertex){
 
-        graphBuzi.addVertex(vertex);
+        graphBuzi.deleteVertex(vertex);
 
         indexBuzi.delIndex(vertex);
 
