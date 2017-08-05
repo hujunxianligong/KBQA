@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.types.Path;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +39,8 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         Edge edge=new Edge();
         edge.setRelationShip("gra");
         edge.setId(2181l+"");
-        instance.bfExtersion(vertex,1);
+//        instance.bfExtersion(vertex,1);
+        instance.dfExection(55,74,2);
     }
 
 
@@ -94,8 +96,8 @@ public class Neo4jCYBuzi implements IGraphBuzi {
     }
 
     @Override
-    public void dfExection(long fromId, long toId, int depth) {
-        neo4jCYDAO.dfExection(fromId,toId,depth);
+    public Path dfExection(long fromId, long toId, int depth) {
+        return neo4jCYDAO.dfExection(fromId,toId,depth);
 
     }
 

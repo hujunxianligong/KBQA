@@ -4,6 +4,7 @@ import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.IGraphEntity;
 import com.qdcz.graph.entity.Vertex;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.types.Path;
 
 import java.util.List;
 import java.util.Set;
@@ -71,7 +72,7 @@ public interface IGraphBuzi {
      * @param toId
      * @return
      */
-    public void dfExection(long fromId,long toId,int depth);
+    public Path dfExection(long fromId, long toId, int depth);
 
 
     /**
