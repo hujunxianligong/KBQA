@@ -184,7 +184,7 @@ public class Neo4jCYDAO implements IGraphDAO{
             List<Object> rels =  record.get( "relationships(p)" ).asList();
             List<Object> nodes = record.get("nodes(p)").asList();
             List<Object> labels = record.get("labels(n)").asList();
-            List<Object> relationShipTypes = record.get("types").asList();
+            Set<Object> relationShipTypes = new HashSet<>(record.get("types").asList());
             if(labels.size()==1){
                 label= (String) labels.get(0);
             }else{
@@ -194,7 +194,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 }
             }
             if(relationShipTypes.size()==1){
-                relationship= (String) relationShipTypes.get(0);
+                relationship=(String)relationShipTypes.iterator().next();
             }else{
                 if(rels.size()>0){
                     System.out.println("relationships has more 1 relationship");
@@ -237,7 +237,6 @@ public class Neo4jCYDAO implements IGraphDAO{
         }
         nodeIds.clear();
         edgeIds.clear();
-
         JSONObject result =new JSONObject();
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
@@ -266,6 +265,8 @@ public class Neo4jCYDAO implements IGraphDAO{
                 vertex.setType(n.get("type").toString());
                 vertex.setId(n.id()+"");
                 vertex.setName(n.get("name").toString());
+                vertex.setLabel(label);
+                vertex.setIdentity(identity);
         }
         return vertex;
     }
