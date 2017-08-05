@@ -10,15 +10,15 @@ import org.json.JSONObject;
  */
 public class Vertex implements IGraphEntity {
 
-    private String id;
+    private String id = "";
 
-    private String name;
-    private String root;
+    private String name = "";
+    private String root = "";
 
-    private String label;//表名
-    private String content;
-    private String type;
-    private String identity;
+    private String label = "";//表名
+    private String content = "";
+    private String type = "";
+    private String identity = "";
 
     public Vertex() {
 
@@ -40,10 +40,11 @@ public class Vertex implements IGraphEntity {
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-            obj.put("type",type);
-            obj.put("name",name);
-            obj.put("root",root);
-            obj.put("content",content);
+        obj.put("type",type);
+        obj.put("name",name);
+        obj.put("root",root);
+        obj.put("content",content);
+        obj.put("identity",identity);
 
         return obj;
     }
