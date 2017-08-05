@@ -18,6 +18,7 @@ public class Vertex implements IGraphEntity {
     private String label;//表名
     private String content;
     private String type;
+    private String identity;
 
     public Vertex() {
 
@@ -131,4 +132,11 @@ public class Vertex implements IGraphEntity {
         this.type = type;
     }
 
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
 }

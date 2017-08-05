@@ -235,7 +235,6 @@ public class Neo4jCYDAO implements IGraphDAO{
                 vertex.setType(n.get("type").toString());
                 vertex.setId(n.id());
                 vertex.setName(n.get("name").toString());
-                vertex.setIdentity(n.get("identity").toString());
         }
         return vertex;
     }
