@@ -2,6 +2,7 @@ package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import com.qdcz.App;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
@@ -10,7 +11,9 @@ import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,6 +21,7 @@ import java.util.*;
 /**
  * Created by star on 17-8-1.
  */
+
 @Service
 public class HighService {
 
@@ -47,10 +51,10 @@ public class HighService {
         }
 
         CommonTool.removeDuplicateWithOrder(termList);
-        MyComparetor mc = new MyComparetor("score");
+
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
-            Map<String, Object> node = questionPaserService.getNode(term.word);
+            Map<String, Object> node = questionPaserService.getNode(requestParameter,term.word);
             if(node!=null) {
                 maps.add(node);
             }
@@ -147,7 +151,7 @@ public class HighService {
                 result = "learning";
             }
         }
-
+        MyComparetor mc = null;
         if(result==null||"learning".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);

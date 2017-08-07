@@ -33,9 +33,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         StatementResult run=null;
         try ( Session session = driver.session() )
         {
-            Transaction transaction = session.beginTransaction();
-             run = transaction.run(sql);
-
+             run = session.run(sql);
         }
         return run;
     }
@@ -152,7 +150,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId " +
                 "on match SET  r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
 
-         System.out.println(edge.toJSON());
+        System.out.println(edge.toJSON());
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("fId_L",Long.parseLong(edge.getFrom()));

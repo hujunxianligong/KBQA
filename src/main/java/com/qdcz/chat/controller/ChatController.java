@@ -92,7 +92,7 @@ public class ChatController {
     public String askOfWeChat(@RequestParam String question){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="law";
+        requestParameter.label="test";
         requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
         String s = highService.smartQA(requestParameter,question);
         return s;
