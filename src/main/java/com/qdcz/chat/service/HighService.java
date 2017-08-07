@@ -28,7 +28,7 @@ public class HighService {
 
     public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
-
+        String label=requestParameter.label;
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = StandardTokenizer.segment(question);
         for(int i=0;i<termList.size();i++){
@@ -45,6 +45,7 @@ public class HighService {
             }
 
         }
+
         CommonTool.removeDuplicateWithOrder(termList);
         MyComparetor mc = new MyComparetor("score");
         List<Map<String, Object>> maps= new ArrayList();
