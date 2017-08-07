@@ -3,12 +3,19 @@ package com.qdcz.graph.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.types.Node;
+import org.neo4j.driver.v1.util.Function;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
  * Created by hadoop on 17-6-22.
  */
-public class Vertex implements IGraphEntity {
+public class Vertex implements IGraphEntity,Node {
 
     private String id = "";
 
@@ -84,8 +91,8 @@ public class Vertex implements IGraphEntity {
     }
 
 
-    public long getId(){
-        return Long.parseLong(this.id);
+    public String getId(){
+        return id;
     }
 
     public void setId(String id) {
@@ -138,5 +145,65 @@ public class Vertex implements IGraphEntity {
 
     public void setIdentity(String identity) {
         this.identity = identity;
+    }
+
+
+
+
+    @Override
+    public Iterable<String> labels() {
+        Set<String > set=new HashSet<>();
+        set.add(label);
+        return set;
+    }
+
+    @Override
+    public boolean hasLabel(String s) {
+        return false;
+    }
+
+    @Override
+    public long id() {
+        return Long.parseLong(id);
+    }
+
+    @Override
+    public Iterable<String> keys() {
+        return null;
+    }
+
+    @Override
+    public boolean containsKey(String s) {
+        return false;
+    }
+
+    @Override
+    public Value get(String s) {
+        return null;
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public Iterable<Value> values() {
+        return null;
+    }
+
+    @Override
+    public <T> Iterable<T> values(Function<Value, T> function) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> asMap() {
+        return null;
+    }
+
+    @Override
+    public <T> Map<String, T> asMap(Function<Value, T> function) {
+        return null;
     }
 }

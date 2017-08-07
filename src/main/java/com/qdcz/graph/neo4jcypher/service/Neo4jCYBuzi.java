@@ -127,10 +127,10 @@ public class Neo4jCYBuzi implements IGraphBuzi {
                 result.put("start",startVertex);
             }
             Node m = next.get("m").asNode();
-             nodeInfo = n.asMap();
+             nodeInfo = m.asMap();
             Vertex endVertex=new Vertex();
             CommonTool.transMap2Bean(nodeInfo,endVertex);
-            endVertex.setId(n.id()+"");
+            endVertex.setId(m.id()+"");
             if(!result.containsKey("end")){
                 result.put("end",endVertex);
             }
