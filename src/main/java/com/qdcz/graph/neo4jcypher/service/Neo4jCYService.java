@@ -1,5 +1,6 @@
 package com.qdcz.graph.neo4jcypher.service;
 
+import com.qdcz.common.CommonTool;
 import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.IGraphEntity;
@@ -10,11 +11,15 @@ import com.qdcz.graph.neo4jcypher.dao.Neo4jCYDAO;;
 import org.json.JSONObject;
 
 import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * cypher语句，neo4j对外提供的操作
@@ -104,6 +109,35 @@ public class Neo4jCYService implements IGraphBuzi {
     @Override
     public Vertex checkVertexByIdentity(String label, String identity) {
         return neo4jCYDAO.checkVertexByIdentity(label,identity);
+    }
+
+    @Override
+    public Map<String, Vertex> checkVertexByEdgeId(long id) {
+        Map<String, Vertex> result=new HashMap<>();
+        String sqlString="MATCH (p)-[r]->(m)WHERE id(r)= "+id+" RETURN p,m";
+        StatementResult execute = neo4jCYDAO.execute(sqlString);
+        while(execute.hasNext()){
+            Record next = execute.next();
+            Node n = next.get("p").asNode();
+            Map<String, Object> nodeInfo = n.asMap();
+            Vertex startVertex=new Vertex();
+            CommonTool.transMap2Bean(nodeInfo,startVertex);
+            startVertex.setId(n.id()+"");
+            if(!result.containsKey("start")){
+                result.put("start",startVertex);
+            }
+            Node m = next.get("m").asNode();
+             nodeInfo = m.asMap();
+            Vertex endVertex=new Vertex();
+            CommonTool.transMap2Bean(nodeInfo,endVertex);
+            endVertex.setId(m.id()+"");
+            if(!result.containsKey("end")){
+                result.put("end",endVertex);
+            }
+
+        }
+
+        return result;
     }
 
     public void testExtersion(String sql){

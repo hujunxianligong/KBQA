@@ -33,9 +33,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         StatementResult run=null;
         try ( Session session = driver.session() )
         {
-            Transaction transaction = session.beginTransaction();
-             run = transaction.run(sql);
-
+             run = session.run(sql);
         }
         return run;
     }
@@ -103,7 +101,7 @@ public class Neo4jCYDAO implements IGraphDAO{
     public List<IGraphEntity> deleteVertex(Vertex vertex) {
         List<IGraphEntity> results=new ArrayList<>();
         Set<String> nodeIds=new HashSet<>();
-        String select ="match (n:"+vertex.getLabel()+")-[r*1]-(m) where id(n)="+vertex.getId()+" return n,r";
+        String select ="match (n:"+vertex.getLabel()+")-[r*1]-(m) where id(n)="+Long.parseLong(vertex.getId())+" return n,r";
         try ( Session session = driver.session() )
         {
             StatementResult run = session.run(select);
@@ -130,7 +128,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 }
             }
         }
-        String delString=  "MATCH (n:"+vertex.getLabel()+") where id(n)="+vertex.getId()+" DETACH DELETE n";
+        String delString=  "MATCH (n:"+vertex.getLabel()+") where id(n)="+Long.parseLong(vertex.getId())+" DETACH DELETE n";
 
 
         try ( Session session = driver.session() )
@@ -152,7 +150,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 "MERGE (m)-[r:"+edge.getRelationShip()+"]-(n) ON CREATE SET r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId " +
                 "on match SET  r.root=$root,r.name=$name,r.from=$fromId,r.to=$toId RETURN r";
 
-         System.out.println(edge.toJSON());
+        System.out.println(edge.toJSON());
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("fId_L",Long.parseLong(edge.getFrom()));
@@ -248,7 +246,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 newVertex.setLabel(label);
                 if(!nodeIds.contains(newVertex.getGraphId())) {
                     JSONObject resultobj = newVertex.toJSON();
-                    resultobj.put("id",newVertex.getId()+"");
+                    resultobj.put("id",newVertex.getId());
                     resultobj.put("label",newVertex.getLabel());
                     if(centreNodeObj==null){
                         centreNodeObj=resultobj;
@@ -266,7 +264,7 @@ public class Neo4jCYDAO implements IGraphDAO{
                 newEdge.setRelationShip(relationship);
                 if(!edgeIds.contains(newEdge.getGraphId())) {
                     JSONObject resultobj = newEdge.toJSON();
-                    resultobj.put("id",newEdge.getId()+"");
+                    resultobj.put("id",newEdge.getId());
                     resultobj.put("relationship",newEdge.getRelationShip());
                     edgesJarry.put(resultobj);
                 }
@@ -292,7 +290,7 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
     @Override
     public Path dfExection(long fromId,long toId,int depth){
-        String sql= "MATCH path = shortestPath ( (a ) -[*0.."+depth+"]- (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
+        String sql= "MATCH path = shortestPath ( (a ) -[*0.."+depth+"]-> (b) )WHERE id(a)="+fromId+" AND id(b) ="+toId+" RETURN path;";
        // String sql=" MATCH path = shortestPath((a)-[r*1..4]->(b)) WHERE id(a)="+fromId+" AND id(b) ="+toId+ " AND ALL(x IN nodes(path) WHERE (x:law)) RETURN path";
        // String sql="MATCH  p=(a)-[r*1..4]->(b)" + "WHERE id(a)="+fromId+" AND id(b) ="+toId+" " + "RETURN p AS shortestPath, reduce(distance=0, r in relationships(p)| distance+r.distance) AS totalDistance ORDER BY totalDistance ASC LIMIT 1";
         Path segments=null;

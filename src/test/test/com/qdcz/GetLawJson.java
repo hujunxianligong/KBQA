@@ -22,7 +22,8 @@ public class GetLawJson {
         GetLawJson test=new GetLawJson();
 //        test.getLawScenesJson("/home/hadoop/wnd/usr/leagal/建新/场景属性");
 //        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
-        test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
+//        test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
+        test.test();
     }
     public void getOneBankThreeHuiDefine(String filePath) throws Exception{
         FileReader re =  new FileReader(filePath);
@@ -234,9 +235,11 @@ public class GetLawJson {
                             }
                             JSONObject tmp = new JSONObject();
                             tmp.put("root", root);
-                            tmp.put("from", from_split);
-                            tmp.put("to", to_split);
-                            tmp.put("relation", text);
+                            UUID fromUid =UUID.nameUUIDFromBytes((root+from_split).getBytes());
+                            tmp.put("from", fromUid);
+                            UUID toUid =UUID.nameUUIDFromBytes((root+to_split).getBytes());
+                            tmp.put("to", toUid);
+                            tmp.put("name", text);
                             edges.put(tmp);
                         }
 
@@ -257,15 +260,16 @@ public class GetLawJson {
                         continue;
                     }
                     JSONObject tmp = new JSONObject();
-                    tmp.put("identity","");
+                    UUID uid =UUID.nameUUIDFromBytes((root+split).getBytes());
+                    tmp.put("identity",uid);
                     tmp.put("root",root);
                     tmp.put("name",split);
                     tmp.put("type","");
-                    tmp.put("content",new JSONObject());
+                    tmp.put("content","");
                     if(split.endsWith("判决书")||split.endsWith("裁定书")){
                         tmp.put("type","裁判文书");
                         if(stringJSONObjectHashMap.containsKey(split)){
-                            tmp.put("content",stringJSONObjectHashMap.get(split));
+                            tmp.put("content",stringJSONObjectHashMap.get(split).toString());
                         }
                     }
 

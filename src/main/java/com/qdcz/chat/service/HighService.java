@@ -2,6 +2,7 @@ package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import com.qdcz.App;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
@@ -10,6 +11,7 @@ import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.*;
 /**
  * Created by star on 17-8-1.
  */
+
 @Service
 public class HighService {
 
@@ -47,10 +50,11 @@ public class HighService {
         }
 
         CommonTool.removeDuplicateWithOrder(termList);
-        MyComparetor mc = new MyComparetor("score");
+
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
-            Map<String, Object> node = questionPaserService.getNode(term.word,null);
+
+            Map<String, Object> node = questionPaserService.getNode(requestParameter,term.word);
             if(node!=null) {
                 maps.add(node);
             }
@@ -82,42 +86,36 @@ public class HighService {
             float second=0;
             float secScore=0;
             Map<String, Object> edgeNode=null;
-            Levenshtein lt=new Levenshtein();
             //对候选边/节点进行筛选，分别挑选最高分数的node作为对应类型的代表
             for(Map<String, Object> node:maps){
                 if(node!=null) {
-                    String name = null;
-                    float diffLocation=0;
-                    if (node.containsKey("relation")) { //边
-                        name = (String) node.get("relation");
-                        diffLocation = lt.getSimilarityRatio(name, question);
+                    String name = (String) node.get("name");
+                    float diffLocation= Float.parseFloat(""+ node.get("questSimilar"));
+                    float score=Float.parseFloat(""+ node.get("score"));
+                    if ("edge".equals(node.get("typeOf"))) { //边
                         if (diffLocation > second) {
                             second = diffLocation ;
                             edgeNode = node;
-                            maxScore = (float) node.get("score");
+                            maxScore = score;
                         }else if(diffLocation == second){
                             // 当前词和之前的词与问句具有相同的编辑距离相似度，则通过索引分数对比
-                            if(maxScore< (float) node.get("score")){
+                            if(maxScore< score){
                                 edgeNode = node;
-                                maxScore = (float) node.get("score");
+                                maxScore = score;
                             }
                         }
                     } else {//点
-                        name = (String) node.get("name");
-                        diffLocation = lt.getSimilarityRatio(name, question);
                         if (diffLocation >max) {
                             max = diffLocation;
                             vertexNode  = node;
-                            secScore = (float) node.get("score");
+                            secScore = score;
                         }else if(diffLocation ==max){
-                            if(secScore < (float) node.get("score")){
+                            if(secScore < score){
                                 vertexNode = node;
-                                secScore = (float) node.get("score");
+                                secScore = score;
                             }
                         }
                     }
-                    //记录检索到的每个索引与问句的相似度分数
-                    node.put("questSimilar", diffLocation);
                 }
             }
             System.out.println("key:"+vertexNode+"\t"+edgeNode);
@@ -147,7 +145,7 @@ public class HighService {
                 result = "learning";
             }
         }
-
+        MyComparetor mc = null;
         if(result==null||"learning".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);

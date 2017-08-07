@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -51,17 +52,9 @@ public class ChatController {
             System.out.println(obj);
             if (obj.has("project")) {
                 project = obj.getString("project");
-
-
-
-
                 //TODO
-
                 String[] hasProjects = null;
 //                String[] hasProjects = MyConnConfigure.project;
-
-
-
                 boolean flag = false;
                 for (String hasProject : hasProjects) {
                     if (hasProject.equals(project)) {
@@ -92,7 +85,9 @@ public class ChatController {
     public String askOfWeChat(@RequestParam String question){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="law";
+        requestParameter.label="test";
+        requestParameter.relationship=new ArrayList<>();
+        requestParameter.relationship.add("gra");
         requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
         String s = highService.smartQA(requestParameter,question);
         return s;

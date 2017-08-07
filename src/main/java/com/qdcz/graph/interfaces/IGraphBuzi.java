@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -81,4 +82,11 @@ public interface IGraphBuzi {
      * @param identity
      */
     public Vertex checkVertexByIdentity(String label,String  identity);
+
+    /**
+     * 根据边id查询边首尾点
+     * @param id
+     *
+     */
+    public Map<String,Vertex> checkVertexByEdgeId(long id);
 }
