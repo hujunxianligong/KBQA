@@ -8,7 +8,7 @@ import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
-import com.qdcz.index.elsearch.buzi.ElasearchBuzi;
+import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,7 +38,7 @@ public class QuestionPaserService
 //    @Autowired
 //    private BankLawService bankLawService;
     @Autowired
-    private ElasearchBuzi elasearchBuzi;
+    private ElasearchService elasearchBuzi;
 
     public  Map<String, Object> getNode(String label,String question){
         String[] fields={"name"};
@@ -47,7 +47,7 @@ public class QuestionPaserService
         String type="node";
         Levenshtein lt=new Levenshtein();
         List<Map<String, Object>> maps = null;
-        List<JSONObject> jsonObjects = elasearchBuzi.queryByName(label, question);
+        List<JSONObject> jsonObjects =null;
 
 //        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
         MyComparetor mc = new MyComparetor("score");

@@ -39,7 +39,7 @@ public class ElasearchDAO implements IIndexDAO {
 
     @Override
     public void addOrUpdateIndex(IGraphEntity entity) {
-        System.out.println("mm:"+entity.getGraphId());
+//        System.out.println("mm:"+entity.getGraphId());
         IndexResponse response = client.prepareIndex(index, entity.getGraphType())
                 .setSource(entity.toJSON().toString())
                 .setId(entity.getGraphId())//自己设置了id，也可以使用ES自带的，但是看文档说，ES的会因为删除id发生变动。

@@ -22,6 +22,27 @@ public class Edge implements IGraphEntity{
     public Edge(){
 
     }
+    public Edge(JSONObject json){
+        if(json.has("id")){
+            this.id = json.getString("id");
+        }
+        if(json.has("name")){
+            this.name = json.getString("name");
+        }
+        if(json.has("from")){
+            this.from = json.getString("from");
+        }
+        if(json.has("root")){
+            this.root = json.getString("root");
+        }
+        if(json.has("to")){
+            this.to = json.getString("to");
+        }
+        if(json.has("relationShip")){
+            this.relationShip = json.getString("relationShip");
+        }
+    }
+
 
     public Edge(String name, String root, String from, String to, String relationShip) {
         this.name = name;

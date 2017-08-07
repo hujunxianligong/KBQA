@@ -50,7 +50,7 @@ public class HighService {
         MyComparetor mc = new MyComparetor("score");
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
-            Map<String, Object> node = questionPaserService.getNode(term.word);
+            Map<String, Object> node = questionPaserService.getNode(term.word,null);
             if(node!=null) {
                 maps.add(node);
             }

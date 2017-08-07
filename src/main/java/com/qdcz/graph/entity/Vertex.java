@@ -24,6 +24,31 @@ public class Vertex implements IGraphEntity {
 
     }
 
+    public Vertex(JSONObject json) {
+        if(json.has("id")){
+            this.id = json.getString("id");
+        }
+        if(json.has("name")){
+            this.name = json.getString("name");
+        }
+        if(json.has("content")){
+            this.content = json.getString("content");
+        }
+        if(json.has("root")){
+            this.root = json.getString("root");
+        }
+        if(json.has("type")){
+            this.type = json.getString("type");
+        }
+        if(json.has("identity")){
+            this.identity = json.getString("identity");
+        }
+        if(json.has("label")){
+            this.label = json.getString("label");
+        }
+    }
+
+
     public Vertex(String name, String root, String label, String type) {
         this.name = name;
         this.root = root;
