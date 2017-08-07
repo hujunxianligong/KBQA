@@ -8,11 +8,13 @@ import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
+import com.qdcz.index.elsearch.buzi.ElasearchBuzi;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.neo4j.graphdb.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,15 +37,18 @@ public class QuestionPaserService
 //    private LoopDataService loopDataService;
 //    @Autowired
 //    private BankLawService bankLawService;
+    @Autowired
+    private ElasearchBuzi elasearchBuzi;
 
-
-    public  Map<String, Object> getNode(String question){
+    public  Map<String, Object> getNode(String label,String question){
         String[] fields={"name"};
         float maxScore = 0;
         Map<String, Object> node =null;
         String type="node";
         Levenshtein lt=new Levenshtein();
         List<Map<String, Object>> maps = null;
+        List<JSONObject> jsonObjects = elasearchBuzi.queryByName(label, question);
+
 //        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
         MyComparetor mc = new MyComparetor("score");
         Collections.sort(maps,mc);
