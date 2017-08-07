@@ -72,9 +72,11 @@ public class Neo4jCYDAO implements IGraphDAO{
 
     @Override
     public String changeVertex(Vertex vertex) {
-        String changeString = "merge (n:"+vertex.getLabel()+" ) where id(n)= $id on " +
-                "create set n.type= $type ,n.identity= $identity,n.root= $root,n.content=$content on " +
-                "match set n.type=$type ,n.identity=$identity,n.root=$root,n.content=$content return n";
+        String changeString = "match (n:"+vertex.getLabel()
+                +") where id(n)= $id  set n.name=$name, n.type= $type ,n.identity= $identity,n.root=$root,n.content=$content return n";
+
+
+
         long id=0l;
         Map<String, Object> parameters=new HashMap();
         parameters.put("id",vertex.getId());
