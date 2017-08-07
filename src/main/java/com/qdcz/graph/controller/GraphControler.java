@@ -83,20 +83,25 @@ public class GraphControler {
             vertex.setContent("");
             vertex.setName(obj.getJSONObject("info").getJSONObject("node").getString("name"));
             vertex.setRoot(obj.getJSONObject("info").getJSONObject("node").getString("root"));
-            vertex.setLabel("vertex");
+            vertex.setLabel("test");
             vertex.setType(obj.getJSONObject("info").getJSONObject("node").getString("type"));
 
 
             edge = new Edge();
+
+            edge.setRelationShip("gra");
             edge.setId(obj.getJSONObject("info").getJSONObject("edge").getString("id"));
             edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
             edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
-            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("relation"));
+            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
 
             String type = obj.getString("type");
 
-            System.out.println(type+"\t"+obj);
 
+
+            System.out.println(type+"\t"+obj);
+            vertex.setRoot("社会科学知识库");
+            edge.setRoot("社会科学知识库");
 
             switch (type){
                 case "checkByName":

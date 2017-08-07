@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * elasearch对外提供的所有操作
@@ -59,7 +60,7 @@ public class ElasearchBuzi implements IIndexBuzi {
 
 //        System.out.println(instance.queryById(vertex));
 
-//        instance.queryByName("vertex","组织");
+        instance.queryByName("vertex","组织");
 
 
     }
@@ -91,7 +92,7 @@ public class ElasearchBuzi implements IIndexBuzi {
     }
 
     @Override
-    public List<JSONObject> queryByName(String graphtype, String name) {
+    public Map<String,JSONObject> queryByName(String graphtype, String name) {
         return elasearchDAO.queryByName(graphtype,name);
     }
 }

@@ -1,57 +1,47 @@
-# **知识图谱管理与智能问答引擎**
-#  **介绍**
-基于Neo4j图数据库构建知识图谱，提供知识图谱的增删改查；基于知识图谱和策略构建智能问答引擎
-# **特性**
-1. 采用Neo4j构建知识图谱
-2. 基于Spring-data-neo4j框架实现OGM
-3. 基于RESTful API方式提供外部调用接口
-4. 自定义分词插件
+招行法律知识库与智能交互研发
+===================================
+项目描述
+-----------------------------------
+   - **介绍**:本项目用于奇点创智数据科技有限公司操作neo4j数据库，elasticSearch以及与前端交互的服务器app。
+   - **用途**：对3.2.0版本的neo4j数据库进行增删改查外加索引的操作
+   - **特性**：
+   	1.neo4j自带的服务端对中文建立的内置索引分词粒度以字为单位，不太符合实际需求，而且cypher语法没有对分词器的选择操作语句,修改采用elastic做中间业务处理索引内容对接图数据。
+    2.本代码选用hanlp分词器做索引分词底层，可扩展词典修改分词粒度。
 
-# **版本更新**
+编译、运行环境说明：
+-----------------------------------
+    使用JDK1.8.0版本，具体依赖都在pom中，本地nexus没有所需依赖。
 
-### 2017-08-02
-
-1. 支持银行、金融、票据、证券、法律等行业的名词概念问答
-
-### 2017-07-20
-
-1. 初始版本
-2. 支持银团贷业务指引条款相关内容问答
-3. 针对无法回答的问题，引入图灵机器人
-
-------------
-# 编译、运行环境说明
-
-使用JDK1.8版本，除了pom中spring，neo4j常用公共第三方开源以外，在公司的nexus上加载了自己修改的IK的分析器IKAnalyzer6x。
-
-# 目录结构
+总体目录
+-----------------------------------
 + main
     + java
         + com
             + qdcz
-                * config 
-                * controller
-                * neo4jkernel
-                * sdn
-                * service
-                * Tools
-            + APP 
+                * chat
+                * common
+                * graph
+                * index
+                * mongo
+            + APP
     + resources
 + test
 
-- **config** spring框架配置、mongo配置以及读取`resources`所需配置。
-- **controller** API业务控制层。
-- **neo4jkernel** spring-data-neo4j调用的各类搜索实现(各种Service)，扩展(evaluator,expander)以及图节点边实例定义(generic)。
-- **sdn** 图边节点的实例化(entity)以及对应所需要的知识库cypher(repository)。
-- **service** 结合实际所需的服务逻辑编写,分为低中高三层，上层依赖下层。
-- **Tools** 定义的工具类。
-- **APP**  `SpringbootSdnEmbeddedApplication`，服务主入口。
-- **resources** 配置文件目录，其中：
- + **IKAnalyzer.cfg.xml** IK分词的扩展配置，加载了2个扩展词典sougou、 stopword、银团指引词典
-  + **neo4j.properties** 配置访问neo4j数据库的驱动类、访问的数据库的位置和对外端口
-  + **mongo.properties** 配置mongo-driver所需的信息
-  + **hanlp.properties** 配置hanlp分词器加载词典位置
-- **test**下为各类单元测试时使用的测试。
+-------------------
+**chat**包含智能问答接口与逻辑处理<br>
+**common**中包含一些公用静态方法<br>
+**graph**neo4j图操作及接口<br>
+**index**为elasticSearch建立索引的接口与方法<br>
+**sdn**为图边节点的实例化(entity)以及对应所需要的知识库cypher(epository)。<br>
+**service**为结合实际所需的服务逻辑编写,分为低中高三层，上层依赖下层。<br>
+**Tools**为定义的工具类。<br>
+**APP为**  `SpringbootSdnEmbeddedApplication`，启动服务主入口。<br>
+**resources**为配置文件<br>
+	其中`IKAnalyzer.cfg.xml`为IK分词的扩展配置，加载了2个扩展词典`sougou`、 `stopword`、`银团指引词典`<br>
+	`neo4j.properties`设置了app启动的驱动，访问的数据库的位置，对外端口<br>
+	`mongo.properties`设置了mongo-driver所需的信息<br>
+	`hanlp.properties`设置了han分词器加载词典位置<br>
+**test**下为各类单元测试时使用的测试。<br>
 
 
 

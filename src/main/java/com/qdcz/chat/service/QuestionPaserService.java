@@ -1,18 +1,27 @@
 package com.qdcz.chat.service;
 
 
+import com.qdcz.common.LoadConfigListener;
+import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 
+import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
+import com.qdcz.index.elsearch.buzi.ElasearchBuzi;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.types.*;
 import org.neo4j.graphdb.*;
 
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,75 +34,58 @@ import java.util.*;
 @Service
 public class QuestionPaserService
 {
-//    @Autowired
-//    private TransactionService transactionService;
-//    @Autowired
-//    private GraphDatabaseService graphDatabaseService;
-//    @Autowired
-//    private LegacyIndexService legacyIndexService;
-//    @Autowired
-//    private LoopDataService loopDataService;
-//    @Autowired
-//    private BankLawService bankLawService;
+
+    @Autowired
+    private ElasearchBuzi elasearchBuzi;
+    @Autowired
+    @Qualifier("neo4jCypherBuzi")
+    private IGraphBuzi graphBuzi;
 
 
-    public  Map<String, Object> getNode(String question){
-        String[] fields={"name"};
-        float maxScore = 0;
-        Map<String, Object> node =null;
+
+    private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
         String type="node";
         Levenshtein lt=new Levenshtein();
-        List<Map<String, Object>> maps = null;
-//        List<Map<String, Object>> maps = legacyIndexService.selectByFullTextIndex(fields, question,"vertex");
+        Map<String, JSONObject> stringJSONObjectMap = elasearchBuzi.queryByName(table, question);
+
+        List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
         MyComparetor mc = new MyComparetor("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
-        for(Map<String, Object> map:maps){
-            String nodeName = (String)map.get("name");
-            float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
-
-            map.put("questSimilar",similarityRatio1);
-            float score = (float) map.get("score");//会出错
-            if(maxScore<score){
-                maxScore = score;
-                node = map;
-            }else if(node !=null&&maxScore==score){
-                float similarityRatio = (float) node.get("questSimilar");
-                if(similarityRatio1>similarityRatio){
-                    node = map;
-                }
-            }
-        }
-        fields= new String[]{"relation"};
-        maps = null;
-//        maps = legacyIndexService.selectByFullTextIndex(fields, question,"edge");
-        Collections.sort(maps,mc);
-        Collections.reverse(maps);
-        for(Map<String, Object> map:maps){
-            float score = 0;
-            String nodeName = (String)map.get("relation");
-            float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
-            map.put("questSimilar",similarityRatio1);
-            try {
-                score = Float.parseFloat( map.get("score").toString());//会出错
-            }catch (Exception e){
-                System.out.println();
-            }
-            if(maxScore<score){
+        for(Map.Entry<String, JSONObject> map:maps){
+            JSONObject value = map.getValue();
+            if(value.has("to")){
                 type="edge";
+            }
+            String nodeName = value.getString("name");
+            float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
+            value.put("questSimilar",similarityRatio1);
+            float score = (float) value.getDouble("score");//会出错
+            if(maxScore<score){
                 maxScore = score;
-                node = map;
+                node = value;
             }else if(node !=null&&maxScore==score){
-                float similarityRatio = (float) node.get("questSimilar");
+                float similarityRatio = (float) node.getDouble("questSimilar");
                 if(similarityRatio1>similarityRatio){
-                    node = map;
+                    node = value;
                 }
             }
         }
         if(node!=null){
-            node.put("type",type);
+            node.put("typeOf",type);
         }
         return node;
+    }
+    public  Map<String, Object> getNode(RequestParameter requestParameter,String question){
+        float maxScore = 0;
+       JSONObject node =null;
+
+
+        node = neetNode(node, maxScore, requestParameter.label, question);
+        node = neetNode(node, maxScore, requestParameter.relationship.get(0), question);
+        Map<String, Object> stringObjectMap = CommonTool.toMap(node);
+
+        return stringObjectMap;
     }
     public Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
         Map<String, Object> result=null;
@@ -235,8 +227,8 @@ public class QuestionPaserService
             Map<String, Object> edge2=null;
 
             for(Map<String, Object> node:maps){
-                String  type = (String)node.get("type");
-                if("node".equals(type)){
+                String  type = (String)node.get("typeOf");
+                if("typeOf".equals(type)){
                     if(vertex1!=null){
                         vertex2=node;
                     }else{
@@ -352,19 +344,31 @@ public class QuestionPaserService
             return sb.toString();
         }
     }
-    private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertex,Map<String, Object> edge)  {
+    private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertexMap,Map<String, Object> edgeMap)  {
         Set<String>  resultPaths= new HashSet<>();
-        String vertexName=(String)vertex.get("name");
+        Vertex vertex=new Vertex();
+        CommonTool.transMap2Bean(vertexMap,vertex);
+        Edge edge= new Edge();
+        CommonTool.transMap2Bean(edgeMap,edge);
+        if(edge!=null) {
+            Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(edge.getId());
+            if(stringVertexMap.containsKey("end")){
+                Vertex endVertex = stringVertexMap.get("end");
+
+                org.neo4j.driver.v1.types.Path segments = graphBuzi.dfExection(vertex.getId(), endVertex.getId(), 5);
+
+            }
+        }
+        String vertexName=vertex.getName();
         List<Vertex> vertices = null;
 //        List<Vertex> vertices = bankLawService.checkVertexByName(requestParameter.label,vertexName);
         //边索引
-        String[] fields= new String[]{"relation"};
-        String edgeName=(String)edge.get("relation");
+ //       String edgeName=(String)edge.get("relation");
         List<Map<String, Object>> mapsEdge = null;
 //        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
-        if(mapsEdge.size()==0){//索引找不到的时候直接取id去找
-            mapsEdge.add(edge);
-        }
+//        if(mapsEdge.size()==0){//索引找不到的时候直接取id去找
+//            mapsEdge.add(edge);
+//        }
         for(Map<String, Object> map:mapsEdge){
             Node node    =   null;
             try (   Transaction tx = null) {
@@ -387,7 +391,7 @@ public class QuestionPaserService
         }
 
         Map<String,String> conditions= new HashMap<>();
-        conditions.put(edgeName,"contain");
+ //       conditions.put(edgeName,"contain");
 
         StringBuffer sb=new StringBuffer();
         parsePaths(conditions,sb,resultPaths);

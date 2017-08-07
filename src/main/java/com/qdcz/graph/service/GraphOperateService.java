@@ -53,7 +53,7 @@ public class GraphOperateService {
      */
     public String deleteVertex(Vertex vertex){
 
-        graphBuzi.addVertex(vertex);
+        graphBuzi.deleteVertex(vertex);
 
         indexBuzi.delIndex(vertex);
 
@@ -130,9 +130,10 @@ public class GraphOperateService {
 
         vertex.setId(vertexId);
 
-        indexBuzi.addOrUpdateIndex(edge);
+        indexBuzi.addOrUpdateIndex(vertex);
 
 
+        edge.setTo(vertexId);
         String edgeId = graphBuzi.addEdges(edge);
 
         edge.setId(edgeId);

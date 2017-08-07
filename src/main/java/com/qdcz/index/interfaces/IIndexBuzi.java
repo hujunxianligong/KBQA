@@ -4,6 +4,7 @@ import com.qdcz.graph.entity.IGraphEntity;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by star on 17-8-3.
@@ -20,5 +21,5 @@ public interface IIndexBuzi {
 
     public JSONObject queryById(IGraphEntity queryEctity);
 
-    public List<JSONObject> queryByName(String graphtype, String name);
+    public Map<String,JSONObject> queryByName(String graphtype, String name);
 }

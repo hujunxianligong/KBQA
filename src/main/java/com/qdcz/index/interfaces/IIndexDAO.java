@@ -4,6 +4,7 @@ import com.qdcz.graph.entity.IGraphEntity;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 索引模块DAO接口
@@ -22,5 +23,5 @@ public interface IIndexDAO {
 
     public JSONObject queryById(IGraphEntity queryEctity);
 
-    public List<JSONObject> queryByName(String graphtype, String name);
+    public Map<String,JSONObject> queryByName(String graphtype, String name);
 }

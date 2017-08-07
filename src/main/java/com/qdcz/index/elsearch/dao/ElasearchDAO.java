@@ -18,7 +18,9 @@ import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by star on 17-8-3.
@@ -119,7 +121,7 @@ public class ElasearchDAO implements IIndexDAO {
 
 
     @Override
-    public List<JSONObject> queryByName(String graphtype,String name) {
+    public Map<String,JSONObject> queryByName(String graphtype, String name) {
 
         QueryBuilder matchQuery = QueryBuilders.termQuery("name",name);
 
@@ -137,14 +139,15 @@ public class ElasearchDAO implements IIndexDAO {
         //获取查询结果集
         SearchHits searchHits = response.getHits();
         System.out.println(searchHits.totalHits);
-        List<JSONObject> result= new ArrayList<>();
+        Map<String,JSONObject> result= new HashMap<>();
         //遍历结果
         for(SearchHit hit:searchHits){
             JSONObject source = new JSONObject(hit.getSourceAsString());
             source.put("_id",hit.getId());
             source.put("score",hit.getScore());
 
-            result.add(source);
+
+            result.put(hit.getId(),source);
 
         }
 
