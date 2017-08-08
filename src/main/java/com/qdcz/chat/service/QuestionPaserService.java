@@ -348,29 +348,29 @@ public class QuestionPaserService
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
         ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
-            elasearchBuzi.queryByName(requestParameter.relationship.get(0),edge.getName());
-            Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
-            if(stringVertexMap.containsKey("end")){
-                Vertex endVertex = stringVertexMap.get("end");
-                Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());
-                Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
-                startMapList = new ArrayList<>(startMaps.entrySet());
-                endMapList = new ArrayList<>(endMaps.entrySet());
-                for(Map.Entry<String, JSONObject> startMap:startMapList){
-                    JSONObject value = startMap.getValue();
-                    for(Map.Entry<String, JSONObject> endMap:endMapList){
-                        JSONObject value1 = endMap.getValue();
-                        long startId =Long.parseLong(value.getString("id"));
-                        long endId = Long.parseLong(value1.getString("id"));
+            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());
+            Map<String, JSONObject> edgeSilimarMaps = elasearchBuzi.queryByName(requestParameter.relationship.get(0), edge.getName());
+            ArrayList<Map.Entry<String, JSONObject>> entryArrayList = new ArrayList<>(edgeSilimarMaps.entrySet());
+            for (Map.Entry<String, JSONObject> JSONObjectEntry : entryArrayList) {
+                JSONObject value = JSONObjectEntry.getValue();
+                Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(value.getLong("id"));
+                if(stringVertexMap.containsKey("end")){
+                    Vertex endVertex = stringVertexMap.get("end");
+                    startMapList = new ArrayList<>(startMaps.entrySet());
+                    for(Map.Entry<String, JSONObject> startMap:startMapList){
+                        JSONObject value2 = startMap.getValue();
+                        long startId =Long.parseLong(value2.getString("id"));
+                        long endId = Long.parseLong(endVertex.getId());
                         Path segments = graphBuzi.dfExection(startId, endId, 5);
                         if(segments!=null) {
                             unDealPaths.add(segments);
                         }
+
                     }
+                    startMapList.clear();
                 }
-                endMapList.clear();
-                startMapList.clear();
             }
+
         }
         Map<Object,Object> conditions= new HashMap<>();
         conditions.put("startVertex",vertex);
