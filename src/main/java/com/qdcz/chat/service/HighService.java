@@ -30,18 +30,23 @@ public class HighService {
         String label=requestParameter.label;
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = StandardTokenizer.segment(question);
+        List<Term> termreplace =new ArrayList<>();
         for(int i=0;i<termList.size();i++){
             Term term=termList.get(i);
             if(i<termList.size()-1){
                 Term nextTerm=termList.get(i+1);
-                if("a".equals(term.nature.name())&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
+                if((("v".equals(term.nature.name()))||"a".equals(term.nature.name())||"vn".equals(term.nature.name())||"n".equals(term.nature.name()))&&("vn".equals(nextTerm.nature.name())||"n".equals(nextTerm.nature.name()))){
                     term.nature=nextTerm.nature;
                     term.word+=nextTerm.word;
+                    termreplace.add(term);
                     nextTerm.nature= term.nature;
                     nextTerm.word=term.word;
                     nextTerm.offset=term.offset;
                 }
             }
+        }
+        for(Term term:termreplace){
+            termList.remove(term);
         }
         CommonTool.removeDuplicateWithOrder(termList);
         List<Map<String, Object>> maps= new ArrayList();
@@ -142,14 +147,12 @@ public class HighService {
                 str = questionPaserService.findDefine(question, maxNode);
             }
             if(str==null||"learning".equals(str)||"".equals(str)) {
-
                 result =questionPaserService.requestTuring(question);
 
             }else{
                 result= str;
             }
         }
-
         return result;
     }
 }
