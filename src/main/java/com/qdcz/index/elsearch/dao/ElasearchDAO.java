@@ -39,7 +39,7 @@ public class ElasearchDAO implements IIndexDAO {
 
     @Override
     public void addOrUpdateIndex(IGraphEntity entity) {
-        System.out.println("mm:"+entity.getGraphId());
+//        System.out.println("mm:"+entity.getGraphId());
         IndexResponse response = client.prepareIndex(index, entity.getGraphType())
                 .setSource(entity.toJSON().toString())
                 .setId(entity.getGraphId())//自己设置了id，也可以使用ES自带的，但是看文档说，ES的会因为删除id发生变动。
@@ -123,7 +123,7 @@ public class ElasearchDAO implements IIndexDAO {
     @Override
     public Map<String,JSONObject> queryByName(String graphtype, String name) {
 
-        QueryBuilder matchQuery = QueryBuilders.termQuery("name",name);
+        QueryBuilder matchQuery = QueryBuilders.matchQuery("name",name);
 
 
         // 搜索数据
@@ -143,7 +143,7 @@ public class ElasearchDAO implements IIndexDAO {
         //遍历结果
         for(SearchHit hit:searchHits){
             JSONObject source = new JSONObject(hit.getSourceAsString());
-            source.put("_id",hit.getId());
+            source.put("id",hit.getId());
             source.put("score",hit.getScore());
 
 

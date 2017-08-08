@@ -3,9 +3,12 @@ package com.qdcz.common;
 import com.qdcz.mongo.conf.MongoConfiguration;
 import com.qdcz.graph.neo4jcypher.conf.Neo4jConfiguration;
 import com.qdcz.index.elsearch.conf.ELKConfig;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
@@ -23,6 +26,7 @@ public class LoadConfigListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         try {
+//            Configurator.initialize(null,new ConfigurationSource(LoadConfigListener.class.getResourceAsStream("/log4j2.xml")));
             //------------加载neo4j的配置------------
             System.out.println("------------加载neo4j的配置------------");
             //MyConnConfigure myConnConfigure = new MyConnConfigure();

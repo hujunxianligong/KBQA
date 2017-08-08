@@ -26,7 +26,7 @@ import java.util.Map;
  * Created by star on 17-8-3.
  */
 @Service("neo4jCypherBuzi")
-public class Neo4jCYBuzi implements IGraphBuzi {
+public class Neo4jCYService implements IGraphBuzi {
 
     public static void main(String[] args) {
         LoadConfigListener loadConfigListener=new LoadConfigListener();
@@ -39,7 +39,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
         vertex.setContent("");
         vertex.setLabel("law");
 
-        Neo4jCYBuzi instance=  new Neo4jCYBuzi();
+        Neo4jCYService instance=  new Neo4jCYService();
       //  instance.deleteVertex(vertex);
         Edge edge=new Edge();
         edge.setRelationShip("gra");
@@ -54,7 +54,7 @@ public class Neo4jCYBuzi implements IGraphBuzi {
 
     private Driver driver;
 
-    public Neo4jCYBuzi(){
+    public Neo4jCYService(){
         driver =  Neo4jClientFactory.create();
         neo4jCYDAO = new Neo4jCYDAO(driver);
     }
@@ -127,10 +127,10 @@ public class Neo4jCYBuzi implements IGraphBuzi {
                 result.put("start",startVertex);
             }
             Node m = next.get("m").asNode();
-             nodeInfo = n.asMap();
+             nodeInfo = m.asMap();
             Vertex endVertex=new Vertex();
             CommonTool.transMap2Bean(nodeInfo,endVertex);
-            endVertex.setId(n.id()+"");
+            endVertex.setId(m.id()+"");
             if(!result.containsKey("end")){
                 result.put("end",endVertex);
             }

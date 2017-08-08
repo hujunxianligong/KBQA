@@ -1,6 +1,9 @@
 package com.qdcz.common;
 
+import org.json.JSONObject;
+
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,8 +19,10 @@ public class MyComparetor implements Comparator
     @Override
     public int compare(Object o1, Object o2)
     {
-        Map sdto1= (Map )o1;
-        Map sdto2= (Map )o2;
-        return Float.compare(Float.parseFloat(sdto1.get(compareObj).toString()),Float.parseFloat(sdto2.get(compareObj).toString()));
+        Map.Entry<String,JSONObject> sdto1= (Map.Entry<String, JSONObject>) o1;
+        Map.Entry<String,JSONObject> sdto2= (Map.Entry<String, JSONObject>) o2;
+
+
+        return Float.compare(Float.parseFloat( sdto1.getValue().get(compareObj).toString()),Float.parseFloat(sdto2.getValue().get(compareObj).toString()));
     }
 }

@@ -30,7 +30,13 @@ public class GetLawJson {
         BufferedReader read = new BufferedReader(re );
         String str = null;
         Set<UUID> set=new HashSet<>();
+        int index = 0;
         while((str=read.readLine())!=null){
+            if(index>10){
+                continue;
+            }
+
+
             String[] split = str.split(",");
             if(split.length==4){
                 String name=split[0].replaceAll("[?。]","");

@@ -5,12 +5,14 @@ import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.service.GraphOperateService;
 import com.qdcz.service.bean.RequestParameter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+//import java.util.logging.Logger;
 
 /**
  * Created by star on 17-8-1.
@@ -18,24 +20,22 @@ import java.util.Map;
 @RestController
 public class GraphControler {
 
+    private Logger logger = LogManager.getLogger(GraphControler.class.getSimpleName());
     @Autowired
     private GraphOperateService newTrasa;
 //    @Autowired
 
 
 
-    @RequestMapping(path = "/testadd", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean testadd(@RequestParam String obj_str){
-        System.out.println("obj_str:"+obj_str);
-        RequestParameter requestParameter =null;
-        requestParameter =new RequestParameter();
-        requestParameter.label="law";
-        Boolean flag=true;
+    @RequestMapping(path = "/bluckadd", method = {RequestMethod.POST,RequestMethod.GET})
+    public boolean testadd(@RequestParam String vetexsPath,
+                           @RequestParam String label,
+                           @RequestParam String edgesPath,
+                           @RequestParam String relationship){
+        System.out.println("vetexsPath:"+vetexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
 
-//        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","add");
-//        transactionService.addEdgesByPath(requestParameter,obj_str+"/edges.txt");
 
-        return flag;
+        return newTrasa.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
     }
     @RequestMapping(path = "/testdel", method = {RequestMethod.POST,RequestMethod.GET})
     public boolean testdek(@RequestBody String obj_str){
@@ -70,36 +70,19 @@ public class GraphControler {
             Vertex vertex = null;
             Edge edge = null;
 
-
             System.out.println(obj);
-            //TODO   将请求序列化成实体
 
-//            {"project":"think-tank","type":"addNode","info":{"node":{"identity":"","root":"社会科学知识库","name":"测试","id":"","type":""},"edge":{"root":"","from":"","to":"","id":"","relation":""}}}
+            vertex = new Vertex(obj.getJSONObject("info").getJSONObject("node"));
+            edge = new Edge(obj.getJSONObject("info").getJSONObject("edge"));
 
-
-            vertex = new Vertex();
-
-            vertex.setId(obj.getJSONObject("info").getJSONObject("node").getString("id"));
-            vertex.setContent("");
-            vertex.setName(obj.getJSONObject("info").getJSONObject("node").getString("name"));
-            vertex.setRoot(obj.getJSONObject("info").getJSONObject("node").getString("root"));
             vertex.setLabel("test");
-            vertex.setType(obj.getJSONObject("info").getJSONObject("node").getString("type"));
-
-
-            edge = new Edge();
-
             edge.setRelationShip("gra");
-            edge.setId(obj.getJSONObject("info").getJSONObject("edge").getString("id"));
-            edge.setFrom(obj.getJSONObject("info").getJSONObject("edge").getString("from"));
-            edge.setTo(obj.getJSONObject("info").getJSONObject("edge").getString("to"));
-            edge.setName(obj.getJSONObject("info").getJSONObject("edge").getString("name"));
 
             String type = obj.getString("type");
 
-
-
-            System.out.println(type+"\t"+obj);
+            logger.info(type+"\t"+obj);
+            logger.error(type+"\t"+obj);
+//            System.out.println(type+"\t"+obj);
             vertex.setRoot("社会科学知识库");
             edge.setRoot("社会科学知识库");
 

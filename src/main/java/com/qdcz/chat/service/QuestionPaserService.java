@@ -11,11 +11,12 @@ import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
-import com.qdcz.index.elsearch.buzi.ElasearchBuzi;
+import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.*;
+import org.neo4j.driver.v1.types.Path;
 import org.neo4j.graphdb.*;
 
 import org.neo4j.graphdb.Node;
@@ -36,7 +37,7 @@ public class QuestionPaserService
 {
 
     @Autowired
-    private ElasearchBuzi elasearchBuzi;
+    private ElasearchService elasearchBuzi;
     @Autowired
     @Qualifier("neo4jCypherBuzi")
     private IGraphBuzi graphBuzi;
@@ -46,6 +47,7 @@ public class QuestionPaserService
     private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
         String type="node";
         Levenshtein lt=new Levenshtein();
+
         Map<String, JSONObject> stringJSONObjectMap = elasearchBuzi.queryByName(table, question);
 
         List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
@@ -83,7 +85,9 @@ public class QuestionPaserService
 
         node = neetNode(node, maxScore, requestParameter.label, question);
         node = neetNode(node, maxScore, requestParameter.relationship.get(0), question);
-        Map<String, Object> stringObjectMap = CommonTool.toMap(node);
+        Map<String, Object> stringObjectMap =null;
+        if(node!=null)
+         stringObjectMap = CommonTool.toMap(node);
 
         return stringObjectMap;
     }
@@ -225,10 +229,9 @@ public class QuestionPaserService
             Map<String, Object> vertex2=null;
             Map<String, Object> edge1=null;
             Map<String, Object> edge2=null;
-
             for(Map<String, Object> node:maps){
                 String  type = (String)node.get("typeOf");
-                if("typeOf".equals(type)){
+                if("node".equals(type)){
                     if(vertex1!=null){
                         vertex2=node;
                     }else{
@@ -241,8 +244,6 @@ public class QuestionPaserService
                         edge1=node;
                     }
                 }
-
-
             }
             String result =null;
             if(vertex2==null&&edge2==null){
@@ -271,7 +272,7 @@ public class QuestionPaserService
         if(mapsEdge2.size()==0){
             mapsEdge.add(edge2);
         }
-        Set<String> resultPaths= new HashSet<>();
+        Set<Path> resultPaths= new HashSet<>();
         for(Map<String, Object> map:mapsEdge){
             Node nodeStart    =   null;
             try (   Transaction tx =null) {
@@ -297,7 +298,7 @@ public class QuestionPaserService
                     long endid = nodeEnd.getId();
                     Set<String> strings = null;
 //                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
-                    resultPaths.addAll(strings);
+             //       resultPaths.addAll(strings);
                 }
             }
         }
@@ -305,7 +306,7 @@ public class QuestionPaserService
         conditions.put(edgeName1,"contain");
         conditions.put(edgeName1,"contain");
         StringBuffer sb=new StringBuffer();
-        parsePaths(conditions,sb,resultPaths);
+//        parsePaths(conditions,sb,resultPaths);
         if("".equals(sb.toString())){
             return "learning";
         }else{
@@ -313,26 +314,33 @@ public class QuestionPaserService
         }
     }
     private String getByNodeAndNodeName(RequestParameter requestParameter,Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
-        String vertexName1=(String)vertex1.get("name");
-        String vertexName2=(String)vertex2.get("name");
-        List<Vertex> verticesStart = null;
-        List<Vertex> verticesEnd = null;
-//        List<Vertex> verticesStart = bankLawService.checkVertexByName(requestParameter.label,vertexName1);
-//        List<Vertex> verticesEnd = bankLawService.checkVertexByName(requestParameter.label,vertexName2);
-        Set<String>  resultPaths= new HashSet<>();
-        for(Vertex vertexeE:verticesEnd){
-            for(Vertex vertexL:verticesStart){
-                Long startid = vertexL.getId();
-                long endid = vertexeE.getId();
-                Set<String> strings = null;
-//                Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
-                resultPaths.addAll(strings);
+        Set<Path>  unDealPaths=new HashSet<>();
+        Vertex fromVertex=new Vertex();
+        CommonTool.transMap2Bean(vertex1,fromVertex);
+        Vertex toVertex=new Vertex();
+        CommonTool.transMap2Bean(vertex1,toVertex);
+        Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, fromVertex.getName());
+        Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, toVertex.getName());
+        ArrayList<Map.Entry<String, JSONObject>> startMapList= new ArrayList<>(startMaps.entrySet());
+        ArrayList<Map.Entry<String, JSONObject>> endMapList= new ArrayList<>(endMaps.entrySet());
+        for(Map.Entry<String, JSONObject> startMap:startMapList){
+            JSONObject value = startMap.getValue();
+            for(Map.Entry<String, JSONObject> endMap:endMapList){
+                JSONObject value1 = endMap.getValue();
+                long startId =Long.parseLong(value.getString("id"));
+                long endId = Long.parseLong(value1.getString("id"));
+                Path segments = graphBuzi.dfExection(startId, endId, 5);
+                if(segments!=null) {
+                    unDealPaths.add(segments);
+                }
             }
         }
-        Map<String,String> conditions= new HashMap<>();
+        Map<Object,Object> conditions= new HashMap<>();
+        conditions.put("startVertex",fromVertex);
+        conditions.put("endVertex",toVertex);
         StringBuffer sb=new StringBuffer();
-        parsePaths(conditions,sb,resultPaths);
-
+        Set<Path> paths = parsePaths(conditions, unDealPaths);
+        showPaths(sb,paths);
         if("".equals(sb.toString())&&!exchange){
             if(exchange) {
                 return "learning";
@@ -345,151 +353,168 @@ public class QuestionPaserService
         }
     }
     private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertexMap,Map<String, Object> edgeMap)  {
-        Set<String>  resultPaths= new HashSet<>();
         Vertex vertex=new Vertex();
         CommonTool.transMap2Bean(vertexMap,vertex);
         Edge edge= new Edge();
         CommonTool.transMap2Bean(edgeMap,edge);
+        Set<Path>  unDealPaths=new HashSet<>();
+        ArrayList<Map.Entry<String, JSONObject>> startMapList;
+        ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
-            Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(edge.getId());
+            Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
             if(stringVertexMap.containsKey("end")){
                 Vertex endVertex = stringVertexMap.get("end");
-
-                org.neo4j.driver.v1.types.Path segments = graphBuzi.dfExection(vertex.getId(), endVertex.getId(), 5);
-
-            }
-        }
-        String vertexName=vertex.getName();
-        List<Vertex> vertices = null;
-//        List<Vertex> vertices = bankLawService.checkVertexByName(requestParameter.label,vertexName);
-        //边索引
- //       String edgeName=(String)edge.get("relation");
-        List<Map<String, Object>> mapsEdge = null;
-//        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName,"edge");
-//        if(mapsEdge.size()==0){//索引找不到的时候直接取id去找
-//            mapsEdge.add(edge);
-//        }
-        for(Map<String, Object> map:mapsEdge){
-            Node node    =   null;
-            try (   Transaction tx = null) {
-                Relationship r = null;
-//            try (   Transaction tx = graphDatabaseService.beginTx()) {
-//                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
-                tx.acquireReadLock(r);
-                node = r.getEndNode();
-                tx.success();
-            }
-            if(node!=null) {
-                for(Vertex vertexL:vertices){
-                    Long startid = vertexL.getId();
-                    long endid = node.getId();
-                    Set<String> strings = null;
-//                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
-                    resultPaths.addAll(strings);
+                Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());
+                Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
+                startMapList = new ArrayList<>(startMaps.entrySet());
+                endMapList = new ArrayList<>(endMaps.entrySet());
+                for(Map.Entry<String, JSONObject> startMap:startMapList){
+                    JSONObject value = startMap.getValue();
+                    for(Map.Entry<String, JSONObject> endMap:endMapList){
+                        JSONObject value1 = endMap.getValue();
+                        long startId =Long.parseLong(value.getString("id"));
+                        long endId = Long.parseLong(value1.getString("id"));
+                        Path segments = graphBuzi.dfExection(startId, endId, 5);
+                        if(segments!=null) {
+                            unDealPaths.add(segments);
+                        }
+                    }
                 }
+                endMapList.clear();
+                startMapList.clear();
             }
         }
-
-        Map<String,String> conditions= new HashMap<>();
- //       conditions.put(edgeName,"contain");
-
+        Map<Object,Object> conditions= new HashMap<>();
+        conditions.put("startVertex",vertex);
+        conditions.put("edge",edge);
         StringBuffer sb=new StringBuffer();
-        parsePaths(conditions,sb,resultPaths);
+        Set<Path> paths = parsePaths(conditions, unDealPaths);
+        showPaths(sb,paths);
         if("".equals(sb.toString())){
             return "learning";
         }else{
             return sb.toString();
         }
     }
-    private  StringBuffer parsePaths( Map<String,String> conditions,StringBuffer sb,Set<String>  Paths){
-        Set<String> parsePaths =new HashSet<>();
+    private  void  showPaths(StringBuffer sb,Set<Path> parsePaths){
+        for(Path path:parsePaths){
+            org.neo4j.driver.v1.types.Node start = path.start();
+
+            org.neo4j.driver.v1.types.Node end = path.end();
+
+            List<org.neo4j.driver.v1.types.Relationship> relationships = (List<org.neo4j.driver.v1.types.Relationship>) path.relationships();
+            org.neo4j.driver.v1.types.Relationship relationship = relationships.get(relationships.size() - 1);
+            System.out.println();
+            String result=start.get("name").asString()+"的"+relationship.get("name").asString()+"为"+end.get("name").asString()+"\n";
+            sb.append(result);
+
+        }
+//        try{
+//            JSONObject resultJSon=new JSONObject();
+//            for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
+//                JSONArray jsonArray=new JSONArray();
+//                String result="";
+//                String key = entry.getKey().replace("--","的");
+//                Vector<String> value = entry.getValue();
+//                result += key+"为";
+//                for(String str:value){
+//
+//                    JSONObject object = new JSONObject(str);
+//                    result="";
+//                    jsonArray.put(object.toString());
+//
+//                }
+//                if(!"".equals(result)) {
+//                    result = result.substring(0, result.length() - 1) + "。";
+//                    sb.append(result);
+//                }
+//                else if(jsonArray.length()>0){
+//                    resultJSon.put("title",key);
+//                    resultJSon.put("type","Law");
+//                    resultJSon.put("data",jsonArray);
+//                    sb.append(resultJSon);
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        return ;
+    }
+    private   Set<Path> parsePaths( Map<Object,Object> conditions,Set<Path>  Paths){
+        Set<Path> tmpPaths =new HashSet<>();
         int mindepth =Integer.MAX_VALUE;
-
-        for(String path:Paths) {//找到路径中包含边测最小最小的层数
-            if(path.contains("--")&&!path.contains("<-")) {
-                boolean flag = false;
-                if(conditions.size()==0){
-                    flag =true;
-                }else{
-                    for (Map.Entry<String, String> entry : conditions.entrySet()){
-                        if("contain".equals(entry.getValue().toString())&&path.contains(entry.getKey().toString())){
-                            flag =true;
+        for(Path path:Paths){
+            if(path!=null){
+                boolean flag = true;
+                boolean[] conditionboolean=new boolean[conditions.size()];
+                if(conditions.size()>0){
+                    int i=0;
+                    for (Map.Entry<Object, Object> entry : conditions.entrySet()){
+                        if("startVertex".equals(entry.getKey().toString())){
+                            Vertex vertex = (Vertex) entry.getValue();
+                            Iterable<org.neo4j.driver.v1.types.Node> nodes = path.nodes();
+                            for(org.neo4j.driver.v1.types.Node no:nodes){
+                                if(no.get("name").asString().equals(vertex.getName())){
+                                    conditionboolean[i]=true;
+                                    break;
+                                }else {
+                                    conditionboolean[i]=false;
+                                }
+                            }
+                            i++;
+                        }
+                        else if("edge".equals(entry.getKey().toString())){
+                            Edge edge = (Edge) entry.getValue();
+                            Iterable<org.neo4j.driver.v1.types.Relationship> relationships = path.relationships();
+                            for(org.neo4j.driver.v1.types.Relationship re:relationships){
+                                if(re.get("name").asString().equals(edge.getName())){
+                                    conditionboolean[i]=true;
+                                    break;
+                                }else {
+                                    conditionboolean[i]=false;
+                                }
+                            }
+                            i++;
+                        }
+                        else if("endVertex".equals(entry.getKey().toString())){
+                            Vertex vertex = (Vertex) entry.getValue();
+                            Iterable<org.neo4j.driver.v1.types.Node> nodes = path.nodes();
+                            for(org.neo4j.driver.v1.types.Node no:nodes){
+                                if(no.get("name").asString().equals(vertex.getName())){
+                                    conditionboolean[i]=true;
+                                    break;
+                                }else {
+                                    conditionboolean[i]=false;
+                                }
+                            }
+                            i++;
+                        }
+                    }
+                    for(int x=0;x<conditionboolean.length;x++){
+                        if(conditionboolean[x]==false){
+                            flag=false;break;
                         }
                     }
                 }
-                int pathDepth = path.split("->").length;//获取当前路径深度
-                if (flag&&mindepth > pathDepth) {
-                    mindepth = pathDepth;
-                }
-            }
-
-        }
-        for(String path:Paths){
-            if(path.contains("--")&&!path.contains("<-")) {
-                boolean flag = false;
-                if(conditions.size()==0){
-                    flag =true;
-                }else{
-                    for (Map.Entry<String, String> entry : conditions.entrySet()){
-                        if("contain".equals(entry.getValue().toString())&&path.contains(entry.getKey().toString())){
-                            flag =true;
-                        }
-                    }
-                }
-                int pathDepth = path.split("->").length;//获取当前路径深度
-                if(flag&&pathDepth<=mindepth){
-                    String[] split = path.split("--");
-                    String result = split[0] + "--" + split[split.length - 1];
-                    parsePaths.add(result);
+                if(flag){
+                    tmpPaths.add(path);
                 }
             }
         }
-        Map<String,Vector<String>> maps=new HashMap();
-        for(String result:parsePaths){
-            String[] split = result.split("->");
-            String key=split[0];
-            String value=split[1];
-            if(maps.containsKey(key)){
-                Vector<String> strs=maps.get(key);
-                strs.add(value);
-            }else{
-                Vector<String> strs=new Vector<>();
-                strs.add(value);
-                maps.put(key,strs);
+        for(Path path:tmpPaths) {//找到路径中包含边测最小最小的层数
+            int pathDepth = path.length();//获取当前路径深度
+            if (mindepth > pathDepth) {
+                mindepth = pathDepth;
             }
         }
-
-
-        try{
-            JSONObject resultJSon=new JSONObject();
-            for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
-                JSONArray jsonArray=new JSONArray();
-                String result="";
-                String key = entry.getKey().replace("--","的");
-                Vector<String> value = entry.getValue();
-                result += key+"为";
-                for(String str:value){
-
-                    JSONObject object = new JSONObject(str);
-                    result="";
-                    jsonArray.put(object.toString());
-
-                }
-                if(!"".equals(result)) {
-                    result = result.substring(0, result.length() - 1) + "。";
-                    sb.append(result);
-                }
-                else if(jsonArray.length()>0){
-                    resultJSon.put("title",key);
-                    resultJSon.put("type","Law");
-                    resultJSon.put("data",jsonArray);
-                    sb.append(resultJSon);
-                }
+        Set<Path> parsePaths =new HashSet<>();
+        for(Path path:tmpPaths) {//tmp中筛选出符合最小层数的路径
+            int pathDepth = path.length();//获取当前路径深度
+            if (mindepth == pathDepth) {
+                parsePaths.add(path);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return sb;
+        return parsePaths;
     }
     public   String requestTuring(String question) {
         JSONObject request= new JSONObject();

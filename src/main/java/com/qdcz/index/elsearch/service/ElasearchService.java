@@ -1,4 +1,4 @@
-package com.qdcz.index.elsearch.buzi;
+package com.qdcz.index.elsearch.service;
 
 import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.IGraphEntity;
@@ -8,10 +8,8 @@ import com.qdcz.index.elsearch.elk.ElasearchClientFactory;
 import com.qdcz.index.interfaces.IIndexBuzi;
 import org.elasticsearch.client.transport.TransportClient;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,13 +18,13 @@ import java.util.Map;
  */
 //@Scope("properties")
 @Service("elasearchBuzi")
-public class ElasearchBuzi implements IIndexBuzi {
+public class ElasearchService implements IIndexBuzi {
 
     private ElasearchDAO elasearchDAO;
 
     private TransportClient client;
 
-    public ElasearchBuzi(){
+    public ElasearchService(){
         client =  ElasearchClientFactory.create();
         elasearchDAO = new ElasearchDAO(client);
     }
@@ -45,7 +43,7 @@ public class ElasearchBuzi implements IIndexBuzi {
         vertex.setId("4105");
 
 
-        ElasearchBuzi instance = new ElasearchBuzi();
+        ElasearchService instance = new ElasearchService();
 //        instance.addOrUpdateIndex(vertex);
 
 
@@ -67,6 +65,7 @@ public class ElasearchBuzi implements IIndexBuzi {
 
     @Override
     public void addOrUpdateIndex(IGraphEntity entity) {
+
         elasearchDAO.addOrUpdateIndex(entity);
     }
 
