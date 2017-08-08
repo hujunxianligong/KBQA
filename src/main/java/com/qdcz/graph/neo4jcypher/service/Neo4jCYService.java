@@ -1,10 +1,10 @@
 package com.qdcz.graph.neo4jcypher.service;
 
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.LoadConfigListener;
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.IGraphEntity;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.conf.LoadConfigListener;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.IGraphEntity;
+import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.connect.Neo4jClientFactory;
 import com.qdcz.graph.neo4jcypher.dao.Neo4jCYDAO;;

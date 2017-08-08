@@ -1,4 +1,4 @@
-package com.qdcz.common;
+package com.qdcz.chat.tools;
 
 import org.json.JSONObject;
 

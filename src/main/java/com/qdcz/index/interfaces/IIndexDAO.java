@@ -1,9 +1,8 @@
 package com.qdcz.index.interfaces;
 
-import com.qdcz.graph.entity.IGraphEntity;
+import com.qdcz.entity.IGraphEntity;
 import org.json.JSONObject;
 
-import java.util.List;
 import java.util.Map;
 
 /**

@@ -1,4 +1,4 @@
-package com.qdcz.graph.entity;
+package com.qdcz.entity;
 
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Relationship;

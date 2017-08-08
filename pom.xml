@@ -302,9 +302,12 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>*.properties</include>
+                    <include>**/*</include>
+                    <!--<include>*.properties</include>
                     <include>*.dic</include>
                     <include>*.xml</include>
+                    <include>*/*.properties</include>
+                    <include>*/*.xml</include>-->
                 </includes>
 
             </resource>

@@ -1,6 +1,6 @@
 package com.qdcz.index.elsearch.dao;
 
-import com.qdcz.graph.entity.IGraphEntity;
+import com.qdcz.entity.IGraphEntity;
 import com.qdcz.index.elsearch.conf.ELKConfig;
 import com.qdcz.index.interfaces.IIndexDAO;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -10,7 +10,6 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;

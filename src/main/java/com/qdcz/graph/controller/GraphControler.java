@@ -1,9 +1,8 @@
 package com.qdcz.graph.controller;
 
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.Vertex;
 import com.qdcz.graph.service.GraphOperateService;
-import com.qdcz.service.bean.RequestParameter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,6 +63,7 @@ public class GraphControler {
         String result =null;
         try {
             if(parameterMap.containsKey("data")){
+                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
@@ -103,8 +103,12 @@ public class GraphControler {
 
                     break;
                 case "checkByIndex":
+                    //TODO  暂时调用
+                    vertex.setLabel("shkx_label");
+                    edge.setRelationShip("shkx_relationship");
+                    result = newTrasa.exactMatchQuery(vertex);
 
-                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
+//                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
                     break;
                 case "checkById":
