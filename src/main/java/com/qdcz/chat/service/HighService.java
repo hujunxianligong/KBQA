@@ -3,6 +3,7 @@ package com.qdcz.chat.service;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
+import com.qdcz.common.MyComparetor;
 import com.qdcz.common.MyComparetorSJ;
 import com.qdcz.service.bean.RequestParameter;
 
@@ -123,9 +124,9 @@ public class HighService {
         }
 
 
-        MyComparetorSJ mc = null;
+        MyComparetor mc = null;
         if(result==null||"learning".equals(result)){
-            mc = new MyComparetorSJ("questSimilar");
+            mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;

@@ -2,10 +2,7 @@ package com.qdcz.graph.tools;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.traversal.Traverser;
+
 
 
 import java.util.HashMap;
@@ -34,43 +31,43 @@ public class ResultBuilder {
 
         return result;
     }
-    //获取所需结果集
-    public JSONObject graphResult(Traverser traverser ){
-        JSONArray nodesJarry=new JSONArray();
-        ResourceIterable<Node> nodes = traverser.nodes();
-        for(Node node:nodes){
-            JSONObject jsonObject = new JSONObject(node.getAllProperties());
-
-            jsonObject.put("id",node.getId()) ;
-            if(jsonObject.has("content")){
-                String content = jsonObject.getString("content");
-                if("".equals(content)){
-                    jsonObject.put("content", new JSONObject());
-                }else {
-                    jsonObject.put("content", new JSONObject(content));
-                }
-            }
-
-            nodesJarry.put(jsonObject);
-       //     System.out.println(jsonObject);
-        }
-        JSONArray edgesJarry=new JSONArray();
-        ResourceIterable<Relationship> relationships = traverser.relationships();
-        for(Relationship relationship:relationships){
-            JSONObject jsonObject = new JSONObject(relationship.getAllProperties());
-
-            jsonObject.put("id",relationship.getId()) ;
-
-            edgesJarry.put(jsonObject);
-        }
-        JSONObject result =new JSONObject();
-
-        result.put("nodes",nodesJarry);
-        result.put("edges",edgesJarry);
-
-
-        return result;
-    }
+//    //获取所需结果集
+//    public JSONObject graphResult(Traverser traverser ){
+//        JSONArray nodesJarry=new JSONArray();
+//        ResourceIterable<Node> nodes = traverser.nodes();
+//        for(Node node:nodes){
+//            JSONObject jsonObject = new JSONObject(node.getAllProperties());
+//
+//            jsonObject.put("id",node.getId()) ;
+//            if(jsonObject.has("content")){
+//                String content = jsonObject.getString("content");
+//                if("".equals(content)){
+//                    jsonObject.put("content", new JSONObject());
+//                }else {
+//                    jsonObject.put("content", new JSONObject(content));
+//                }
+//            }
+//
+//            nodesJarry.put(jsonObject);
+//       //     System.out.println(jsonObject);
+//        }
+//        JSONArray edgesJarry=new JSONArray();
+//        ResourceIterable<Relationship> relationships = traverser.relationships();
+//        for(Relationship relationship:relationships){
+//            JSONObject jsonObject = new JSONObject(relationship.getAllProperties());
+//
+//            jsonObject.put("id",relationship.getId()) ;
+//
+//            edgesJarry.put(jsonObject);
+//        }
+//        JSONObject result =new JSONObject();
+//
+//        result.put("nodes",nodesJarry);
+//        result.put("edges",edgesJarry);
+//
+//
+//        return result;
+//    }
 
     //两个结果集合并
     public JSONObject mergeResult(JSONObject obj1, JSONObject obj2){

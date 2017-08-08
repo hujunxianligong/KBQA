@@ -59,6 +59,11 @@ public class QuestionPaserService
             float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
             value.put("questSimilar",similarityRatio1);
             float score = (float) value.getDouble("score");//会出错
+            if(similarityRatio1==1f){
+                maxScore = score;
+                node = value;
+                continue;
+            }
             if(maxScore<score){
                 maxScore = score;
                 node = value;
@@ -343,6 +348,7 @@ public class QuestionPaserService
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
         ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
+            elasearchBuzi.queryByName(requestParameter.relationship.get(0),edge.getName());
             Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
             if(stringVertexMap.containsKey("end")){
                 Vertex endVertex = stringVertexMap.get("end");
@@ -506,7 +512,7 @@ public class QuestionPaserService
 
     public   String turingDataParser(String str ){
             JSONObject obj=new JSONObject( str);
-            int code = Integer.parseInt(obj.getString("code"));
+            int code =obj.getInt("code");
             if(code==100000){
                 return obj.getString("text");
             }else if(code==200000){

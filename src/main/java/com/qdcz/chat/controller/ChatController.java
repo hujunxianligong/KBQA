@@ -36,9 +36,9 @@ public class ChatController {
     public String ask(@RequestParam String question){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="test";
+        requestParameter.label="ytdk_label";
         requestParameter.relationship=new ArrayList<>();
-        requestParameter.relationship.add("gra");
+        requestParameter.relationship.add("ytdk_relationship");
         requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
         String s = highService.smartQA(requestParameter,question);
         return s;
@@ -51,9 +51,9 @@ public class ChatController {
     public String askOfWeChat(@RequestParam String question){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="test";
+        requestParameter.label="ytdk_label";
         requestParameter.relationship=new ArrayList<>();
-        requestParameter.relationship.add("gra");
+        requestParameter.relationship.add("ytdk_relationship");
         requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
         String s = highService.smartQA(requestParameter,question);
         return s;
