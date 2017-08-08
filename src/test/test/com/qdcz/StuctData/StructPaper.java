@@ -172,7 +172,7 @@ public class StructPaper {
                         node_com.put("root","社会科学知识库");
                         node_com.put("name",company.trim());
                         node_com.put("type","com");
-                        node_com.put("content",content_com);
+                        node_com.put("content",content_com.toString());
 
 //                System.out.println(author+"\t"+company+"\t"+url);
 
@@ -190,7 +190,7 @@ public class StructPaper {
                         node_person.put("root","社会科学知识库");
                         node_person.put("name",one_au.trim());
                         node_person.put("type","author");
-                        node_person.put("content",new JSONObject());
+                        node_person.put("content",new JSONObject().toString());
 
 
 
@@ -201,8 +201,8 @@ public class StructPaper {
                         one_edges.put("root","社会科学知识库");
                         one_edges.put("from",person_id);
                         one_edges.put("to",com_id);
-                        one_edges.put("relation","属于");
-                        one_edges.put("content",content_one_edge);
+                        one_edges.put("name","属于");
+                        one_edges.put("content",content_one_edge.toString());
 
 
 
@@ -214,7 +214,7 @@ public class StructPaper {
                         two_edges.put("root","社会科学知识库");
                         two_edges.put("from",person_id);
                         two_edges.put("to",title_id);
-                        two_edges.put("relation","发表");
+                        two_edges.put("name","发表");
                         two_edges.put("content",content_two_edge);
 
 
@@ -239,7 +239,7 @@ public class StructPaper {
                 node_paper.put("root","社会科学知识库");
                 node_paper.put("name",title.replace("\\s+","").replace(" ",""));
                 node_paper.put("type","paper");
-                node_paper.put("content",content_paper);
+                node_paper.put("content",content_paper.toString());
                 nodes_arr.put(node_paper);
             }else{
                 error_lines.add(line);

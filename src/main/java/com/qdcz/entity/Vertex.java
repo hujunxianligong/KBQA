@@ -51,6 +51,8 @@ public class Vertex implements IGraphEntity,Node {
         if(json.has("label")){
             this.label = json.getString("label");
         }
+
+
     }
 
 

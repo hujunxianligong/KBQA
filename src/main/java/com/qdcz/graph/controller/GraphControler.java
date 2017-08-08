@@ -63,6 +63,7 @@ public class GraphControler {
         String result =null;
         try {
             if(parameterMap.containsKey("data")){
+                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
@@ -102,8 +103,12 @@ public class GraphControler {
 
                     break;
                 case "checkByIndex":
+                    //TODO  暂时调用
+                    vertex.setLabel("shkx_label");
+                    edge.setRelationShip("shkx_relationship");
+                    result = newTrasa.exactMatchQuery(vertex);
 
-                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
+//                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
                     break;
                 case "checkById":
