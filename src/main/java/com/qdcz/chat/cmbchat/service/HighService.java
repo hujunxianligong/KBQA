@@ -1,13 +1,11 @@
-package com.qdcz.chat.service;
+package com.qdcz.chat.cmbchat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.MyComparetor;
-import com.qdcz.common.MyComparetorSJ;
+import com.qdcz.chat.tools.MyComparetor;
 import com.qdcz.service.bean.RequestParameter;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +21,7 @@ public class HighService {
     @Autowired
     private QuestionPaserService questionPaserService;
 
-
-
-    public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
-        System.out.println("智能问答提出问题：\t"+question);
-        String label=requestParameter.label;
+    private List<Term> getltpInfo(String question){
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = StandardTokenizer.segment(question);
         List<Term> termreplace =new ArrayList<>();
@@ -49,14 +43,25 @@ public class HighService {
             termList.remove(term);
         }
         CommonTool.removeDuplicateWithOrder(termList);
+        return termList;
+    }
+
+    private List<Term> transGraphInfo(List<Term> termLists){
+        return termLists;
+    }
+
+    private List<Map<String, Object>> searchGraphEntity(List<Term> termLists,RequestParameter requestParameter){
         List<Map<String, Object>> maps= new ArrayList();
-        for(Term term:termList) {
+        for(Term term:termLists) {
             Map<String, Object> node = questionPaserService.getNode(requestParameter,term.word);
             if(node!=null) {
                 maps.add(node);
             }
         }
+        return maps;
+    }
 
+    private String MatchPath(List<Map<String, Object>> maps ,RequestParameter requestParameter){
         String result= null;
         if(maps.size()==2){
             result = questionPaserService.traversePathBynode(requestParameter,maps);
@@ -127,8 +132,41 @@ public class HighService {
                 result = "learning";
             }
         }
+        return result;
+    }
+    public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
+        System.out.println("智能问答提出问题：\t"+question);
+
+        /*
+        *分词获取分词关键词
+         */
+        String label=requestParameter.label;
+        List<Term> termLists = getltpInfo(question);
+
+        /*
+        *关键词转换为图上信息
+         */
+        List<Term> transGraphInfo = transGraphInfo(termLists);
+
+        /*
+        * 搜索图上关键实体
+         */
+
+        List<Map<String, Object>> maps = searchGraphEntity(termLists, requestParameter);
 
 
+
+        /*
+        *实体匹配路径
+         */
+        String result = MatchPath(maps, requestParameter);
+
+
+        
+
+        /*
+        *结果发送
+         */
         MyComparetor mc = null;
         if(result==null||"learning".equals(result)){
             mc = new MyComparetor("questSimilar");
@@ -153,6 +191,10 @@ public class HighService {
                 result= str;
             }
         }
+
         return result;
     }
+
+
+
 }

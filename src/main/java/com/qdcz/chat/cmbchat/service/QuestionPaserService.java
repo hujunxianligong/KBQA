@@ -1,4 +1,4 @@
-package com.qdcz.chat.service;
+package com.qdcz.chat.cmbchat.service;
 
 
 import com.qdcz.entity.Edge;
@@ -7,8 +7,8 @@ import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.Levenshtein;
-import com.qdcz.common.MyComparetorSJ;
+import com.qdcz.chat.tools.Levenshtein;
+import com.qdcz.chat.tools.MyComparetorSJ;
 
 import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;

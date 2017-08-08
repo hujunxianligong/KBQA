@@ -1,4 +1,4 @@
-package com.qdcz.common;
+package com.qdcz.chat.tools;
 
 /**
  * Created by hadoop on 17-4-20.

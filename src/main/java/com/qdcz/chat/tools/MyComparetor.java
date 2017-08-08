@@ -1,4 +1,4 @@
-package com.qdcz.common;
+package com.qdcz.chat.tools;
 
 import java.util.Comparator;
 import java.util.Map;
