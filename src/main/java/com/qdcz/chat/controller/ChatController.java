@@ -1,14 +1,11 @@
 package com.qdcz.chat.controller;
 
-import com.qdcz.chat.service.HighService;
+import com.qdcz.chat.cmbchat.service.HighService;
 import com.qdcz.service.bean.RequestParameter;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by star on 17-8-1.

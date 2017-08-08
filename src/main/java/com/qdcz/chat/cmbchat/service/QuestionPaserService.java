@@ -1,4 +1,4 @@
-package com.qdcz.chat.service;
+package com.qdcz.chat.cmbchat.service;
 
 
 import com.qdcz.entity.Edge;
@@ -7,12 +7,13 @@ import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.Levenshtein;
-import com.qdcz.common.MyComparetorSJ;
+import com.qdcz.chat.tools.Levenshtein;
+import com.qdcz.chat.tools.MyComparetorSJ;
 
 import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 
@@ -249,7 +250,8 @@ public class QuestionPaserService
             if(vertex2==null&&edge2==null){
                 result =  getByNodeAndEdgeName(requestParameter,vertex1,edge1);
             }else if(vertex2==null&&vertex1==null){
-                result = getByEdgeAndEdgeName(requestParameter,edge1,edge2);
+//                result = getByEdgeAndEdgeName(requestParameter,edge1,edge2);
+                result = null;
             }else if(edge2==null&&edge1==null){
                 result = getByNodeAndNodeName(requestParameter,vertex1,vertex2,false);
             }
@@ -264,30 +266,42 @@ public class QuestionPaserService
         CommonTool.transMap2Bean(edge1,fromEdge);
         Edge toEdge=new Edge();
         CommonTool.transMap2Bean(edge2,toEdge);
-        Map<String, Vertex> startVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(fromEdge.getId()));
-        Map<String, Vertex> endVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(toEdge.getId()));
-        if(startVertexMap.containsKey("start")&&endVertexMap.containsKey("end")){
-            Vertex startVertex = startVertexMap.get("start");
-            Vertex endVertex = endVertexMap.get("end");
-            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, startVertex.getName());
-            Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
-            ArrayList<Map.Entry<String, JSONObject>> startMapList = new ArrayList<>(startMaps.entrySet());
-            ArrayList<Map.Entry<String, JSONObject>> endMapList = new ArrayList<>(endMaps.entrySet());
-            for(Map.Entry<String, JSONObject> startMap:startMapList){
-                JSONObject value = startMap.getValue();
-                for(Map.Entry<String, JSONObject> endMap:endMapList){
-                    JSONObject value1 = endMap.getValue();
-                    long startId =Long.parseLong(value.getString("id"));
-                    long endId = Long.parseLong(value1.getString("id"));
-                    Path segments = graphBuzi.dfExection(startId, endId, 5);
-                    if(segments!=null) {
-                        unDealPaths.add(segments);
+        Map<String, JSONObject> edgeSilimarMaps1 = elasearchBuzi.queryByName(requestParameter.relationship.get(0), fromEdge.getName());
+        Map<String, JSONObject> edgeSilimarMaps2 = elasearchBuzi.queryByName(requestParameter.relationship.get(0), toEdge.getName());
+        ArrayList<Map.Entry<String, JSONObject>> entryArrayList1 = new ArrayList<>(edgeSilimarMaps1.entrySet());
+        ArrayList<Map.Entry<String, JSONObject>> entryArrayList2 = new ArrayList<>(edgeSilimarMaps2.entrySet());
+        for (Map.Entry<String, JSONObject> JSONObjectEntry : entryArrayList1) {
+            JSONObject value1 = JSONObjectEntry.getValue();
+            Map<String, Vertex> startVertexMap = graphBuzi.checkVertexByEdgeId(value1.getLong("id"));
+            for (Map.Entry<String, JSONObject> JSONObjectEntry2 : entryArrayList2){
+                JSONObject value2 = JSONObjectEntry2.getValue();
+                Map<String, Vertex> endVertexMap = graphBuzi.checkVertexByEdgeId(value2.getLong("id"));
+                if(startVertexMap.containsKey("start")&&endVertexMap.containsKey("end")){
+                    Vertex startVertex = startVertexMap.get("start");
+                    Vertex endVertex = endVertexMap.get("end");
+                    Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, startVertex.getName());
+                    Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
+                    ArrayList<Map.Entry<String, JSONObject>> startMapList = new ArrayList<>(startMaps.entrySet());
+                    ArrayList<Map.Entry<String, JSONObject>> endMapList = new ArrayList<>(endMaps.entrySet());
+                    for(Map.Entry<String, JSONObject> startMap:startMapList){
+                        JSONObject value = startMap.getValue();
+                        for(Map.Entry<String, JSONObject> endMap:endMapList){
+                            JSONObject valueto = endMap.getValue();
+                            long startId =Long.parseLong(value.getString("id"));
+                            long endId = Long.parseLong(valueto.getString("id"));
+                            Path segments = graphBuzi.dfExection(startId, endId, 5);
+                            if(segments!=null) {
+                                unDealPaths.add(segments);
+                            }
+                        }
                     }
+                    endMapList.clear();
+                    startMapList.clear();
                 }
             }
-            endMapList.clear();
-            startMapList.clear();
         }
+
+
         Map<Object,Object> conditions= new HashMap<>();
         conditions.put("edgeDouble",fromEdge);
         conditions.put("edge",toEdge);
@@ -346,31 +360,30 @@ public class QuestionPaserService
         CommonTool.transMap2Bean(edgeMap,edge);
         Set<Path>  unDealPaths=new HashSet<>();
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
-        ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
-            elasearchBuzi.queryByName(requestParameter.relationship.get(0),edge.getName());
-            Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
-            if(stringVertexMap.containsKey("end")){
-                Vertex endVertex = stringVertexMap.get("end");
-                Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());
-                Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
-                startMapList = new ArrayList<>(startMaps.entrySet());
-                endMapList = new ArrayList<>(endMaps.entrySet());
-                for(Map.Entry<String, JSONObject> startMap:startMapList){
-                    JSONObject value = startMap.getValue();
-                    for(Map.Entry<String, JSONObject> endMap:endMapList){
-                        JSONObject value1 = endMap.getValue();
-                        long startId =Long.parseLong(value.getString("id"));
-                        long endId = Long.parseLong(value1.getString("id"));
+            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());//获取点名称索引相关集合
+            Map<String, JSONObject> edgeSilimarMaps = elasearchBuzi.queryByName(requestParameter.relationship.get(0), edge.getName());
+            ArrayList<Map.Entry<String, JSONObject>> entryArrayList = new ArrayList<>(edgeSilimarMaps.entrySet());
+            for (Map.Entry<String, JSONObject> JSONObjectEntry : entryArrayList) {//边名称索引结果解析末点
+                JSONObject value = JSONObjectEntry.getValue();
+                Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(value.getLong("id"));
+                if(stringVertexMap.containsKey("end")){
+                    Vertex endVertex = stringVertexMap.get("end");
+                    startMapList = new ArrayList<>(startMaps.entrySet());
+                    for(Map.Entry<String, JSONObject> startMap:startMapList){
+                        JSONObject value2 = startMap.getValue();
+                        long startId =Long.parseLong(value2.getString("id"));
+                        long endId = Long.parseLong(endVertex.getId());
                         Path segments = graphBuzi.dfExection(startId, endId, 5);
                         if(segments!=null) {
                             unDealPaths.add(segments);
                         }
+
                     }
+                    startMapList.clear();
                 }
-                endMapList.clear();
-                startMapList.clear();
             }
+
         }
         Map<Object,Object> conditions= new HashMap<>();
         conditions.put("startVertex",vertex);
@@ -385,47 +398,66 @@ public class QuestionPaserService
         }
     }
     private  void  showPaths(StringBuffer sb,Set<Path> parsePaths){
+        Map<String,Vector<String>> resultPaths=new HashMap();
         for(Path path:parsePaths){
             org.neo4j.driver.v1.types.Node start = path.start();
-
+            Vertex startVertex=new Vertex();
+            CommonTool.transMap2Bean(start.asMap(),startVertex);
             org.neo4j.driver.v1.types.Node end = path.end();
-
+            Vertex endVertex=new Vertex();
+            CommonTool.transMap2Bean(end.asMap(),endVertex);
             List<org.neo4j.driver.v1.types.Relationship> relationships = (List<org.neo4j.driver.v1.types.Relationship>) path.relationships();
             org.neo4j.driver.v1.types.Relationship relationship = relationships.get(relationships.size() - 1);
             System.out.println();
-            String result=start.get("name").asString()+"的"+relationship.get("name").asString()+"为"+end.get("name").asString()+"\n";
-            sb.append(result);
-
+            String key=startVertex.getName()+"--"+relationship.get("name").asString();
+            String content=end.get("content").asString();
+            String value=null;
+            if(!"".equals(content)){
+                value=endVertex.toJSON().toString();
+            }else {
+                value = endVertex.getName();
+            }
+            if(resultPaths.containsKey(key)){
+                Vector<String> strs=resultPaths.get(key);
+                strs.add(value);
+            }else{
+                Vector<String> strs=new Vector<>();
+                strs.add(value);
+                resultPaths.put(key,strs);
+            }
         }
-//        try{
-//            JSONObject resultJSon=new JSONObject();
-//            for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
-//                JSONArray jsonArray=new JSONArray();
-//                String result="";
-//                String key = entry.getKey().replace("--","的");
-//                Vector<String> value = entry.getValue();
-//                result += key+"为";
-//                for(String str:value){
-//
-//                    JSONObject object = new JSONObject(str);
-//                    result="";
-//                    jsonArray.put(object.toString());
-//
-//                }
-//                if(!"".equals(result)) {
-//                    result = result.substring(0, result.length() - 1) + "。";
-//                    sb.append(result);
-//                }
-//                else if(jsonArray.length()>0){
-//                    resultJSon.put("title",key);
-//                    resultJSon.put("type","Law");
-//                    resultJSon.put("data",jsonArray);
-//                    sb.append(resultJSon);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try{
+            JSONObject resultJSon=new JSONObject();
+            for (Map.Entry<String, Vector<String>> entry : resultPaths.entrySet()){
+                JSONArray jsonArray=new JSONArray();
+                String result="";
+                String key = entry.getKey().replace("--","的");
+                Vector<String> value = entry.getValue();
+                result += key+"为";
+                for(String str:value){
+                    try{
+                        JSONObject object = new JSONObject(str);
+                        result="";
+                        jsonArray.put(object.toString());
+                    }catch ( JSONException je){
+//                        je.printStackTrace();
+                        result+=str+"、";
+                    }
+                }
+                if(!"".equals(result)) {
+                    result = result.substring(0, result.length() - 1) + "。";
+                    sb.append(result);
+                }
+                else if(jsonArray.length()>0){
+                    resultJSon.put("title",key);
+                    resultJSon.put("type","Law");
+                    resultJSon.put("data",jsonArray);
+                    sb.append(resultJSon);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return ;
     }
     private   Set<Path> parsePaths( Map<Object,Object> conditions,Set<Path>  Paths){
