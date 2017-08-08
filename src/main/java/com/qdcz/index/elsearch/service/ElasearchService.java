@@ -5,7 +5,7 @@ import com.qdcz.graph.entity.IGraphEntity;
 import com.qdcz.graph.entity.Vertex;
 import com.qdcz.index.elsearch.dao.ElasearchDAO;
 import com.qdcz.index.elsearch.elk.ElasearchClientFactory;
-import com.qdcz.index.interfaces.IIndexBuzi;
+import com.qdcz.index.interfaces.IIndexService;
 import org.elasticsearch.client.transport.TransportClient;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -17,8 +17,8 @@ import java.util.Map;
  * Created by star on 17-8-3.
  */
 //@Scope("properties")
-@Service("elasearchBuzi")
-public class ElasearchService implements IIndexBuzi {
+@Service("elasearchService")
+public class ElasearchService implements IIndexService {
 
     private ElasearchDAO elasearchDAO;
 
@@ -53,12 +53,12 @@ public class ElasearchService implements IIndexBuzi {
 
 //        instance.bulkIndex(vertex);
 
-        instance.bulkDelete(vertex);
+//        instance.bulkDelete(vertex);
 
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("vertex","组织");
+        instance.queryByName("ytdk_relationship","对象");
 
 
     }
@@ -77,7 +77,7 @@ public class ElasearchService implements IIndexBuzi {
 
     @Override
     public void bulkIndex(IGraphEntity... entities) {
-//        elasearchDAO.bulkIndex(entities);
+        elasearchDAO.bulkIndex(entities);
     }
 
     @Override

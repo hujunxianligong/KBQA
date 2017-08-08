@@ -4,9 +4,11 @@ import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
 import com.qdcz.index.elsearch.service.ElasearchService;
-import com.qdcz.index.interfaces.IIndexBuzi;
+import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,12 +24,13 @@ import java.util.Scanner;
  */
 @Service
 public class GraphOperateService {
+    private Logger logger =  LogManager.getLogger(GraphOperateService.class.getSimpleName());
     @Autowired
-    @Qualifier("elasearchBuzi")
-    private IIndexBuzi indexBuzi;
+    @Qualifier("elasearchService")
+    private IIndexService indexBuzi;
 
     @Autowired
-    @Qualifier("neo4jCypherBuzi")
+    @Qualifier("neo4jCypherService")
     private IGraphBuzi graphBuzi;
 
 
@@ -220,9 +223,8 @@ public class GraphOperateService {
             Scanner sc= new Scanner(new File(vertexfilePath));
             String str = null;
             while(sc.hasNext()){
+                str = sc.nextLine();
                 try {
-                    str = sc.nextLine();
-                    System.out.println(str);
                     JSONObject obj = new JSONObject(str);
                     String type = obj.getString("type").trim();
                     String root = obj.getString("root").trim();
@@ -247,7 +249,7 @@ public class GraphOperateService {
 
                     key_value.put(identity,graphId);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("批量增点错误："+e.getMessage()+"\n"+str);
                 }
             }
             sc.close();
@@ -257,9 +259,8 @@ public class GraphOperateService {
             sc= new Scanner(new File(edgefilePath));
             str = null;
             while(sc.hasNext()){
+                str = sc.nextLine();
                 try {
-                    str = sc.nextLine();
-                    System.out.println(str);
                     JSONObject obj = new JSONObject(str);
 //                    Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
 //                    Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
@@ -278,7 +279,8 @@ public class GraphOperateService {
                     indexBuzi.addOrUpdateIndex(edge);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+
+                    logger.error("批量增边错误："+e.getMessage()+"\n"+str);
                 }
             }
             sc.close();
@@ -291,5 +293,20 @@ public class GraphOperateService {
     }
 
 
+    /**
+     * 查看点的详情
+     * @param vertex
+     * @return
+     */
+    public String queryNodeDetail(Vertex vertex) {
+        return indexBuzi.queryById(vertex).toString();
+    }
 
+    public String queryEdgeDetail(Edge edge) {
+        return indexBuzi.queryById(edge).toString();
+    }
+
+    public void delVertexByPath(String vetexsPath, String label) {
+        //TODO
+    }
 }

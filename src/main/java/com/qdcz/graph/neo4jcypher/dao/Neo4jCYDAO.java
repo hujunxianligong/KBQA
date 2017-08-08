@@ -7,7 +7,6 @@ import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 import org.neo4j.driver.v1.*;
 
 import org.neo4j.driver.v1.types.Node;
@@ -285,7 +284,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
         result.put("center",center);
-        System.out.println(result);
+//        System.out.println(result);
         return result;
     }
     @Override

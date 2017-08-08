@@ -1,9 +1,7 @@
 package com.qdcz.parse;
 
 import com.qdcz.common.CommonTool;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 
-import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -25,7 +25,7 @@ import java.util.Map;
  * cypher语句，neo4j对外提供的操作
  * Created by star on 17-8-3.
  */
-@Service("neo4jCypherBuzi")
+@Service("neo4jCypherService")
 public class Neo4jCYService implements IGraphBuzi {
 
     public static void main(String[] args) {

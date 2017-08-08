@@ -2,16 +2,12 @@ package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
-import com.qdcz.App;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
+import com.qdcz.common.MyComparetorSJ;
 import com.qdcz.service.bean.RequestParameter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,14 +42,10 @@ public class HighService {
                     nextTerm.offset=term.offset;
                 }
             }
-
         }
-
         CommonTool.removeDuplicateWithOrder(termList);
-
         List<Map<String, Object>> maps= new ArrayList();
         for(Term term:termList) {
-
             Map<String, Object> node = questionPaserService.getNode(requestParameter,term.word);
             if(node!=null) {
                 maps.add(node);
@@ -64,22 +56,7 @@ public class HighService {
         if(maps.size()==2){
             result = questionPaserService.traversePathBynode(requestParameter,maps);
         }
-        else if(maps.size()==0){
-            if("askOfWeChat".equals(requestParameter.requestSource)){
-                JSONObject obj=new JSONObject();
-
-                JSONArray data=new JSONArray();
-                data.put(questionPaserService.requestTuring(question));
-                try {
-                    obj.put("data",data);
-                    obj.put("type","Turing");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                return obj.toString();
-            }
-            return questionPaserService.requestTuring(question);
-        }else if(maps.size()>2){
+        else if(maps.size()>2){
             float max=0;
             float maxScore=0;
             Map<String, Object> vertexNode=null;
@@ -145,65 +122,34 @@ public class HighService {
                 result = "learning";
             }
         }
+
+
         MyComparetor mc = null;
         if(result==null||"learning".equals(result)){
             mc = new MyComparetor("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;
-
             //降序后，第一个node就是分数最大的点
             Map<String, Object> maxNode=null;
             for(Map<String, Object> node:maps){
-                if("node".equals(node.get("type"))){
+                if("node".equals(node.get("typeOf"))){
                     maxNode=node;
                     break;
                 }
             }
-            if(maxNode!=null) {
+            if(maxNode!=null) {//定义获取
                 str = questionPaserService.findDefine(question, maxNode);
             }
-
             if(str==null||"learning".equals(str)||"".equals(str)) {
-                if("askOfWeChat".equals(requestParameter.requestSource)){
-                    JSONObject obj=new JSONObject();
-                    JSONArray data=new JSONArray();
-                    data.put(questionPaserService.requestTuring(question));
-                    try {
-                        obj.put("data",data);
-                        obj.put("type","Turing");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    return obj.toString();
-                }
-                return questionPaserService.requestTuring(question);
+
+                result =questionPaserService.requestTuring(question);
+
             }else{
                 result= str;
             }
         }
-        if("askOfWeChat".equals(requestParameter.requestSource)){
-            boolean flag=false;//判断是否是之前获取案例json
-            JSONObject obj=null;
-            try{
-                obj=new JSONObject(result);
-            }catch (Exception e){
-                flag=true;
-            }
-            if(flag){
-                obj = new JSONObject();
 
-                JSONArray data = new JSONArray();
-                data.put(result);
-                try {
-                    obj.put("data", data);
-                    obj.put("type", "Graph");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return obj.toString();
-        }
         return result;
     }
 }

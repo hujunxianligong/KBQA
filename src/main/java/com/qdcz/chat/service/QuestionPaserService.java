@@ -1,7 +1,6 @@
 package com.qdcz.chat.service;
 
 
-import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 
@@ -9,18 +8,14 @@ import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
-import com.qdcz.common.MyComparetor;
+import com.qdcz.common.MyComparetorSJ;
 
-import com.qdcz.index.elsearch.service.ElasearchService;
+import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.driver.v1.types.*;
 import org.neo4j.driver.v1.types.Path;
-import org.neo4j.graphdb.*;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,9 +32,10 @@ public class QuestionPaserService
 {
 
     @Autowired
-    private ElasearchService elasearchBuzi;
+    @Qualifier("elasearchService")
+    private IIndexService elasearchBuzi;
     @Autowired
-    @Qualifier("neo4jCypherBuzi")
+    @Qualifier("neo4jCypherService")
     private IGraphBuzi graphBuzi;
 
 
@@ -51,7 +47,7 @@ public class QuestionPaserService
         Map<String, JSONObject> stringJSONObjectMap = elasearchBuzi.queryByName(table, question);
 
         List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
-        MyComparetor mc = new MyComparetor("score");
+        MyComparetorSJ mc = new MyComparetorSJ("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         for(Map.Entry<String, JSONObject> map:maps){
@@ -63,6 +59,11 @@ public class QuestionPaserService
             float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
             value.put("questSimilar",similarityRatio1);
             float score = (float) value.getDouble("score");//会出错
+            if(similarityRatio1==1f){
+                maxScore = score;
+                node = value;
+                continue;
+            }
             if(maxScore<score){
                 maxScore = score;
                 node = value;
@@ -116,8 +117,7 @@ public class QuestionPaserService
         if(map.containsKey("regex")){
             flag=true;
         }
-        else
-        if(map.get("name").equals(question)){
+        else if(map.get("name").equals(question)){
             flag=true;
         }else {
             for (String def : defineMatchs) {
@@ -249,7 +249,7 @@ public class QuestionPaserService
             if(vertex2==null&&edge2==null){
                 result =  getByNodeAndEdgeName(requestParameter,vertex1,edge1);
             }else if(vertex2==null&&vertex1==null){
-                result = getByEdgeAndEdgeName(edge1,edge2);
+                result = getByEdgeAndEdgeName(requestParameter,edge1,edge2);
             }else if(edge2==null&&edge1==null){
                 result = getByNodeAndNodeName(requestParameter,vertex1,vertex2,false);
             }
@@ -258,55 +258,42 @@ public class QuestionPaserService
         return "learning";
     }
 
-    private String getByEdgeAndEdgeName(Map<String, Object> edge1,Map<String, Object> edge2){
-        String[] fields= new String[]{"relation"};
-        String edgeName1=(String)edge1.get("relation");
-        String edgeName2=(String)edge2.get("relation");
-        List<Map<String, Object>> mapsEdge = null;
-        List<Map<String, Object>> mapsEdge2 = null;
-//        List<Map<String, Object>> mapsEdge = legacyIndexService.selectByFullTextIndex(fields, edgeName1,"edge");
-//        List<Map<String, Object>> mapsEdge2 = legacyIndexService.selectByFullTextIndex(fields, edgeName2,"edge");
-        if(mapsEdge.size()==0){
-            mapsEdge.add(edge1);
-        }
-        if(mapsEdge2.size()==0){
-            mapsEdge.add(edge2);
-        }
-        Set<Path> resultPaths= new HashSet<>();
-        for(Map<String, Object> map:mapsEdge){
-            Node nodeStart    =   null;
-            try (   Transaction tx =null) {
-//            try (   Transaction tx = graphDatabaseService.beginTx()) {
-                Relationship r = null;
-//                Relationship r = graphDatabaseService.getRelationshipById((Long)map.get("id"));
-                tx.acquireReadLock(r);
-                nodeStart = r.getStartNode();
-                tx.success();
-            }
-            if(nodeStart!=null) {
-                for(Map<String, Object> map2:mapsEdge2){
-                    Node nodeEnd    =   null;
-                    try (   Transaction tx = null) {
-                        Relationship r = null;
-//                    try (   Transaction tx = graphDatabaseService.beginTx()) {
-//                        Relationship r = graphDatabaseService.getRelationshipById((Long)map2.get("id"));
-                        tx.acquireReadLock(r);
-                        nodeEnd = r.getEndNode();
-                        tx.success();
+    private String getByEdgeAndEdgeName(RequestParameter requestParameter,Map<String, Object> edge1,Map<String, Object> edge2){
+        Set<Path>  unDealPaths=new HashSet<>();
+        Edge fromEdge=new Edge();
+        CommonTool.transMap2Bean(edge1,fromEdge);
+        Edge toEdge=new Edge();
+        CommonTool.transMap2Bean(edge2,toEdge);
+        Map<String, Vertex> startVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(fromEdge.getId()));
+        Map<String, Vertex> endVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(toEdge.getId()));
+        if(startVertexMap.containsKey("start")&&endVertexMap.containsKey("end")){
+            Vertex startVertex = startVertexMap.get("start");
+            Vertex endVertex = endVertexMap.get("end");
+            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, startVertex.getName());
+            Map<String, JSONObject> endMaps = elasearchBuzi.queryByName(requestParameter.label, endVertex.getName());
+            ArrayList<Map.Entry<String, JSONObject>> startMapList = new ArrayList<>(startMaps.entrySet());
+            ArrayList<Map.Entry<String, JSONObject>> endMapList = new ArrayList<>(endMaps.entrySet());
+            for(Map.Entry<String, JSONObject> startMap:startMapList){
+                JSONObject value = startMap.getValue();
+                for(Map.Entry<String, JSONObject> endMap:endMapList){
+                    JSONObject value1 = endMap.getValue();
+                    long startId =Long.parseLong(value.getString("id"));
+                    long endId = Long.parseLong(value1.getString("id"));
+                    Path segments = graphBuzi.dfExection(startId, endId, 5);
+                    if(segments!=null) {
+                        unDealPaths.add(segments);
                     }
-                    Long startid = nodeStart.getId();
-                    long endid = nodeEnd.getId();
-                    Set<String> strings = null;
-//                    Set<String> strings = loopDataService.loopDataByNodeLevel(startid, endid);
-             //       resultPaths.addAll(strings);
                 }
             }
+            endMapList.clear();
+            startMapList.clear();
         }
-        Map<String,String> conditions= new HashMap<>();
-        conditions.put(edgeName1,"contain");
-        conditions.put(edgeName1,"contain");
+        Map<Object,Object> conditions= new HashMap<>();
+        conditions.put("edgeDouble",fromEdge);
+        conditions.put("edge",toEdge);
         StringBuffer sb=new StringBuffer();
-//        parsePaths(conditions,sb,resultPaths);
+        Set<Path> paths = parsePaths(conditions, unDealPaths);
+        showPaths(sb,paths);
         if("".equals(sb.toString())){
             return "learning";
         }else{
@@ -361,6 +348,7 @@ public class QuestionPaserService
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
         ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
+            elasearchBuzi.queryByName(requestParameter.relationship.get(0),edge.getName());
             Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
             if(stringVertexMap.containsKey("end")){
                 Vertex endVertex = stringVertexMap.get("end");
@@ -450,7 +438,7 @@ public class QuestionPaserService
                 if(conditions.size()>0){
                     int i=0;
                     for (Map.Entry<Object, Object> entry : conditions.entrySet()){
-                        if("startVertex".equals(entry.getKey().toString())){
+                        if("startVertex".equals(entry.getKey().toString())||"endVertex".equals(entry.getKey().toString())){
                             Vertex vertex = (Vertex) entry.getValue();
                             Iterable<org.neo4j.driver.v1.types.Node> nodes = path.nodes();
                             for(org.neo4j.driver.v1.types.Node no:nodes){
@@ -463,7 +451,7 @@ public class QuestionPaserService
                             }
                             i++;
                         }
-                        else if("edge".equals(entry.getKey().toString())){
+                        else if("edge".equals(entry.getKey().toString())||"edgeDouble".equals(entry.getKey().toString())){
                             Edge edge = (Edge) entry.getValue();
                             Iterable<org.neo4j.driver.v1.types.Relationship> relationships = path.relationships();
                             for(org.neo4j.driver.v1.types.Relationship re:relationships){
@@ -476,19 +464,7 @@ public class QuestionPaserService
                             }
                             i++;
                         }
-                        else if("endVertex".equals(entry.getKey().toString())){
-                            Vertex vertex = (Vertex) entry.getValue();
-                            Iterable<org.neo4j.driver.v1.types.Node> nodes = path.nodes();
-                            for(org.neo4j.driver.v1.types.Node no:nodes){
-                                if(no.get("name").asString().equals(vertex.getName())){
-                                    conditionboolean[i]=true;
-                                    break;
-                                }else {
-                                    conditionboolean[i]=false;
-                                }
-                            }
-                            i++;
-                        }
+
                     }
                     for(int x=0;x<conditionboolean.length;x++){
                         if(conditionboolean[x]==false){
@@ -536,7 +512,7 @@ public class QuestionPaserService
 
     public   String turingDataParser(String str ){
             JSONObject obj=new JSONObject( str);
-            int code = Integer.parseInt(obj.getString("code"));
+            int code =obj.getInt("code");
             if(code==100000){
                 return obj.getString("text");
             }else if(code==200000){
