@@ -20,6 +20,7 @@ import java.util.Map;
 @RestController
 public class GraphControler {
 
+
     private Logger logger = LogManager.getLogger(GraphControler.class.getSimpleName());
     @Autowired
     private GraphOperateService newTrasa;
@@ -32,7 +33,7 @@ public class GraphControler {
                            @RequestParam String label,
                            @RequestParam String edgesPath,
                            @RequestParam String relationship){
-        System.out.println("vetexsPath:"+vetexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
+        logger.info("bluckadd——vetexsPath:"+vetexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
 
 
         return newTrasa.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
@@ -52,8 +53,10 @@ public class GraphControler {
     @RequestMapping(path = "/graphOp", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
     public String graphOp(HttpServletRequest request){
+
         JSONObject obj=null;
-        RequestParameter requestParameter =null;
+        String type = null;
+
         Map<String, String[]> parameterMap = request.getParameterMap();
         if(parameterMap.size()==0){
             return "param is null";
@@ -67,10 +70,11 @@ public class GraphControler {
                 System.out.println( "error param");
                 return "failure";
             }
+
+
             Vertex vertex = null;
             Edge edge = null;
 
-            System.out.println(obj);
 
             vertex = new Vertex(obj.getJSONObject("info").getJSONObject("node"));
             edge = new Edge(obj.getJSONObject("info").getJSONObject("edge"));
@@ -78,13 +82,14 @@ public class GraphControler {
             vertex.setLabel("test");
             edge.setRelationShip("gra");
 
-            String type = obj.getString("type");
+            type = obj.getString("type");
 
-            logger.info(type+"\t"+obj);
-            logger.error(type+"\t"+obj);
-//            System.out.println(type+"\t"+obj);
             vertex.setRoot("社会科学知识库");
             edge.setRoot("社会科学知识库");
+
+
+
+            logger.info(type+"\t"+obj);
 
             switch (type){
                 case "checkByName":
@@ -170,10 +175,8 @@ public class GraphControler {
             }
 
         } catch (Exception e) {
-
-            e.printStackTrace();
+            logger.error(type+"\t"+e.getMessage()+"\t"+obj);
         }
-
         return result;
     }
 }

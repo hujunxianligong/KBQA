@@ -1,7 +1,6 @@
 package com.qdcz.chat.service;
 
 
-import com.qdcz.common.LoadConfigListener;
 import com.qdcz.graph.entity.Edge;
 import com.qdcz.graph.entity.Vertex;
 
@@ -11,11 +10,10 @@ import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
 import com.qdcz.common.MyComparetor;
 
-import com.qdcz.index.elsearch.service.ElasearchService;
+import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.driver.v1.types.*;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.graphdb.*;
 
@@ -37,9 +35,10 @@ public class QuestionPaserService
 {
 
     @Autowired
-    private ElasearchService elasearchBuzi;
+    @Qualifier("elasearchService")
+    private IIndexService elasearchBuzi;
     @Autowired
-    @Qualifier("neo4jCypherBuzi")
+    @Qualifier("neo4jCypherService")
     private IGraphBuzi graphBuzi;
 
 
@@ -116,8 +115,7 @@ public class QuestionPaserService
         if(map.containsKey("regex")){
             flag=true;
         }
-        else
-        if(map.get("name").equals(question)){
+        else if(map.get("name").equals(question)){
             flag=true;
         }else {
             for (String def : defineMatchs) {

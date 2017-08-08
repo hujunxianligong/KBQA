@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by star on 17-8-3.
  */
-public interface IIndexBuzi {
+public interface IIndexService {
     public void addOrUpdateIndex(IGraphEntity entity);
     public void delIndex(IGraphEntity entity);
 
