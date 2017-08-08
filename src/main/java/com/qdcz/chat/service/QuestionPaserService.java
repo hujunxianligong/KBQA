@@ -8,17 +8,14 @@ import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.common.Levenshtein;
-import com.qdcz.common.MyComparetor;
+import com.qdcz.common.MyComparetorSJ;
 
 import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
-import org.neo4j.graphdb.*;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,7 +47,7 @@ public class QuestionPaserService
         Map<String, JSONObject> stringJSONObjectMap = elasearchBuzi.queryByName(table, question);
 
         List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
-        MyComparetor mc = new MyComparetor("score");
+        MyComparetorSJ mc = new MyComparetorSJ("score");
         Collections.sort(maps,mc);
         Collections.reverse(maps);
         for(Map.Entry<String, JSONObject> map:maps){
@@ -62,6 +59,11 @@ public class QuestionPaserService
             float similarityRatio1 = lt.getSimilarityRatio(nodeName, question);
             value.put("questSimilar",similarityRatio1);
             float score = (float) value.getDouble("score");//会出错
+            if(similarityRatio1==1f){
+                maxScore = score;
+                node = value;
+                continue;
+            }
             if(maxScore<score){
                 maxScore = score;
                 node = value;
@@ -346,6 +348,7 @@ public class QuestionPaserService
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
         ArrayList<Map.Entry<String, JSONObject>> endMapList;
         if(edge!=null) {
+            elasearchBuzi.queryByName(requestParameter.relationship.get(0),edge.getName());
             Map<String, Vertex> stringVertexMap = graphBuzi.checkVertexByEdgeId(Long.parseLong(edge.getId()));
             if(stringVertexMap.containsKey("end")){
                 Vertex endVertex = stringVertexMap.get("end");
@@ -509,7 +512,7 @@ public class QuestionPaserService
 
     public   String turingDataParser(String str ){
             JSONObject obj=new JSONObject( str);
-            int code = Integer.parseInt(obj.getString("code"));
+            int code =obj.getInt("code");
             if(code==100000){
                 return obj.getString("text");
             }else if(code==200000){

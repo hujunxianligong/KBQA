@@ -7,7 +7,6 @@ import com.qdcz.graph.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.E;
 import org.neo4j.driver.v1.*;
 
 import org.neo4j.driver.v1.types.Node;
