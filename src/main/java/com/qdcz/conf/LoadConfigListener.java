@@ -31,7 +31,6 @@ public class LoadConfigListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         try {
-//            Configurator.initialize(null,new ConfigurationSource(LoadConfigListener.class.getResourceAsStream("/log4j2.xml")));
             //------------加载neo4j的配置------------
             System.out.println("------------加载neo4j的配置------------");
             Neo4jConfiguration neo4jConfiger=new Neo4jConfiguration();
