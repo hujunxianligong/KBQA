@@ -2,16 +2,11 @@ package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
-import com.qdcz.App;
 import com.qdcz.common.CommonTool;
-import com.qdcz.common.Levenshtein;
-import com.qdcz.common.MyComparetor;
+import com.qdcz.common.MyComparetorSJ;
 import com.qdcz.service.bean.RequestParameter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,39 +123,27 @@ public class HighService {
         }
 
 
-
-        MyComparetor mc = null;
+        MyComparetorSJ mc = null;
         if(result==null||"learning".equals(result)){
-            mc = new MyComparetor("questSimilar");
+            mc = new MyComparetorSJ("questSimilar");
             Collections.sort(maps,mc);
             Collections.reverse(maps);
             String str = null;
             //降序后，第一个node就是分数最大的点
             Map<String, Object> maxNode=null;
             for(Map<String, Object> node:maps){
-                if("node".equals(node.get("type"))){
+                if("node".equals(node.get("typeOf"))){
                     maxNode=node;
                     break;
                 }
             }
-            if(maxNode!=null) {
+            if(maxNode!=null) {//定义获取
                 str = questionPaserService.findDefine(question, maxNode);
             }
-
             if(str==null||"learning".equals(str)||"".equals(str)) {
-                if("askOfWeChat".equals(requestParameter.requestSource)){
-                    JSONObject obj=new JSONObject();
-                    JSONArray data=new JSONArray();
-                    data.put(questionPaserService.requestTuring(question));
-                    try {
-                        obj.put("data",data);
-                        obj.put("type","Turing");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    return obj.toString();
-                }
-                return questionPaserService.requestTuring(question);
+
+                result =questionPaserService.requestTuring(question);
+
             }else{
                 result= str;
             }

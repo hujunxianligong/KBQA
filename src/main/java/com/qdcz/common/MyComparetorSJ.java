@@ -10,10 +10,10 @@ import java.util.Map;
  * Created by hadoop on 17-7-21.
  * 根据分数排序器
  */
-public class MyComparetor implements Comparator
+public class MyComparetorSJ implements Comparator
 {
     private  String compareObj =null;
-    public  MyComparetor(String objstr){
+    public MyComparetorSJ(String objstr){
         this.compareObj =objstr;
     }
     @Override
