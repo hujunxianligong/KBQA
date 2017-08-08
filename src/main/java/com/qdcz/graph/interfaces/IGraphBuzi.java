@@ -1,14 +1,13 @@
 package com.qdcz.graph.interfaces;
 
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.IGraphEntity;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.IGraphEntity;
+import com.qdcz.entity.Vertex;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 每个图对外提供的操作业务

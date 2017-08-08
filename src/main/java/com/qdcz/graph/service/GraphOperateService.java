@@ -1,12 +1,12 @@
 package com.qdcz.graph.service;
 
-import com.qdcz.common.LoadConfigListener;
+import com.qdcz.conf.LoadConfigListener;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
 import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.index.interfaces.IIndexService;
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.Vertex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;

@@ -1,121 +1,108 @@
-package com.qdcz.graph.entity;
+package com.qdcz.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.types.Node;
+import org.neo4j.driver.v1.types.Relationship;
 import org.neo4j.driver.v1.util.Function;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
  * Created by hadoop on 17-6-22.
  */
-public class Vertex implements IGraphEntity,Node {
+public class Edge implements IGraphEntity,Relationship{
 
     private String id = "";
 
     private String name = "";
     private String root = "";
 
-    private String label = "";//表名
-    private String content = "";
-    private String type = "";
-    private String identity = "";
 
-    public Vertex() {
+    private String from = "";
+    private String to;
+    private String relationShip;//表名
+
+    public Edge(){
 
     }
-
-    public Vertex(JSONObject json) {
+    public Edge(JSONObject json){
         if(json.has("id")){
             this.id = json.getString("id");
         }
         if(json.has("name")){
             this.name = json.getString("name");
         }
-        if(json.has("content")){
-            this.content = json.getString("content");
+        if(json.has("from")){
+            this.from = json.getString("from");
         }
         if(json.has("root")){
             this.root = json.getString("root");
         }
-        if(json.has("type")){
-            this.type = json.getString("type");
+        if(json.has("to")){
+            this.to = json.getString("to");
         }
-        if(json.has("identity")){
-            this.identity = json.getString("identity");
-        }
-        if(json.has("label")){
-            this.label = json.getString("label");
+        if(json.has("relationShip")){
+            this.relationShip = json.getString("relationShip");
         }
     }
 
 
-    public Vertex(String name, String root, String label, String type) {
+    public Edge(String name, String root, String from, String to, String relationShip) {
         this.name = name;
         this.root = root;
-        this.label = label;
-        this.type = type;
+        this.from = from;
+        this.to = to;
+        this.relationShip = relationShip;
     }
-
     @Override
     public String toString() {
-        return String.format("%s/%s/%s", type, name,id);
+        return String.format("%s/%s/%s", from, name, to);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-        obj.put("type",type);
-        obj.put("name",name);
-        obj.put("root",root);
-        obj.put("content",content);
-        obj.put("identity",identity);
+            obj.put("from",from);
+            obj.put("to",to);
+            obj.put("root",root);
+            obj.put("name",name);
+
+
         return obj;
     }
 
     @Override
     public String getGraphId() {
+
         return id;
     }
 
     @Override
     public String getGraphType() {
-        return label;
+        return relationShip;
     }
-
 
     @Override
     public JSONObject toQueryJSON() {
-       JSONObject obj = new JSONObject();
-
-        if(type!=null && !type.isEmpty()) {
-
-                obj.put("type", type);
-
-        }
-
-        if(name!=null && !name.isEmpty()) {
-            obj.put("name", name);
-        }
+        JSONObject obj = new JSONObject();
 
         if(root!=null && !root.isEmpty()) {
             obj.put("root",root);
         }
-        if(content!=null && !content.isEmpty()) {
-            obj.put("content",content);
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
+        }
+        if(root!=null && !root.isEmpty()) {
+            obj.put("root",root);
         }
 
         return obj;
     }
-
-
     public String getId(){
         return id;
     }
@@ -140,50 +127,49 @@ public class Vertex implements IGraphEntity,Node {
         this.root = root;
     }
 
-    public String getLabel() {
-        return label;
+    public String getFrom() {
+        return from;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public String getContent() {
-        return content;
+    public String getTo() {
+        return to;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTo(String to) {
+        this.to = to;
     }
 
-    public String getType() {
-        return type;
+    public String getRelationShip() {
+        return relationShip;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setRelationShip(String relationShip) {
+        this.relationShip = relationShip;
     }
-
-    public String getIdentity() {
-        return identity;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
 
 
 
     @Override
-    public Iterable<String> labels() {
-        Set<String > set=new HashSet<>();
-        set.add(label);
-        return set;
+    public long startNodeId() {
+        return  Long.parseLong(this.from);
     }
 
     @Override
-    public boolean hasLabel(String s) {
+    public long endNodeId() {
+        return   Long.parseLong(this.to);
+    }
+
+    @Override
+    public String type() {
+        return this.getRelationShip();
+    }
+
+    @Override
+    public boolean hasType(String s) {
         return false;
     }
 
@@ -194,6 +180,7 @@ public class Vertex implements IGraphEntity,Node {
 
     @Override
     public Iterable<String> keys() {
+
         return null;
     }
 

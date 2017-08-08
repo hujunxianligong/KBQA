@@ -1,109 +1,119 @@
-package com.qdcz.graph.entity;
+package com.qdcz.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.types.Relationship;
+import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.util.Function;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
  * Created by hadoop on 17-6-22.
  */
-public class Edge implements IGraphEntity,Relationship{
+public class Vertex implements IGraphEntity,Node {
 
     private String id = "";
 
     private String name = "";
     private String root = "";
 
+    private String label = "";//表名
+    private String content = "";
+    private String type = "";
+    private String identity = "";
 
-    private String from = "";
-    private String to;
-    private String relationShip;//表名
-
-    public Edge(){
+    public Vertex() {
 
     }
-    public Edge(JSONObject json){
+
+    public Vertex(JSONObject json) {
         if(json.has("id")){
             this.id = json.getString("id");
         }
         if(json.has("name")){
             this.name = json.getString("name");
         }
-        if(json.has("from")){
-            this.from = json.getString("from");
+        if(json.has("content")){
+            this.content = json.getString("content");
         }
         if(json.has("root")){
             this.root = json.getString("root");
         }
-        if(json.has("to")){
-            this.to = json.getString("to");
+        if(json.has("type")){
+            this.type = json.getString("type");
         }
-        if(json.has("relationShip")){
-            this.relationShip = json.getString("relationShip");
+        if(json.has("identity")){
+            this.identity = json.getString("identity");
+        }
+        if(json.has("label")){
+            this.label = json.getString("label");
         }
     }
 
 
-    public Edge(String name, String root, String from, String to, String relationShip) {
+    public Vertex(String name, String root, String label, String type) {
         this.name = name;
         this.root = root;
-        this.from = from;
-        this.to = to;
-        this.relationShip = relationShip;
+        this.label = label;
+        this.type = type;
     }
+
     @Override
     public String toString() {
-        return String.format("%s/%s/%s", from, name, to);
+        return String.format("%s/%s/%s", type, name,id);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
 
-            obj.put("from",from);
-            obj.put("to",to);
-            obj.put("root",root);
-            obj.put("name",name);
-
-
+        obj.put("type",type);
+        obj.put("name",name);
+        obj.put("root",root);
+        obj.put("content",content);
+        obj.put("identity",identity);
         return obj;
     }
 
     @Override
     public String getGraphId() {
-
         return id;
     }
 
     @Override
     public String getGraphType() {
-        return relationShip;
+        return label;
     }
+
 
     @Override
     public JSONObject toQueryJSON() {
-        JSONObject obj = new JSONObject();
+       JSONObject obj = new JSONObject();
+
+        if(type!=null && !type.isEmpty()) {
+
+                obj.put("type", type);
+
+        }
+
+        if(name!=null && !name.isEmpty()) {
+            obj.put("name", name);
+        }
 
         if(root!=null && !root.isEmpty()) {
             obj.put("root",root);
         }
-        if(root!=null && !root.isEmpty()) {
-            obj.put("root",root);
-        }
-        if(root!=null && !root.isEmpty()) {
-            obj.put("root",root);
-        }
-        if(root!=null && !root.isEmpty()) {
-            obj.put("root",root);
+        if(content!=null && !content.isEmpty()) {
+            obj.put("content",content);
         }
 
         return obj;
     }
+
+
     public String getId(){
         return id;
     }
@@ -128,49 +138,50 @@ public class Edge implements IGraphEntity,Relationship{
         this.root = root;
     }
 
-    public String getFrom() {
-        return from;
+    public String getLabel() {
+        return label;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public String getTo() {
-        return to;
+    public String getContent() {
+        return content;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getRelationShip() {
-        return relationShip;
+    public String getType() {
+        return type;
     }
 
-    public void setRelationShip(String relationShip) {
-        this.relationShip = relationShip;
+    public void setType(String type) {
+        this.type = type;
     }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
 
 
 
     @Override
-    public long startNodeId() {
-        return  Long.parseLong(this.from);
+    public Iterable<String> labels() {
+        Set<String > set=new HashSet<>();
+        set.add(label);
+        return set;
     }
 
     @Override
-    public long endNodeId() {
-        return   Long.parseLong(this.to);
-    }
-
-    @Override
-    public String type() {
-        return this.getRelationShip();
-    }
-
-    @Override
-    public boolean hasType(String s) {
+    public boolean hasLabel(String s) {
         return false;
     }
 
@@ -181,7 +192,6 @@ public class Edge implements IGraphEntity,Relationship{
 
     @Override
     public Iterable<String> keys() {
-
         return null;
     }
 

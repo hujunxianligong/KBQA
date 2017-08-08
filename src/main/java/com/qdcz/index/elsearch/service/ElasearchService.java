@@ -1,8 +1,8 @@
 package com.qdcz.index.elsearch.service;
 
-import com.qdcz.common.LoadConfigListener;
-import com.qdcz.graph.entity.IGraphEntity;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.conf.LoadConfigListener;
+import com.qdcz.entity.IGraphEntity;
+import com.qdcz.entity.Vertex;
 import com.qdcz.index.elsearch.dao.ElasearchDAO;
 import com.qdcz.index.elsearch.elk.ElasearchClientFactory;
 import com.qdcz.index.interfaces.IIndexService;

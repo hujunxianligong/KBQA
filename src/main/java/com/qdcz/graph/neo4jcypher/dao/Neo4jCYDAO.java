@@ -1,9 +1,9 @@
 package com.qdcz.graph.neo4jcypher.dao;
 
 import com.qdcz.common.CommonTool;
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.IGraphEntity;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.IGraphEntity;
+import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -224,16 +224,14 @@ public class Neo4jCYDAO implements IGraphDAO{
                 label= (String) labels.get(0);
             }else{
                 if(nodes.size()>0){
-                    System.out.println("labels has more 1 labels");
-                    throw new Exception();
+                    throw new Exception("labels has more 1 labels");
                 }
             }
             if(relationShipTypes.size()==1){
                 relationship=(String)relationShipTypes.iterator().next();
             }else{
                 if(rels.size()>0){
-                    System.out.println("relationships has more 1 relationship");
-                    throw new Exception();
+                    throw new Exception("relationships has more 1 relationship");
                 }
             }
             for(Object node:nodes){

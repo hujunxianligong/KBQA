@@ -107,4 +107,28 @@ public class XMLUtil {
 		}
 		return xmlObject;
 	}
+
+
+
+	@SuppressWarnings("unchecked")
+	/**
+	 * 将file类型的xml转换成对象
+	 */
+	public static Object convertXmlFileToObject(Class clazz, InputStream inStream) {
+		Object xmlObject = null;
+		try {
+			JAXBContext context = JAXBContext.newInstance(clazz);
+			Unmarshaller unmarshaller = context.createUnmarshaller();
+			InputStreamReader fr = null;
+			try {
+				fr =new InputStreamReader(inStream);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			xmlObject = unmarshaller.unmarshal(fr);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+		return xmlObject;
+	}
 }

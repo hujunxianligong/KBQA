@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xml>
+    <graphs>
+        <entry>
+            <key>ytdkyw</key>
+            <value>
+                <name>ytdkyw</name>
+                <title>银团贷款业务</title>
+                <label>ytdk_label</label>
+                <relationship>ytdk_relationship</relationship>
+            </value>
+        </entry>
+
+
+        <entry>
+            <key>shkx</key>
+            <value>
+                <name>shkx</name>
+                <title>社会科学知识库</title>
+                <label>shkx_label</label>
+                <relationship>shkx_relationship</relationship>
+            </value>
+        </entry>
+
+    </graphs>
+</xml>

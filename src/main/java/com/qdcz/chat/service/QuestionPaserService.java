@@ -1,8 +1,8 @@
 package com.qdcz.chat.service;
 
 
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.Vertex;
 
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;

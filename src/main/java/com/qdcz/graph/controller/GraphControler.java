@@ -1,9 +1,8 @@
 package com.qdcz.graph.controller;
 
-import com.qdcz.graph.entity.Edge;
-import com.qdcz.graph.entity.Vertex;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.Vertex;
 import com.qdcz.graph.service.GraphOperateService;
-import com.qdcz.service.bean.RequestParameter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
