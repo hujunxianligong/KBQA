@@ -53,12 +53,12 @@ public class ElasearchService implements IIndexService {
 
 //        instance.bulkIndex(vertex);
 
-        instance.bulkDelete(vertex);
+//        instance.bulkDelete(vertex);
 
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("vertex","组织");
+        instance.queryByName("ytdk_relationship","对象");
 
 
     }
@@ -77,7 +77,7 @@ public class ElasearchService implements IIndexService {
 
     @Override
     public void bulkIndex(IGraphEntity... entities) {
-//        elasearchDAO.bulkIndex(entities);
+        elasearchDAO.bulkIndex(entities);
     }
 
     @Override

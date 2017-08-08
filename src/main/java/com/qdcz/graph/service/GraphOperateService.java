@@ -293,5 +293,20 @@ public class GraphOperateService {
     }
 
 
+    /**
+     * 查看点的详情
+     * @param vertex
+     * @return
+     */
+    public String queryNodeDetail(Vertex vertex) {
+        return indexBuzi.queryById(vertex).toString();
+    }
 
+    public String queryEdgeDetail(Edge edge) {
+        return indexBuzi.queryById(edge).toString();
+    }
+
+    public void delVertexByPath(String vetexsPath, String label) {
+        //TODO
+    }
 }

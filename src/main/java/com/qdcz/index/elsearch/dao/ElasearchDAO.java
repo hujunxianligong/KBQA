@@ -127,7 +127,7 @@ public class ElasearchDAO implements IIndexDAO {
 
 
         // 搜索数据
-        SearchResponse response = client.prepareSearch(index).setTypes(graphtype)
+        SearchResponse response = client.prepareSearch(index).setTypes(graphtype).setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setQuery(matchQuery)
                 .execute().actionGet();
 
@@ -151,8 +151,8 @@ public class ElasearchDAO implements IIndexDAO {
 
         }
 
-        System.out.println("共搜到:"+result.size()+"条结果!");
-        System.out.println(result);
+//        System.out.println("共搜到:"+result.size()+"条结果!");
+//        System.out.println(result);
         return result;
     }
 
@@ -220,8 +220,8 @@ public class ElasearchDAO implements IIndexDAO {
 
         }
 
-        System.out.println("共搜到:"+result.size()+"条结果!");
-        System.out.println(result);
+//        System.out.println("共搜到:"+result.size()+"条结果!");
+//        System.out.println(result);
         return result;
     }
 

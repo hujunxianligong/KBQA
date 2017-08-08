@@ -39,13 +39,12 @@ public class GraphControler {
         return newTrasa.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
     }
     @RequestMapping(path = "/testdel", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean testdek(@RequestBody String obj_str){
-        Boolean flag=true;
-        RequestParameter requestParameter =null;
-        requestParameter =new RequestParameter();
-        requestParameter.label="law";
-//        transactionService.addVertexsByPath(requestParameter,obj_str+"/vertex.txt","del");
-        return flag;
+    public boolean testdek(@RequestParam String vetexsPath,
+                           @RequestParam String label){
+
+        //TODO
+        newTrasa.delVertexByPath(vetexsPath,label);
+        return false;
     }
 
 
@@ -71,7 +70,6 @@ public class GraphControler {
                 return "failure";
             }
 
-
             Vertex vertex = null;
             Edge edge = null;
 
@@ -79,8 +77,6 @@ public class GraphControler {
             vertex = new Vertex(obj.getJSONObject("info").getJSONObject("node"));
             edge = new Edge(obj.getJSONObject("info").getJSONObject("edge"));
 
-            vertex.setLabel("test");
-            edge.setRelationShip("gra");
 
             type = obj.getString("type");
 
@@ -89,11 +85,14 @@ public class GraphControler {
 
 
 
-            logger.info(type+"\t"+obj);
+            logger.debug(type+"\trequest:"+obj);
 
             switch (type){
                 case "checkByName":
                     //通过名称查询
+
+                    vertex.setLabel("ytdk_label");
+                    edge.setRelationShip("ytdk_relationship");
                     result = newTrasa.exactMatchQuery(vertex);
 
                     break;
@@ -167,13 +166,25 @@ public class GraphControler {
                     result = newTrasa.addNodeEdge(vertex,edge);
 
                     break;
+                case "queryNodeDetail":
+                    //新增边和终点
+
+                    result = newTrasa.queryNodeDetail(vertex);
+
+                    break;
+                case "queryEdgeDetail":
+                    //新增边和终点
+
+                    result = newTrasa.queryEdgeDetail(edge);
+
+                    break;
 
                 default:
-                    System.out.println("error type:"+type);
+                    logger.error("error type:"+type);
                     result = "failure";
                     break;
             }
-
+            logger.debug(type+"\tresult:"+result);
         } catch (Exception e) {
             logger.error(type+"\t"+e.getMessage()+"\t"+obj);
         }

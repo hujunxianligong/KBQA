@@ -285,7 +285,7 @@ public class Neo4jCYDAO implements IGraphDAO{
         result.put("nodes",nodesJarry);
         result.put("edges",edgesJarry);
         result.put("center",center);
-        System.out.println(result);
+//        System.out.println(result);
         return result;
     }
     @Override
