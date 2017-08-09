@@ -23,9 +23,11 @@ public class DemoDependencyParser
     public static void main(String[] args)
 
     {
-        String content = " 回购协议市场的定义";
-        List<String> keywordList = HanLP.extractKeyword(content, 2);
-        System.out.println(keywordList.toString());
+        DemoDependencyParser dp=new DemoDependencyParser();
+        dp.dependencyParser();
+//        String content = " 回购协议市场的定义";
+//        List<String> keywordList = HanLP.extractKeyword(content, 2);
+//        System.out.println(keywordList.toString());
 //        CommonSynonymDictionary.SynonymItem synonymItem = CoreSynonymDictionary.get("职责");
 //        List<Synonym> synonymList = synonymItem.synonymList;
 //        for(Synonym synonym:synonymList){
@@ -90,5 +92,18 @@ public class DemoDependencyParser
 //            if (head == CoNLLWord.ROOT) System.out.println(head.LEMMA);
 //            else System.out.printf("%s --(%s)--> ", head.LEMMA, head.DEPREL);
 //        }
+    }
+
+    public void dependencyParser(){
+        CoNLLSentence sentence = HanLP.parseDependency("所属中科大的有哪些人?");
+        System.out.println(sentence);
+        // 可以方便地遍历它
+        for (CoNLLWord word : sentence)
+        {
+            System.out.printf("%s --(%s)--> %s\n", word.LEMMA, word.DEPREL, word.HEAD.LEMMA);
+
+            System.out.printf("%s --%s --(%s)--> %s\n",word.CPOSTAG,word.NAME, word.POSTAG, word.toString());
+
+        }
     }
 }

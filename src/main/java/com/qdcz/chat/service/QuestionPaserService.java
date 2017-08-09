@@ -1,4 +1,4 @@
-package com.qdcz.chat.cmbchat.service;
+package com.qdcz.chat.service;
 
 
 import com.qdcz.common.ConceptRuler;
@@ -8,7 +8,6 @@ import com.qdcz.entity.Vertex;
 
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
-import com.qdcz.graph.service.GraphOperateService;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.chat.tools.Levenshtein;

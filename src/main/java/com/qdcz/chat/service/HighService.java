@@ -1,10 +1,9 @@
-package com.qdcz.chat.cmbchat.service;
+package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
-import com.qdcz.chat.tools.MyComparetor;
 import com.qdcz.service.bean.RequestParameter;
 
 import org.neo4j.driver.v1.types.Path;
@@ -50,7 +49,9 @@ public class HighService {
 
     private List<Term> transGraphInfo(RequestParameter requestParameter,List<Term> termLists){
 
+        if("shkx_label".equals(requestParameter.label)){
 
+        }
 
         return termLists;
     }
