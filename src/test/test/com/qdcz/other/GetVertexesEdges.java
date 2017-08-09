@@ -1,4 +1,4 @@
-package com.qdcz;
+package com.qdcz.other;
 
 import com.qdcz.common.CommonTool;
 import org.json.JSONObject;

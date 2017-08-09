@@ -63,7 +63,7 @@ public class GraphControler {
         String result =null;
         try {
             if(parameterMap.containsKey("data")){
-                System.out.println(parameterMap.get("data")[0]);
+//                System.out.println(parameterMap.get("data")[0]);
                 obj= new JSONObject(parameterMap.get("data")[0]);
             }else{
                 System.out.println( "error param");
@@ -93,7 +93,13 @@ public class GraphControler {
 
                     vertex.setLabel("ytdk_label");
                     edge.setRelationShip("ytdk_relationship");
-                    result = newTrasa.exactMatchQuery(vertex);
+
+
+
+//                    int layer = Integer.parseInt(obj.getString("layer"));
+                    int layer =3;
+
+                    result = newTrasa.exactMatchQuery(vertex,layer);
 
                     break;
                 case "checkByNameAndDepth":
@@ -106,7 +112,7 @@ public class GraphControler {
                     //TODO  暂时调用
                     vertex.setLabel("shkx_label");
                     edge.setRelationShip("shkx_relationship");
-                    result = newTrasa.exactMatchQuery(vertex);
+                    result = newTrasa.exactMatchQuery(vertex,3);
 
 //                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
@@ -190,7 +196,7 @@ public class GraphControler {
             }
             logger.debug(type+"\tresult:"+result);
         } catch (Exception e) {
-            logger.error(type+"\t"+e.getMessage()+"\t"+obj);
+            logger.error(type+"\t"+e.getMessage()+"\n"+obj);
         }
         return result;
     }

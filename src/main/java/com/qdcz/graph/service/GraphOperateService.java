@@ -177,7 +177,7 @@ public class GraphOperateService {
      * @param vertex
      * @return
      */
-    public String exactMatchQuery(Vertex vertex){
+    public String exactMatchQuery(Vertex vertex,int depth){
 
         return graphBuzi.bfExtersion(vertex,3).toString();
     }

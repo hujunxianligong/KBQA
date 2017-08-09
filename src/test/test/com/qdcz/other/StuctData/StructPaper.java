@@ -1,4 +1,4 @@
-package com.qdcz.StuctData;
+package com.qdcz.other.StuctData;
 
 import com.qdcz.common.CommonTool;
 import org.json.JSONArray;

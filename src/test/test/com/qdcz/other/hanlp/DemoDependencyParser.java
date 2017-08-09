@@ -1,16 +1,10 @@
-package com.qdcz.hanlp;
+package com.qdcz.other.hanlp;
 
 /**
  * Created by hadoop on 17-7-18.
  */
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
-import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLWord;
-import com.hankcs.hanlp.corpus.synonym.Synonym;
-import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
-import com.hankcs.hanlp.dictionary.common.CommonSynonymDictionary;
-import com.hankcs.hanlp.suggest.Suggester;
 
 import java.util.List;
 

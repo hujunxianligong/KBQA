@@ -1,35 +1,30 @@
 package com.qdcz.conf;
 
-import com.qdcz.mongo.conf.MongoConfiguration;
+import com.qdcz.conf.DatabaseConfiguration;
+import com.qdcz.conf.LoadConfigListener;
 import com.qdcz.graph.neo4jcypher.conf.Neo4jConfiguration;
 import com.qdcz.index.elsearch.conf.ELKConfig;
-import org.springframework.beans.factory.annotation.Value;
+import com.qdcz.mongo.conf.MongoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListener;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import java.io.IOException;
 
 /**
- * Created by hadoop on 17-6-27.
- *
+ * Created by star on 17-8-9.
  */
-@WebListener
-public class LoadConfigListener implements ServletContextListener {
-
-
-
-    @Value("${source_dir}")
-    private String source_dir;
-
+public class TestLoadConfigListener implements TestExecutionListener {
+    private String source_dir = "/dev/";
     @Override
-    public void contextDestroyed(ServletContextEvent arg0) {
-        // TODO Auto-generated method stub
+    public void beforeTestClass(TestContext testContext) throws Exception {
 
     }
 
     @Override
-    public void contextInitialized(ServletContextEvent arg0) {
+    public void prepareTestInstance(TestContext testContext) throws Exception {
         try {
             //------------加载neo4j的配置------------
             System.out.println("------------加载neo4j的配置------------");
@@ -48,10 +43,26 @@ public class LoadConfigListener implements ServletContextListener {
             DatabaseConfiguration databaseConf = new DatabaseConfiguration();
             databaseConf.load(LoadConfigListener.class.getResourceAsStream(source_dir+ "database.xml"));
 
+ApplicationContext context = testContext.getApplicationContext();
+//            System.out.println(context.getParent().getApplicationName());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void beforeTestMethod(TestContext testContext) throws Exception {
 
+    }
+
+    @Override
+    public void afterTestMethod(TestContext testContext) throws Exception {
+
+    }
+
+    @Override
+    public void afterTestClass(TestContext testContext) throws Exception {
+
+    }
 }

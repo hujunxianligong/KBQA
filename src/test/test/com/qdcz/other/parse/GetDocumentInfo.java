@@ -1,4 +1,4 @@
-package com.qdcz.parse;
+package com.qdcz.other.parse;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
