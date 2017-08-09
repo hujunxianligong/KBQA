@@ -1,23 +1,27 @@
 package com.qdcz.graph.service;
 
+import com.qdcz.common.CommonTool;
 import com.qdcz.conf.LoadConfigListener;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
+import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.entity.Edge;
 import com.qdcz.entity.Vertex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.types.Node;
+import org.neo4j.driver.v1.types.Path;
+import org.neo4j.driver.v1.types.Relationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by star on 17-8-2.
@@ -179,7 +183,16 @@ public class GraphOperateService {
      */
     public String exactMatchQuery(Vertex vertex,int depth){
 
-        return graphBuzi.bfExtersion(vertex,3).toString();
+        List<Path> paths=null;
+        try {
+            paths = graphBuzi.bfExtersion(vertex, 3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ResultBuilder resultBuilder=new ResultBuilder();
+        JSONObject result = resultBuilder.graphResult(paths);
+        resultBuilder=null;
+        return result.toString();
     }
 
     /**

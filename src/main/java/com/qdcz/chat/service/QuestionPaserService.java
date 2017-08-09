@@ -1,22 +1,28 @@
-package com.qdcz.chat.cmbchat.service;
+package com.qdcz.chat.service;
 
 
+import com.qdcz.common.ConceptRuler;
+import com.qdcz.conf.LoadConfigListener;
 import com.qdcz.entity.Edge;
 import com.qdcz.entity.Vertex;
 
 import com.qdcz.graph.interfaces.IGraphBuzi;
+import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
 import com.qdcz.graph.tools.ResultBuilder;
 import com.qdcz.common.CommonTool;
 import com.qdcz.chat.tools.Levenshtein;
 import com.qdcz.chat.tools.MyComparetorSJ;
 
+import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.index.interfaces.IIndexService;
 import com.qdcz.service.bean.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 
+import org.neo4j.driver.v1.types.Relationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,7 +45,24 @@ public class QuestionPaserService
     @Qualifier("neo4jCypherService")
     private IGraphBuzi graphBuzi;
 
-
+    public static void main(String[] args) throws Exception {
+        LoadConfigListener loadConfigListener=new LoadConfigListener();
+        loadConfigListener.setSource_dir("/dev/");
+        loadConfigListener.contextInitialized(null);
+        Vertex vertex=new Vertex();
+        vertex.setRoot("起点");
+        vertex.setName("牵头行");
+        vertex.setType("挖掘部");
+        vertex.setId("55");
+        vertex.setContent("");
+        vertex.setLabel("ytdk_label");
+        RequestParameter requestParameter=new RequestParameter();
+        requestParameter.label="ytdk_label";
+        QuestionPaserService instance=  new QuestionPaserService();
+        instance.graphBuzi = new Neo4jCYService();
+        instance.elasearchBuzi = new ElasearchService();
+        instance.findDefine("何为银团贷款",requestParameter);
+    }
 
     private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
         String type="node";
@@ -109,57 +132,27 @@ public class QuestionPaserService
         return  result;
     }
 
-
-    public String findDefine(String question,Map<String, Object> map) {
+    /*
+    *正则匹配定义
+     */
+    public String findDefine(String question,RequestParameter requestParameter) throws Exception {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
-        String[] defineMatchs= new String[]{"是什么","是怎么样","是啥","什么叫","如何理解","什么是","什么意思", "定义", "概念", "含义","何谓","何为", "是指","指什么","是谁","介绍","简介","解释","描述"};
-        ResultBuilder resultBuilder = new ResultBuilder();
-        boolean flag=false;
-        if(map.containsKey("regex")){
-            flag=true;
-        }
-        else if(map.get("name").equals(question)){
-            flag=true;
-        }else {
-            for (String def : defineMatchs) {
-                if (question.contains(def)) {
-                    flag = true;
-                }
-            }
-        }
-        if(flag){
-            StringBuffer sb=new StringBuffer();
-            JSONArray resultArray=new JSONArray();
-            String name = null;
-            //此处判断是否必要？
-//            if (map.containsKey("relation")) {//边
-//                name = (String) map.get("relation");
-//                _Edge edge = bankLawService.checkEdgeById((Long) map.get("id"));
-//                JSONObject graphById = transactionService.getGraphById(edge.getFrom_id(), 1);
-//                resultArray.put(graphById);
-//                JSONObject graphById1 = transactionService.getGraphById(edge.getTo_id(), 1);
-//                resultArray.put(graphById1);
-//            }else
-            {//点
-                name = (String) map.get("name");
-                JSONObject object = null;
-//                JSONObject object = transactionService.getGraphById((Long) map.get("id"), 1);
-                resultArray.put(object);
-            }
-            JSONObject merge=new JSONObject();
-            //5.组织返回结果
-            for(int i=0;i<resultArray.length();i++){
-                    merge= resultBuilder.mergeResult(merge,resultArray.getJSONObject(i));
-
-            }
-            JSONObject result= resultBuilder.cleanRestult(merge);
-            String rootName = result.getString("root");
-
-            JSONArray edges = result.getJSONArray("edges");
+        String[] defineMatchs= new String[]{ "定义", "概念", "含义","介绍","简介","解释","描述"};
+        String s = ConceptRuler.RegexKey(question);//正则模式
+        StringBuffer sb=new StringBuffer();
+        if(s!=null) {
+            Vertex vertex=new Vertex();
+            vertex.setLabel(requestParameter.label);
+            vertex.setName(s);
+            List<Path> paths = graphBuzi.bfExtersion(vertex, 1);
+            ResultBuilder resultBuilder=new ResultBuilder();
+            JSONObject object = resultBuilder.graphResult(paths);
+            JSONArray edges = object.getJSONArray("edges");
+            JSONArray nodes = object.getJSONArray("nodes");
             Map<String,Vector<String>> maps=new HashMap();
             for(int i=0;i<edges.length();i++){
                 JSONObject edge=edges.getJSONObject(i);
-                String relation = edge.getString("relation");
+                String relation = edge.getString("name");
                 boolean hasMatchsWord=false;
                 for(String def:defineMatchs){
                     if(relation.contains(def)){
@@ -172,7 +165,7 @@ public class QuestionPaserService
                     String from_name=null;
                     String to = edge.getString("to");
                     String to_name=null;
-                    JSONArray nodes = result.getJSONArray("nodes");
+                    String rootName="杂类";
                     for(int m=0;m<nodes.length();m++){
                         JSONObject node=nodes.getJSONObject(m);
                         String id = node.getString("id");
@@ -182,6 +175,7 @@ public class QuestionPaserService
                             to_name=node.getString("name");
                         }
                         if(from_name!=null&&to_name!=null){
+                            rootName=node.getString("root");
                             break;
                         }
                     }
@@ -218,13 +212,15 @@ public class QuestionPaserService
                     sb.append(key+value);
                 }
             }
-
-
             return sb.toString();
         }
         return "learning";
     }
-    public String traversePathBynode(RequestParameter requestParameter, List<Map<String, Object>> maps){
+    /*
+    *实体中转分类站
+     */
+    public Set<Path> traversePathBynode(RequestParameter requestParameter, List<Map<String, Object>> maps){
+        Set<Path> paths =null;
         if(maps.size()==2){
             Map<String, Object> vertex1=null;
             Map<String, Object> vertex2=null;
@@ -246,21 +242,20 @@ public class QuestionPaserService
                     }
                 }
             }
-            String result =null;
+
             if(vertex2==null&&edge2==null){
-                result =  getByNodeAndEdgeName(requestParameter,vertex1,edge1);
+                paths=getByNodeAndEdgeName(requestParameter,vertex1,edge1);
             }else if(vertex2==null&&vertex1==null){
 //                result = getByEdgeAndEdgeName(requestParameter,edge1,edge2);
-                result = null;
+                paths = null;
             }else if(edge2==null&&edge1==null){
-                result = getByNodeAndNodeName(requestParameter,vertex1,vertex2,false);
+                paths = getByNodeAndNodeName(requestParameter,vertex1,vertex2,false);
             }
-            return result;
         }
-        return "learning";
+        return paths;
     }
 
-    private String getByEdgeAndEdgeName(RequestParameter requestParameter,Map<String, Object> edge1,Map<String, Object> edge2){
+    private  Set<Path> getByEdgeAndEdgeName(RequestParameter requestParameter,Map<String, Object> edge1,Map<String, Object> edge2){
         Set<Path>  unDealPaths=new HashSet<>();
         Edge fromEdge=new Edge();
         CommonTool.transMap2Bean(edge1,fromEdge);
@@ -307,14 +302,13 @@ public class QuestionPaserService
         conditions.put("edge",toEdge);
         StringBuffer sb=new StringBuffer();
         Set<Path> paths = parsePaths(conditions, unDealPaths);
-        showPaths(sb,paths);
-        if("".equals(sb.toString())){
-            return "learning";
-        }else{
-            return sb.toString();
-        }
+      //  showPaths(sb,paths);
+        return paths;
     }
-    private String getByNodeAndNodeName(RequestParameter requestParameter,Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
+    /*
+    *实体点点匹配所有路径
+     */
+    private Set<Path> getByNodeAndNodeName(RequestParameter requestParameter,Map<String, Object> vertex1 ,Map<String, Object> vertex2,boolean exchange){
         Set<Path>  unDealPaths=new HashSet<>();
         Vertex fromVertex=new Vertex();
         CommonTool.transMap2Bean(vertex1,fromVertex);
@@ -339,21 +333,23 @@ public class QuestionPaserService
         Map<Object,Object> conditions= new HashMap<>();
         conditions.put("startVertex",fromVertex);
         conditions.put("endVertex",toVertex);
-        StringBuffer sb=new StringBuffer();
+
         Set<Path> paths = parsePaths(conditions, unDealPaths);
-        showPaths(sb,paths);
-        if("".equals(sb.toString())&&!exchange){
+//        showPaths(sb,paths);
+        if(paths.size()==0&&!exchange){
             if(exchange) {
-                return "learning";
-            }
-            else{
+                return paths;
+            } else{
                 return  getByNodeAndNodeName(requestParameter,vertex2,vertex1,true);
             }
         }else{
-            return sb.toString();
+            return paths;
         }
     }
-    private String getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertexMap,Map<String, Object> edgeMap)  {
+    /*
+    *实体点边匹配所有路径
+     */
+    private  Set<Path> getByNodeAndEdgeName(RequestParameter requestParameter,Map<String, Object> vertexMap,Map<String, Object> edgeMap)  {
         Vertex vertex=new Vertex();
         CommonTool.transMap2Bean(vertexMap,vertex);
         Edge edge= new Edge();
@@ -383,32 +379,28 @@ public class QuestionPaserService
                     startMapList.clear();
                 }
             }
-
         }
         Map<Object,Object> conditions= new HashMap<>();
         conditions.put("startVertex",vertex);
         conditions.put("edge",edge);
-        StringBuffer sb=new StringBuffer();
         Set<Path> paths = parsePaths(conditions, unDealPaths);
-        showPaths(sb,paths);
-        if("".equals(sb.toString())){
-            return "learning";
-        }else{
-            return sb.toString();
-        }
+//        showPaths(sb,paths);
+        return paths;
     }
-    private  void  showPaths(StringBuffer sb,Set<Path> parsePaths){
+    /*
+    *对路径进行展示前的解析
+     */
+    public   void  showPaths(StringBuffer sb,Set<Path> parsePaths){
         Map<String,Vector<String>> resultPaths=new HashMap();
         for(Path path:parsePaths){
-            org.neo4j.driver.v1.types.Node start = path.start();
+            Node start = path.start();
             Vertex startVertex=new Vertex();
             CommonTool.transMap2Bean(start.asMap(),startVertex);
-            org.neo4j.driver.v1.types.Node end = path.end();
+            Node end = path.end();
             Vertex endVertex=new Vertex();
             CommonTool.transMap2Bean(end.asMap(),endVertex);
-            List<org.neo4j.driver.v1.types.Relationship> relationships = (List<org.neo4j.driver.v1.types.Relationship>) path.relationships();
-            org.neo4j.driver.v1.types.Relationship relationship = relationships.get(relationships.size() - 1);
-            System.out.println();
+            List<Relationship> relationships = (List<Relationship>) path.relationships();
+            Relationship relationship = relationships.get(relationships.size() - 1);
             String key=startVertex.getName()+"--"+relationship.get("name").asString();
             String content=end.get("content").asString();
             String value=null;
@@ -460,6 +452,10 @@ public class QuestionPaserService
         }
         return ;
     }
+
+    /*
+    *深搜路径进行筛选
+     */
     private   Set<Path> parsePaths( Map<Object,Object> conditions,Set<Path>  Paths){
         Set<Path> tmpPaths =new HashSet<>();
         int mindepth =Integer.MAX_VALUE;
@@ -524,7 +520,11 @@ public class QuestionPaserService
         }
         return parsePaths;
     }
-    public   String requestTuring(String question) {
+
+    /*
+    *调用图灵接口
+     */
+    public String requestTuring(String question) {
         JSONObject request= new JSONObject();
 
             request.put("key","149c02a9f63a463f8b55f74b75d2d1c7");
@@ -541,8 +541,10 @@ public class QuestionPaserService
         return result;
     }
 
-
-    public   String turingDataParser(String str ){
+    /*
+    *图灵返回数据解析
+     */
+    private String turingDataParser(String str ){
             JSONObject obj=new JSONObject( str);
             int code =obj.getInt("code");
             if(code==100000){

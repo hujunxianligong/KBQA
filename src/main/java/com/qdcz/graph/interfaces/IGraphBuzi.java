@@ -65,7 +65,7 @@ public interface IGraphBuzi {
      * @param depth
      * @return
      */
-    public JSONObject bfExtersion(Vertex vertex,int depth);
+    public List<Path> bfExtersion(Vertex vertex,int depth);
     /**
      * 深度优先遍历
      * @param fromId

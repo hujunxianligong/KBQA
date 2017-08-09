@@ -8,6 +8,7 @@ import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.connect.Neo4jClientFactory;
 import com.qdcz.graph.neo4jcypher.dao.Neo4jCYDAO;;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.neo4j.driver.v1.Driver;
@@ -15,11 +16,10 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
+import org.neo4j.driver.v1.types.Relationship;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * cypher语句，neo4j对外提供的操作
@@ -29,7 +29,9 @@ import java.util.Map;
 public class Neo4jCYService implements IGraphBuzi {
 
     public static void main(String[] args) {
+
         LoadConfigListener loadConfigListener=new LoadConfigListener();
+        loadConfigListener.setSource_dir("/dev/");
         loadConfigListener.contextInitialized(null);
         Vertex vertex=new Vertex();
         vertex.setRoot("起点");
@@ -37,15 +39,15 @@ public class Neo4jCYService implements IGraphBuzi {
         vertex.setType("挖掘部");
         vertex.setId("55");
         vertex.setContent("");
-        vertex.setLabel("law");
+        vertex.setLabel("ytdk_label");
 
         Neo4jCYService instance=  new Neo4jCYService();
       //  instance.deleteVertex(vertex);
         Edge edge=new Edge();
         edge.setRelationShip("gra");
         edge.setId(2181l+"");
-//        instance.bfExtersion(vertex,1);
-        instance.dfExection(55,74,2);
+        instance.bfExtersion(vertex,1);
+      //  instance.dfExection(19,22,4);
     }
 
 
@@ -91,13 +93,14 @@ public class Neo4jCYService implements IGraphBuzi {
     }
 
     @Override
-    public JSONObject bfExtersion(Vertex vertex, int depth) {
+    public List<Path> bfExtersion(Vertex vertex, int depth) {
+        List<Path> paths =new ArrayList<>();
         try {
-            return neo4jCYDAO.bfExtersion(vertex,depth);
+             paths = neo4jCYDAO.bfExtersion(vertex, depth);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new JSONObject();
+        return paths;
     }
 
     @Override

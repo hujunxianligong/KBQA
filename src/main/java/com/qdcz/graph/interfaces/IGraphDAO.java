@@ -64,7 +64,7 @@ public interface IGraphDAO {
      * @param depth
      * @return
      */
-    public JSONObject bfExtersion(Vertex vertex,int depth) throws Exception;
+    public List<Path> bfExtersion(Vertex vertex,int depth) throws Exception;
     /**
      * 深度优先遍历
      * @param fromId

@@ -1,12 +1,16 @@
 package com.qdcz.graph.tools;
 
+import com.qdcz.common.CommonTool;
+import com.qdcz.entity.Edge;
+import com.qdcz.entity.Vertex;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.neo4j.driver.v1.types.Node;
+import org.neo4j.driver.v1.types.Path;
+import org.neo4j.driver.v1.types.Relationship;
 
 
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hadoop on 17-6-23.
@@ -32,42 +36,65 @@ public class ResultBuilder {
         return result;
     }
 //    //获取所需结果集
-//    public JSONObject graphResult(Traverser traverser ){
-//        JSONArray nodesJarry=new JSONArray();
-//        ResourceIterable<Node> nodes = traverser.nodes();
-//        for(Node node:nodes){
-//            JSONObject jsonObject = new JSONObject(node.getAllProperties());
-//
-//            jsonObject.put("id",node.getId()) ;
-//            if(jsonObject.has("content")){
-//                String content = jsonObject.getString("content");
-//                if("".equals(content)){
-//                    jsonObject.put("content", new JSONObject());
-//                }else {
-//                    jsonObject.put("content", new JSONObject(content));
-//                }
-//            }
-//
-//            nodesJarry.put(jsonObject);
-//       //     System.out.println(jsonObject);
-//        }
-//        JSONArray edgesJarry=new JSONArray();
-//        ResourceIterable<Relationship> relationships = traverser.relationships();
-//        for(Relationship relationship:relationships){
-//            JSONObject jsonObject = new JSONObject(relationship.getAllProperties());
-//
-//            jsonObject.put("id",relationship.getId()) ;
-//
-//            edgesJarry.put(jsonObject);
-//        }
-//        JSONObject result =new JSONObject();
-//
-//        result.put("nodes",nodesJarry);
-//        result.put("edges",edgesJarry);
-//
-//
-//        return result;
-//    }
+    public JSONObject graphResult(List<Path> paths ){
+        JSONArray nodesJarry=new JSONArray();
+        JSONArray edgesJarry=new JSONArray();
+        Set<String> nodeIds=new HashSet<>();
+        Set<String> edgeIds=new HashSet<>();
+        JSONObject centreNodeObj =null;
+        JSONObject result =new JSONObject();
+        if(paths!=null) {
+            for (Path path : paths) {
+                Iterable<Node> nodes = path.nodes();
+                for (Node node : nodes) {
+                    Map<String, Object> nodeInfo = node.asMap();
+                    String label = node.labels().iterator().next();
+                    Vertex newVertex = new Vertex();
+                    CommonTool.transMap2Bean(nodeInfo, newVertex);
+                    newVertex.setId(node.id() + "");
+                    newVertex.setLabel(label);
+                    if (!nodeIds.contains(newVertex.getGraphId())) {
+                        JSONObject resultobj = newVertex.toJSON();
+                        resultobj.put("id", newVertex.getId());
+                        resultobj.put("label", newVertex.getLabel());
+                        if (centreNodeObj == null) {
+                            centreNodeObj = resultobj;
+                        }
+                        nodesJarry.put(resultobj);
+                    }
+                    nodeIds.add(node.id() + "");
+                }
+                Iterable<Relationship> relationships = path.relationships();
+                for (Relationship relationship : relationships) {
+
+                    Map<String, Object> edgeInfo = relationship.asMap();
+                    Edge newEdge = new Edge();
+                    CommonTool.transMap2Bean(edgeInfo, newEdge);
+                    newEdge.setId(relationship.id() + "");
+                    newEdge.setRelationShip(relationship.type());
+                    if (!edgeIds.contains(newEdge.getGraphId())) {
+                        JSONObject resultobj = newEdge.toJSON();
+                        resultobj.put("id", newEdge.getId());
+                        resultobj.put("relationship", newEdge.getRelationShip());
+                        edgesJarry.put(resultobj);
+                    }
+                    edgeIds.add(relationship.id() + "");
+                }
+            }
+            nodeIds.clear();
+            edgeIds.clear();
+            String center = "";
+            if (centreNodeObj != null) {
+                center = centreNodeObj.getString("id");
+            } else {
+                return result;
+            }
+            result.put("nodes", nodesJarry);
+            result.put("edges", edgesJarry);
+            result.put("center", center);
+        }
+        return result;
+    }
 
     //两个结果集合并
     public JSONObject mergeResult(JSONObject obj1, JSONObject obj2){
