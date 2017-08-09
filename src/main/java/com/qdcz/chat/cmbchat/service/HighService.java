@@ -1,11 +1,13 @@
 package com.qdcz.chat.cmbchat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 import com.qdcz.common.CommonTool;
 import com.qdcz.chat.tools.MyComparetor;
 import com.qdcz.service.bean.RequestParameter;
 
+import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,7 @@ public class HighService {
 
     private List<Term> getltpInfo(String question){
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
-        List<Term> termList = StandardTokenizer.segment(question);
+        List<Term> termList = NLPTokenizer.segment(question);
         List<Term> termreplace =new ArrayList<>();
         for(int i=0;i<termList.size();i++){
             Term term=termList.get(i);
@@ -46,7 +48,10 @@ public class HighService {
         return termList;
     }
 
-    private List<Term> transGraphInfo(List<Term> termLists){
+    private List<Term> transGraphInfo(RequestParameter requestParameter,List<Term> termLists){
+
+
+
         return termLists;
     }
 
@@ -61,8 +66,8 @@ public class HighService {
         return maps;
     }
 
-    private String MatchPath(List<Map<String, Object>> maps ,RequestParameter requestParameter){
-        String result= null;
+    private Set<Path> MatchPath(List<Map<String, Object>> maps ,RequestParameter requestParameter){
+        Set<Path> result= null;
         if(maps.size()==2){
             result = questionPaserService.traversePathBynode(requestParameter,maps);
         }
@@ -76,7 +81,6 @@ public class HighService {
             //对候选边/节点进行筛选，分别挑选最高分数的node作为对应类型的代表
             for(Map<String, Object> node:maps){
                 if(node!=null) {
-                    String name = (String) node.get("name");
                     float diffLocation= Float.parseFloat(""+ node.get("questSimilar"));
                     float score=Float.parseFloat(""+ node.get("score"));
                     if ("edge".equals(node.get("typeOf"))) { //边
@@ -128,71 +132,70 @@ public class HighService {
                 maps2.add(edgeNode);
                 maps2.add(edgeNode2);
                 result = questionPaserService.traversePathBynode(requestParameter,maps2);
-            }else{
-                result = "learning";
             }
         }
         return result;
     }
+
+
+    private StringBuffer parsePathToResult( Set<Path> paths){
+        StringBuffer sb=new StringBuffer();
+        questionPaserService.showPaths(sb,paths);
+        return sb;
+    }
+    private StringBuffer sortResult(String question,RequestParameter requestParameter,StringBuffer pathResult){
+        StringBuffer finalResult=new StringBuffer();
+        if("".equals(pathResult)||"learning".equals(pathResult)){
+            String str = null;
+            try {//定义获取
+                str = questionPaserService.findDefine(question,requestParameter);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(str==null||"learning".equals(str)||"".equals(str)) {
+                finalResult.append(questionPaserService.requestTuring(question));
+            }else{
+                finalResult.append(str);
+            }
+        }
+        return finalResult;
+    }
     public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
         System.out.println("智能问答提出问题：\t"+question);
-
         /*
         *分词获取分词关键词
          */
-        String label=requestParameter.label;
         List<Term> termLists = getltpInfo(question);
 
         /*
         *关键词转换为图上信息
          */
-        List<Term> transGraphInfo = transGraphInfo(termLists);
+        List<Term> transGraphInfo = transGraphInfo(requestParameter,termLists);
 
         /*
         * 搜索图上关键实体
          */
-
         List<Map<String, Object>> maps = searchGraphEntity(termLists, requestParameter);
-
 
 
         /*
         *实体匹配路径
          */
-        String result = MatchPath(maps, requestParameter);
+        Set<Path> paths = MatchPath(maps, requestParameter);
 
 
-        
+        /*
+        * 路径解析
+         */
+
+        StringBuffer resultPath = parsePathToResult(paths);
 
         /*
         *结果发送
          */
-        MyComparetor mc = null;
-        if(result==null||"learning".equals(result)){
-            mc = new MyComparetor("questSimilar");
-            Collections.sort(maps,mc);
-            Collections.reverse(maps);
-            String str = null;
-            //降序后，第一个node就是分数最大的点
-            Map<String, Object> maxNode=null;
-            for(Map<String, Object> node:maps){
-                if("node".equals(node.get("typeOf"))){
-                    maxNode=node;
-                    break;
-                }
-            }
-            if(maxNode!=null) {//定义获取
-                str = questionPaserService.findDefine(question, maxNode);
-            }
-            if(str==null||"learning".equals(str)||"".equals(str)) {
-                result =questionPaserService.requestTuring(question);
+        StringBuffer stringBuffer = sortResult(question, requestParameter, resultPath);
 
-            }else{
-                result= str;
-            }
-        }
-
-        return result;
+        return stringBuffer.toString();
     }
 
 

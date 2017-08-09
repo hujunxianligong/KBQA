@@ -198,92 +198,22 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public JSONObject bfExtersion(Vertex vertex,int depth) throws Exception {
-        JSONArray nodesJarry=new JSONArray();
-        JSONArray edgesJarry=new JSONArray();
-        Set<String> nodeIds=new HashSet<>();
-        Set<String> edgeIds=new HashSet<>();
+    public List<Path> bfExtersion(Vertex vertex,int depth) throws Exception {
 
-        JSONObject centreNodeObj =null;
-        String sql =
-        "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
-
+        String sql ="MATCH path = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return path";
+       // "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return p, nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
        //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
        //"MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
-
         StatementResult execute = execute(sql);
+        List<Path> segments=new ArrayList<>();
         while ( execute.hasNext() ) {
-            Record record = execute.next();
-            String label=null;
-            String relationship=null;
-            List<Object> rels =  record.get( "relationships(p)" ).asList();
-            List<Object> nodes = record.get("nodes(p)").asList();
-            List<Object> labels = record.get("labels(n)").asList();
-            Set<Object> relationShipTypes = new HashSet<>(record.get("types").asList());
-            if(labels.size()==1){
-                label= (String) labels.get(0);
-            }else{
-                if(nodes.size()>0){
-                    throw new Exception("labels has more 1 labels");
-                }
-            }
-            if(relationShipTypes.size()==1){
-                relationship=(String)relationShipTypes.iterator().next();
-            }else{
-                if(rels.size()>0){
-                    throw new Exception("relationships has more 1 relationship");
-                }
-            }
-            for(Object node:nodes){
-                Node n=(Node) node;
-                Map<String, Object> nodeInfo = n.asMap();
-                Vertex newVertex=new Vertex();
-                CommonTool.transMap2Bean(nodeInfo,newVertex);
-                newVertex.setId(n.id()+"");
-                newVertex.setLabel(label);
-                if(!nodeIds.contains(newVertex.getGraphId())) {
-                    JSONObject resultobj = newVertex.toJSON();
-                    resultobj.put("id",newVertex.getId());
-                    resultobj.put("label",newVertex.getLabel());
-                    if(centreNodeObj==null){
-                        centreNodeObj=resultobj;
-                    }
-                     nodesJarry.put(resultobj);
-                }
-                nodeIds.add(n.id()+"");
-            }
-            for (Object rel : rels) {
-                Relationship one_gra = (Relationship) rel;
-                Map<String, Object> edgeInfo = one_gra.asMap();
-                Edge newEdge=new Edge();
-                CommonTool.transMap2Bean(edgeInfo,newEdge);
-                newEdge.setId(one_gra.id()+"");
-                newEdge.setRelationShip(relationship);
-                if(!edgeIds.contains(newEdge.getGraphId())) {
-                    JSONObject resultobj = newEdge.toJSON();
-                    resultobj.put("id",newEdge.getId());
-                    resultobj.put("relationship",newEdge.getRelationShip());
-                    edgesJarry.put(resultobj);
-                }
-                edgeIds.add(one_gra.id()+"");
-            }
-        }
-        nodeIds.clear();
-        edgeIds.clear();
-        String center = "";
-        if(centreNodeObj!=null){
-            center = centreNodeObj.getString("id");
-        }else{
-            return new JSONObject();
-        }
 
+            Value path = execute.next().get("path");
+            segments.add( path.asPath());
+            System.out.println(path);
+        }
+        return segments;
 
-        JSONObject result =new JSONObject();
-        result.put("nodes",nodesJarry);
-        result.put("edges",edgesJarry);
-        result.put("center",center);
-//        System.out.println(result);
-        return result;
     }
     @Override
     public Path dfExection(long fromId,long toId,int depth){

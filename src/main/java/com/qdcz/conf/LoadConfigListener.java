@@ -18,6 +18,13 @@ import java.io.IOException;
 public class LoadConfigListener implements ServletContextListener {
 
 
+    public String getSource_dir() {
+        return source_dir;
+    }
+
+    public void setSource_dir(String source_dir) {
+        this.source_dir = source_dir;
+    }
 
     @Value("${source_dir}")
     private String source_dir;
@@ -33,7 +40,7 @@ public class LoadConfigListener implements ServletContextListener {
         try {
 //            Configurator.initialize(null,new ConfigurationSource(LoadConfigListener.class.getResourceAsStream("/log4j2.xml")));
             //------------加载neo4j的配置------------
-            System.out.println("------------加载neo4j的配置------------");
+            System.out.println("------------加载neo4j的配置------------"+source_dir);
             Neo4jConfiguration neo4jConfiger=new Neo4jConfiguration();
             neo4jConfiger.load(LoadConfigListener.class.getResourceAsStream(source_dir+"neo4j.properties"));
 
