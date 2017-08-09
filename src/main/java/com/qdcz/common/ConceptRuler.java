@@ -1,5 +1,9 @@
 package com.qdcz.common;
+import com.qdcz.conf.LoadConfigListener;
+
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +64,10 @@ public class ConceptRuler {
 
     public static void loadRules() throws Exception{
         ruler = new ArrayList<>();
-        LineNumberReader reader = new LineNumberReader(new FileReader("/home/hadoop/wnd/concept_rule_simple.txt"));
+        InputStream resourceAsStream = LoadConfigListener.class.getResourceAsStream("/concept_rule_simple.txt");
+        InputStreamReader isr = new InputStreamReader(resourceAsStream);
+      //  BufferedReader reader = new BufferedReader(isr);
+        LineNumberReader reader = new LineNumberReader(isr);
         String line = null;
         while((line=reader.readLine())!=null){
             //System.out.println(line);
