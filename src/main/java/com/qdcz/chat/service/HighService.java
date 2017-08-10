@@ -3,8 +3,10 @@ package com.qdcz.chat.service;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import com.qdcz.chat.cmbchat.CmbGraphInfo;
+import com.qdcz.chat.socialchat.SocialGraphInfo;
 import com.qdcz.common.CommonTool;
-import com.qdcz.service.bean.RequestParameter;
+import com.qdcz.chat.controller.RequestParameter;
 
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,8 @@ public class HighService {
 
     @Autowired
     private QuestionPaserService questionPaserService;
-
+    @Autowired
+    private  SocialGraphInfo socialGraphInfo;
     private List<Term> getltpInfo(String question){
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = NLPTokenizer.segment(question);
@@ -69,104 +72,63 @@ public class HighService {
 
     private Set<Path> MatchPath(List<Map<String, Object>> maps ,RequestParameter requestParameter){
         Set<Path> result= null;
-        if(maps.size()==2){
-            result = questionPaserService.traversePathBynode(requestParameter,maps);
-        }
-        else if(maps.size()>2){
-            float max=0;
-            float maxScore=0;
-            Map<String, Object> vertexNode=null;
-            float second=0;
-            float secScore=0;
-            Map<String, Object> edgeNode=null;
-            //对候选边/节点进行筛选，分别挑选最高分数的node作为对应类型的代表
-            for(Map<String, Object> node:maps){
-                if(node!=null) {
-                    float diffLocation= Float.parseFloat(""+ node.get("questSimilar"));
-                    float score=Float.parseFloat(""+ node.get("score"));
-                    if ("edge".equals(node.get("typeOf"))) { //边
-                        if (diffLocation > second) {
-                            second = diffLocation ;
-                            edgeNode = node;
-                            maxScore = score;
-                        }else if(diffLocation == second){
-                            // 当前词和之前的词与问句具有相同的编辑距离相似度，则通过索引分数对比
-                            if(maxScore< score){
-                                edgeNode = node;
-                                maxScore = score;
-                            }
-                        }
-                    } else {//点
-                        if (diffLocation >max) {
-                            max = diffLocation;
-                            vertexNode  = node;
-                            secScore = score;
-                        }else if(diffLocation ==max){
-                            if(secScore < score){
-                                vertexNode = node;
-                                secScore = score;
-                            }
-                        }
-                    }
-                }
-            }
-            System.out.println("key:"+vertexNode+"\t"+edgeNode);
-            if(vertexNode!=null&&edgeNode!=null) {
-                List<Map<String, Object>> maps2 = new ArrayList();
-                maps2.add(vertexNode);
-                maps2.add(edgeNode);
-                result = questionPaserService.traversePathBynode(requestParameter,maps2);
-            }else if(vertexNode!=null&&edgeNode==null) {
-                maps.remove(vertexNode);
-                //查找分数第二高的索引
-                Map<String, Object> vertexNode2=questionPaserService.getCloestMaps(maps);
-                maps.add(vertexNode);
-                List<Map<String, Object>> maps2 = new ArrayList();
-                maps2.add(vertexNode);
-                maps2.add(vertexNode2);
-                result = questionPaserService.traversePathBynode(requestParameter,maps2);
-            }else if(edgeNode!=null&&vertexNode==null){
-                maps.remove(edgeNode);
-                Map<String, Object> edgeNode2=questionPaserService.getCloestMaps(maps);
-                maps.add(vertexNode);
-                List<Map<String, Object>> maps2 = new ArrayList();
-                maps2.add(edgeNode);
-                maps2.add(edgeNode2);
-                result = questionPaserService.traversePathBynode(requestParameter,maps2);
-            }
+
+        switch (requestParameter.label){
+            case "ytdk_label":
+                CmbGraphInfo cmbGraphInfo=new CmbGraphInfo();
+                result= cmbGraphInfo.matchPath(maps,requestParameter);
+
+                break;
+            case "shkx_label":
+                result= socialGraphInfo.matchPath(maps);
+                break;
+            default:
+                break;
         }
         return result;
     }
 
 
-    private StringBuffer parsePathToResult( Set<Path> paths){
+    private StringBuffer parsePathToResult( Set<Path> paths,List<Map<String, Object>> maps,RequestParameter requestParameter){
         StringBuffer sb=new StringBuffer();
-        questionPaserService.showPaths(sb,paths);
+
+        switch (requestParameter.label){
+            case "shkx_label":
+
+
+                socialGraphInfo.showPaths(sb,paths,maps,requestParameter);
+                break;
+            default:
+                questionPaserService.showPaths(sb,paths);
+                break;
+        }
         return sb;
     }
-    private StringBuffer sortResult(String question,RequestParameter requestParameter,StringBuffer pathResult){
+    private StringBuffer sortResult(RequestParameter requestParameter,StringBuffer pathResult){
         StringBuffer finalResult=new StringBuffer();
-        if("".equals(pathResult)||"learning".equals(pathResult)){
-            String str = null;
-            try {//定义获取
-                str = questionPaserService.findDefine(question,requestParameter);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if(str==null||"learning".equals(str)||"".equals(str)) {
-                finalResult.append(questionPaserService.requestTuring(question));
-            }else{
-                finalResult.append(str);
-            }
+        if(!"".equals(pathResult.toString())){
+            return pathResult;
+        }
+        //应急处理阶段
+        String str = null;
+        try {//定义获取
+            str = questionPaserService.findDefine(requestParameter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(str==null||"".equals(str)) {
+            finalResult.append(questionPaserService.requestTuring(requestParameter.question));
+        }else{
+            finalResult.append(str);
         }
         return finalResult;
     }
-    public String smartQA(RequestParameter requestParameter, String question)  {//智能问答
-        System.out.println("智能问答提出问题：\t"+question);
+    public String smartQA(RequestParameter requestParameter)  {//智能问答
+        System.out.println("智能问答提出问题：\t"+requestParameter.question);
         /*
         *分词获取分词关键词
          */
-        List<Term> termLists = getltpInfo(question);
+        List<Term> termLists = getltpInfo(requestParameter.question);
 
         /*
         *关键词转换为图上信息
@@ -188,13 +150,12 @@ public class HighService {
         /*
         * 路径解析
          */
-
-        StringBuffer resultPath = parsePathToResult(paths);
+        StringBuffer resultPath = parsePathToResult(paths,maps,requestParameter);
 
         /*
         *结果发送
          */
-        StringBuffer stringBuffer = sortResult(question, requestParameter, resultPath);
+        StringBuffer stringBuffer = sortResult( requestParameter, resultPath);
 
         return stringBuffer.toString();
     }
