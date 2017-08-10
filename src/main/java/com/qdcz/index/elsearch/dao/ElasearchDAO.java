@@ -112,6 +112,10 @@ public class ElasearchDAO implements IIndexDAO {
             JSONObject source = new JSONObject(hit.getSourceAsString());
             source.put("_id",hit.getId());
             source.put("score",hit.getScore());
+
+            source.remove("name_length");
+
+
             result =source;
         }
 
@@ -120,10 +124,11 @@ public class ElasearchDAO implements IIndexDAO {
 
 
     @Override
-    public Map<String,JSONObject> queryByName(String graphtype, String name) {
-
-        QueryBuilder matchQuery = QueryBuilders.matchQuery("name",name);
-
+    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high) {
+        QueryBuilder matchQuery = QueryBuilders
+                .boolQuery()
+                .must(QueryBuilders.matchQuery("name",name))
+                .must(QueryBuilders.rangeQuery("name_length").gt(range_low).lt(range_high));
 
         // 搜索数据
         SearchResponse response = client.prepareSearch(index).setTypes(graphtype).setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -144,7 +149,7 @@ public class ElasearchDAO implements IIndexDAO {
             JSONObject source = new JSONObject(hit.getSourceAsString());
             source.put("id",hit.getId());
             source.put("score",hit.getScore());
-
+            source.remove("name_length");
 
             result.put(hit.getId(),source);
 

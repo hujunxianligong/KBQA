@@ -25,6 +25,25 @@ public class Vertex implements IGraphEntity,Node {
     private String type = "";
     private String identity = "";
 
+    private int ela_start = 0;
+    private int ela_end = 10;
+
+    public int getEla_start() {
+        return ela_start;
+    }
+
+    public void setEla_start(int ela_start) {
+        this.ela_start = ela_start;
+    }
+
+    public int getEla_end() {
+        return ela_end;
+    }
+
+    public void setEla_end(int ela_end) {
+        this.ela_end = ela_end;
+    }
+
     public Vertex() {
 
     }
@@ -77,6 +96,8 @@ public class Vertex implements IGraphEntity,Node {
         obj.put("root",root);
         obj.put("content",content);
         obj.put("identity",identity);
+        obj.put("name_length",name.length());
+
         return obj;
     }
 

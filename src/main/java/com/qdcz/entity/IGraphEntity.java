@@ -13,4 +13,8 @@ public interface IGraphEntity  {
     public String getGraphType();
 
     public JSONObject toQueryJSON();
+
+
+    public int getEla_start();
+    public int getEla_end();
 }

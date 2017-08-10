@@ -39,7 +39,7 @@ public class LoadConfigListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent arg0) {
         try {
             //------------加载neo4j的配置------------
-            System.out.println("------------加载neo4j的配置------------"+source_dir);
+            System.out.println("------------加载neo4j的配置------------");
             Neo4jConfiguration neo4jConfiger=new Neo4jConfiguration();
             neo4jConfiger.load(LoadConfigListener.class.getResourceAsStream(source_dir+"neo4j.properties"));
 

@@ -19,11 +19,7 @@ public class ChatController {
 
 
 
-    @RequestMapping(path = "/testask", method = {RequestMethod.POST,RequestMethod.GET})
-    public void  testQuery(@RequestParam String question){
-//        cypherSearchService.queryWithCypher(question);
 
-    }
 
 
 

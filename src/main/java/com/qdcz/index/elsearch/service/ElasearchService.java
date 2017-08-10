@@ -32,15 +32,17 @@ public class ElasearchService implements IIndexService {
 
     public static void main(String[] args) {
         LoadConfigListener loadConfigListener=new LoadConfigListener();
+        loadConfigListener.setSource_dir("/dev/");
         loadConfigListener.contextInitialized(null);
 
 
         Vertex vertex =  new Vertex();
         vertex.setType("");
-        vertex.setLabel("ddd");
-        vertex.setRoot("root");
-        vertex.setName("完善组织架构");
-        vertex.setId("4105");
+        vertex.setLabel("shkx_label");
+        vertex.setRoot("");
+        vertex.setName("中国科学院地球化学研究");
+        vertex.setId("907");
+        vertex.setEla_end(15);
 
 
         ElasearchService instance = new ElasearchService();
@@ -58,7 +60,7 @@ public class ElasearchService implements IIndexService {
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("ytdk_relationship","对象");
+        instance.queryByName("shkx_label","中国科学院地球化学研究",11,13);
 
 
     }
@@ -92,6 +94,13 @@ public class ElasearchService implements IIndexService {
 
     @Override
     public Map<String,JSONObject> queryByName(String graphtype, String name) {
-        return elasearchDAO.queryByName(graphtype,name);
+        return elasearchDAO.queryByName(graphtype,name,0,10);
+    }
+
+
+
+    @Override
+    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high) {
+        return elasearchDAO.queryByName(graphtype,name,range_low,range_high);
     }
 }

@@ -5,6 +5,8 @@ package com.qdcz.other.hanlp;
  */
 
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
+import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLWord;
 
 import java.util.List;
 

@@ -1,7 +1,9 @@
 package com.qdcz.graph.service;
 
 import com.qdcz.common.CommonTool;
+import com.qdcz.conf.DatabaseConfiguration;
 import com.qdcz.conf.LoadConfigListener;
+import com.qdcz.entity.Graph;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.neo4jcypher.service.Neo4jCYService;
 import com.qdcz.graph.tools.ResultBuilder;
@@ -70,9 +72,8 @@ public class GraphOperateService {
 
         vertex.setId(graphId);
 
-        if(vertex.getName().length()<10) {
-            indexBuzi.addOrUpdateIndex(vertex);
-        }
+        indexBuzi.addOrUpdateIndex(vertex);
+
         return "success";
     }
 
@@ -116,9 +117,7 @@ public class GraphOperateService {
         edge.setId(graphId);
 
 
-        if(edge.getName().length()<10) {
-            indexBuzi.addOrUpdateIndex(edge);
-        }
+        indexBuzi.addOrUpdateIndex(edge);
         return "success";
     }
 
@@ -156,13 +155,24 @@ public class GraphOperateService {
      * @param edge
      * @return
      */
-    public String addNodeEdge(Vertex vertex, Edge edge){
+    public String addNodeEdge(Vertex vertex, Edge edge) throws Exception {
 
         String vertexId = graphBuzi.addVertex(vertex);
 
         vertex.setId(vertexId);
 
         indexBuzi.addOrUpdateIndex(vertex);
+
+
+        for (Graph graph:DatabaseConfiguration.Graphs.values()){
+            if(vertex.getLabel().equals(graph.getLabel())){
+                edge.setRelationShip(graph.getRelationship());
+            }
+        }
+
+        if(edge.getRelationShip().isEmpty()){
+            throw new Exception("新增点边时未找到对应的边库"+vertex.getLabel());
+        }
 
 
         edge.setTo(vertexId);
@@ -256,9 +266,8 @@ public class GraphOperateService {
                     System.out.println("graphId:"+graphId);
 
                     v.setId(graphId);
-                    if(name.length()<10) {
-                        indexBuzi.addOrUpdateIndex(v);
-                    }
+
+                    indexBuzi.addOrUpdateIndex(v);
 
                     key_value.put(identity,graphId);
                 } catch (Exception e) {

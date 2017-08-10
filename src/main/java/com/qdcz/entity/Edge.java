@@ -23,6 +23,10 @@ public class Edge implements IGraphEntity,Relationship{
     private String to;
     private String relationShip;//表名
 
+    private int ela_start = 0;
+    private int ela_end = 10;
+
+
     public Edge(){
 
     }
@@ -151,7 +155,21 @@ public class Edge implements IGraphEntity,Relationship{
         this.relationShip = relationShip;
     }
 
+    public int getEla_start() {
+        return ela_start;
+    }
 
+    public void setEla_start(int ela_start) {
+        this.ela_start = ela_start;
+    }
+
+    public int getEla_end() {
+        return ela_end;
+    }
+
+    public void setEla_end(int ela_end) {
+        this.ela_end = ela_end;
+    }
 
     @Override
     public long startNodeId() {

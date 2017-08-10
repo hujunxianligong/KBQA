@@ -14,7 +14,7 @@ import java.util.Properties;
  * Created by star on 17-8-8.
  */
 public class DatabaseConfiguration extends Properties{
-    private static Map<String,Graph> Graphs;
+    public static Map<String,Graph> Graphs;
     @Override
     public synchronized void load(InputStream inStream) throws IOException {
         Graphs = ((GraphDatabase) XMLUtil.convertXmlFileToObject(GraphDatabase.class,inStream)).getGraphs();

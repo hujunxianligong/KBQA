@@ -22,5 +22,5 @@ public interface IIndexDAO {
 
     public JSONObject queryById(IGraphEntity queryEctity);
 
-    public Map<String,JSONObject> queryByName(String graphtype, String name);
+    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high);
 }

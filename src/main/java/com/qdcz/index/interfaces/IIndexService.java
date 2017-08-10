@@ -20,5 +20,8 @@ public interface IIndexService {
 
     public JSONObject queryById(IGraphEntity queryEctity);
 
+    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high);
+
+    @Deprecated
     public Map<String,JSONObject> queryByName(String graphtype, String name);
 }
