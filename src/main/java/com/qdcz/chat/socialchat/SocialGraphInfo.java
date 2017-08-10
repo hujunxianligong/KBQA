@@ -8,8 +8,8 @@ import com.qdcz.common.CommonTool;
 import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
-import com.unboundid.util.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -63,13 +63,13 @@ public class SocialGraphInfo {
 public StringBuffer showPaths(StringBuffer sb, Set<Path> paths, List<Map<String, Object>> maps,RequestParameter requestParameter) {
     ResultBuilder resultBuilder = new ResultBuilder();
     List list = new ArrayList(paths);
-    org.json.JSONObject object = resultBuilder.graphResult( list);
+    JSONObject object = resultBuilder.graphResult( list);
     JSONArray nodes = object.getJSONArray("nodes");
     JSONArray edgesJarry = object.getJSONArray("edges");
-    Map<String , org.json.JSONObject> nodesMaps=new HashMap<>();
+    Map<String , JSONObject> nodesMaps=new HashMap<>();
     for(int i=0;i<nodes.length();i++){
 
-        org.json.JSONObject jsonObject = nodes.getJSONObject(i);
+        JSONObject jsonObject = nodes.getJSONObject(i);
         String id =jsonObject.getString("id");
         nodesMaps.put(id,jsonObject);
     }
@@ -101,13 +101,13 @@ public StringBuffer showPaths(StringBuffer sb, Set<Path> paths, List<Map<String,
                 if(requestParameter.question.contains(s)){
                     Map<String,Set<String>> hashmap=new HashMap<>();
                     for(int i=0;i<edgesJarry.length();i++){
-                        org.json.JSONObject jsonObject = edgesJarry.getJSONObject(i);
+                        JSONObject jsonObject = edgesJarry.getJSONObject(i);
                         String fromId = jsonObject.getString("from");
                         String toId = jsonObject.getString("to");
                         String relation= jsonObject.getString("name");
                         if(entry.getKey().equals(relation)){
-                            org.json.JSONObject object1 = nodesMaps.get(fromId);
-                            org.json.JSONObject object2 = nodesMaps.get(toId);
+                            JSONObject object1 = nodesMaps.get(fromId);
+                            JSONObject object2 = nodesMaps.get(toId);
                             String name = object1.getString("name");
                             String name2=object2.getString("name");
                             if(hashmap.containsKey(name2)){
