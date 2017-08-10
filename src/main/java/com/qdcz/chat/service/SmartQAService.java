@@ -19,7 +19,7 @@ import java.util.*;
  */
 
 @Service
-public class HighService {
+public class SmartQAService {
 
     @Autowired
     private QuestionPaserService questionPaserService;

@@ -1,6 +1,6 @@
 package com.qdcz.chat.controller;
 
-import com.qdcz.chat.service.HighService;
+import com.qdcz.chat.service.SmartQAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ChatController {
 
     @Autowired
-    private HighService highService;
+    private SmartQAService smartQAService;
 
 
 
@@ -32,7 +32,7 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = highService.smartQA(requestParameter);
+        String s = smartQAService.smartQA(requestParameter);
         return s;
     }
 
@@ -47,7 +47,7 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = highService.smartQA(requestParameter);
+        String s = smartQAService.smartQA(requestParameter);
         return s;
     }
 
