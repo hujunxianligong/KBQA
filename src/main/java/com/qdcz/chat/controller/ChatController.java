@@ -28,7 +28,7 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = smartQAService.smartQA(requestParameter);
+        String s = smartQAService.smartQA(requestParameter,project);
         return s;
     }
 
@@ -44,7 +44,7 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = smartQAService.smartQA(requestParameter);
+        String s = smartQAService.smartQA(requestParameter,project);
         return s;
     }
 
