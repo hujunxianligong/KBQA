@@ -210,7 +210,7 @@ public class Neo4jCYDAO implements IGraphDAO{
 
             Value path = execute.next().get("path");
             segments.add( path.asPath());
-            System.out.println(path);
+        //    System.out.println(path);
         }
         return segments;
 
