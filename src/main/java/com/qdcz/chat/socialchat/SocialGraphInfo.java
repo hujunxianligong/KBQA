@@ -62,7 +62,7 @@ public class SocialGraphInfo {
 public StringBuffer showPaths(StringBuffer sb, Set<Path> paths, List<Map<String, Object>> maps,RequestParameter requestParameter) {
     ResultBuilder resultBuilder = new ResultBuilder();
     List list = new ArrayList(paths);
-    org.json.JSONObject object = resultBuilder.graphResult((List<Path>) paths);
+    org.json.JSONObject object = resultBuilder.graphResult( list);
     Map<String,Vector<String>> edgeMapping=new HashMap<>();
     Vector<String> value=new Vector<String>();
     value.add("合作");value.add("协作");
