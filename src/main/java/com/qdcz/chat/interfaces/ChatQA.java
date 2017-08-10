@@ -12,16 +12,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 /**
  * Created by star on 17-8-11.
  */
+@Service
 public abstract class ChatQA {
-
     @Autowired
     public QuestionPaserService questionPaserService;
+
 
     public abstract Set<Path> MatchPath(List<Map<String, Object>> maps , RequestParameter requestParameter);
 
