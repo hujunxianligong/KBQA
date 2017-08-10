@@ -13,7 +13,7 @@
         </console>
 
         <RollingFile name="RollingFileInfo" fileName="${LOG_HOME}/info.log"
-                     filePattern="${USER_HOME}/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
+                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
             <Filters>
                 <ThresholdFilter level="INFO"/>
                 <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
