@@ -18,22 +18,37 @@ import java.util.*;
  */
 public class ResultBuilder {
     //对结果集去重组合
-    public JSONObject cleanRestult(JSONObject merge){
-        JSONObject result=new JSONObject();
-
-        if(merge.has("nodes")){
-            JSONArray jsonArray = reDuplicatesArray(merge.getJSONArray("nodes"));
-            result.put("nodes",jsonArray);
-            if(jsonArray.getJSONObject(0).has("root")) {
-                result.put("root", jsonArray.getJSONObject(0).getString("root"));
+    public Map<String,Vector<String>> cleanRestult(Set<Path> parsePaths){
+        Map<String,Vector<String>> resultPaths=new HashMap();
+        if(parsePaths!=null){
+        for(Path path:parsePaths){
+            Node start = path.start();
+            Vertex startVertex=new Vertex();
+            CommonTool.transMap2Bean(start.asMap(),startVertex);
+            Node end = path.end();
+            Vertex endVertex=new Vertex();
+            CommonTool.transMap2Bean(end.asMap(),endVertex);
+            List<Relationship> relationships = (List<Relationship>) path.relationships();
+            Relationship relationship = relationships.get(relationships.size() - 1);
+            String key=startVertex.getName()+"--"+relationship.get("name").asString();
+            String content=end.get("content").asString();
+            String value=null;
+            if(!"".equals(content)){
+                value=endVertex.toJSON().toString();
+            }else {
+                value = endVertex.getName();
             }
-        }
-        if(merge.has("edges")) {
-            JSONArray jsonArray1 = reDuplicatesArray(merge.getJSONArray("edges"));
-            result.put("edges", jsonArray1);
-        }
+            if(resultPaths.containsKey(key)){
+                Vector<String> strs=resultPaths.get(key);
+                strs.add(value);
+            }else{
+                Vector<String> strs=new Vector<>();
+                strs.add(value);
+                resultPaths.put(key,strs);
+            }
+        }}
 
-        return result;
+        return resultPaths;
     }
 //    //获取所需结果集
     public JSONObject graphResult(List<Path> paths ){

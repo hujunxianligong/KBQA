@@ -15,7 +15,7 @@ import com.qdcz.chat.tools.MyComparetorSJ;
 
 import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.index.interfaces.IIndexService;
-import com.qdcz.service.bean.RequestParameter;
+import com.qdcz.chat.controller.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,10 +58,11 @@ public class QuestionPaserService
         vertex.setLabel("ytdk_label");
         RequestParameter requestParameter=new RequestParameter();
         requestParameter.label="ytdk_label";
+        requestParameter.question="何为银团贷款";
         QuestionPaserService instance=  new QuestionPaserService();
         instance.graphBuzi = new Neo4jCYService();
         instance.elasearchBuzi = new ElasearchService();
-        instance.findDefine("何为银团贷款",requestParameter);
+        instance.findDefine(requestParameter);
     }
 
     private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
@@ -111,8 +112,12 @@ public class QuestionPaserService
         node = neetNode(node, maxScore, requestParameter.label, question);
         node = neetNode(node, maxScore, requestParameter.relationship.get(0), question);
         Map<String, Object> stringObjectMap =null;
-        if(node!=null)
-         stringObjectMap = CommonTool.toMap(node);
+        if(node!=null){
+            node.put("label",requestParameter.label);
+            node.put("rerelationShip",requestParameter.relationship.get(0));
+            stringObjectMap = CommonTool.toMap(node);
+        }
+
 
         return stringObjectMap;
     }
@@ -135,68 +140,71 @@ public class QuestionPaserService
     /*
     *正则匹配定义
      */
-    public String findDefine(String question,RequestParameter requestParameter) throws Exception {
+    public String findDefine(RequestParameter requestParameter) throws Exception {
     	//建议改成配置文件形式，可写成一条条规则，不要硬编码
         String[] defineMatchs= new String[]{ "定义", "概念", "含义","介绍","简介","解释","描述"};
-        String s = ConceptRuler.RegexKey(question);//正则模式
+        String s = ConceptRuler.RegexKey(requestParameter.question);//正则模式
         StringBuffer sb=new StringBuffer();
         if(s!=null) {
             Vertex vertex=new Vertex();
             vertex.setLabel(requestParameter.label);
             vertex.setName(s);
             List<Path> paths = graphBuzi.bfExtersion(vertex, 1);
-            ResultBuilder resultBuilder=new ResultBuilder();
-            JSONObject object = resultBuilder.graphResult(paths);
-            JSONArray edges = object.getJSONArray("edges");
-            JSONArray nodes = object.getJSONArray("nodes");
             Map<String,Vector<String>> maps=new HashMap();
-            for(int i=0;i<edges.length();i++){
-                JSONObject edge=edges.getJSONObject(i);
-                String relation = edge.getString("name");
-                boolean hasMatchsWord=false;
-                for(String def:defineMatchs){
-                    if(relation.contains(def)){
-                        hasMatchsWord =true;
-                        break;
-                    }
-                }
-                if(hasMatchsWord){
-                    String from = edge.getString("from");
-                    String from_name=null;
-                    String to = edge.getString("to");
-                    String to_name=null;
-                    String rootName="杂类";
-                    for(int m=0;m<nodes.length();m++){
-                        JSONObject node=nodes.getJSONObject(m);
-                        String id = node.getString("id");
-                        if(id.equals(from)){
-                            from_name=node.getString("name");
-                        }else  if(id.equals(to)){
-                            to_name=node.getString("name");
-                        }
-                        if(from_name!=null&&to_name!=null){
-                            rootName=node.getString("root");
+            if(paths.size()>0){
+                ResultBuilder resultBuilder=new ResultBuilder();
+                JSONObject object = resultBuilder.graphResult(paths);
+                JSONArray edges = object.getJSONArray("edges");
+                JSONArray nodes = object.getJSONArray("nodes");
+                for(int i=0;i<edges.length();i++){
+                    JSONObject edge=edges.getJSONObject(i);
+                    String relation = edge.getString("name");
+                    boolean hasMatchsWord=false;
+                    for(String def:defineMatchs){
+                        if(relation.contains(def)){
+                            hasMatchsWord =true;
                             break;
                         }
                     }
-                    String key=null;
-                    if("杂类".equals(rootName)){
-                        key=from_name+"的"+relation+"为";
-                    }else{
-                        key="在"+rootName+"中，"+from_name+"的"+relation+"为";
-                    }
+                    if(hasMatchsWord){
+                        String from = edge.getString("from");
+                        String from_name=null;
+                        String to = edge.getString("to");
+                        String to_name=null;
+                        String rootName="杂类";
+                        for(int m=0;m<nodes.length();m++){
+                            JSONObject node=nodes.getJSONObject(m);
+                            String id = node.getString("id");
+                            if(id.equals(from)){
+                                from_name=node.getString("name");
+                            }else  if(id.equals(to)){
+                                to_name=node.getString("name");
+                            }
+                            if(from_name!=null&&to_name!=null){
+                                rootName=node.getString("root");
+                                break;
+                            }
+                        }
+                        String key=null;
+                        if("杂类".equals(rootName)){
+                            key=from_name+"的"+relation+"为";
+                        }else{
+                            key="在"+rootName+"中，"+from_name+"的"+relation+"为";
+                        }
 
-                    String value=to_name;
-                    if(maps.containsKey(key)){
-                        Vector<String> strs=maps.get(key);
-                        strs.add(value);
-                    }else{
-                        Vector<String> strs=new Vector<>();
-                        strs.add(value);
-                        maps.put(key,strs);
+                        String value=to_name;
+                        if(maps.containsKey(key)){
+                            Vector<String> strs=maps.get(key);
+                            strs.add(value);
+                        }else{
+                            Vector<String> strs=new Vector<>();
+                            strs.add(value);
+                            maps.put(key,strs);
+                        }
                     }
                 }
             }
+
             for (Map.Entry<String, Vector<String>> entry : maps.entrySet()){
                 String key=entry.getKey();
                 String value="";
@@ -212,9 +220,8 @@ public class QuestionPaserService
                     sb.append(key+value);
                 }
             }
-            return sb.toString();
         }
-        return "learning";
+        return sb.toString();
     }
     /*
     *实体中转分类站
@@ -391,33 +398,8 @@ public class QuestionPaserService
     *对路径进行展示前的解析
      */
     public   void  showPaths(StringBuffer sb,Set<Path> parsePaths){
-        Map<String,Vector<String>> resultPaths=new HashMap();
-        for(Path path:parsePaths){
-            Node start = path.start();
-            Vertex startVertex=new Vertex();
-            CommonTool.transMap2Bean(start.asMap(),startVertex);
-            Node end = path.end();
-            Vertex endVertex=new Vertex();
-            CommonTool.transMap2Bean(end.asMap(),endVertex);
-            List<Relationship> relationships = (List<Relationship>) path.relationships();
-            Relationship relationship = relationships.get(relationships.size() - 1);
-            String key=startVertex.getName()+"--"+relationship.get("name").asString();
-            String content=end.get("content").asString();
-            String value=null;
-            if(!"".equals(content)){
-                value=endVertex.toJSON().toString();
-            }else {
-                value = endVertex.getName();
-            }
-            if(resultPaths.containsKey(key)){
-                Vector<String> strs=resultPaths.get(key);
-                strs.add(value);
-            }else{
-                Vector<String> strs=new Vector<>();
-                strs.add(value);
-                resultPaths.put(key,strs);
-            }
-        }
+        ResultBuilder resultBuilder=new ResultBuilder();
+        Map<String,Vector<String>> resultPaths= resultBuilder.cleanRestult(parsePaths);
         try{
             JSONObject resultJSon=new JSONObject();
             for (Map.Entry<String, Vector<String>> entry : resultPaths.entrySet()){

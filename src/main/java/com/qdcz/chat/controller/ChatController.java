@@ -1,7 +1,6 @@
 package com.qdcz.chat.controller;
 
 import com.qdcz.chat.service.HighService;
-import com.qdcz.service.bean.RequestParameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,11 +32,11 @@ public class ChatController {
     public String ask(@RequestParam String question){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="ytdk_label";
+        requestParameter.label="shkx_label";
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
-        requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
-        String s = highService.smartQA(requestParameter,question);
+        requestParameter.question=question;
+        String s = highService.smartQA(requestParameter);
         return s;
     }
 
@@ -51,8 +50,8 @@ public class ChatController {
         requestParameter.label="ytdk_label";
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
-        requestParameter.requestSource = Thread.currentThread().getStackTrace()[1].getMethodName();
-        String s = highService.smartQA(requestParameter,question);
+        requestParameter.question=question;
+        String s = highService.smartQA(requestParameter);
         return s;
     }
 
