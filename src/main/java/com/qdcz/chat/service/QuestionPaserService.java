@@ -74,7 +74,7 @@ public class QuestionPaserService
         String type="node";
         Levenshtein lt=new Levenshtein();
 
-        Map<String, JSONObject> stringJSONObjectMap = elasearchBuzi.queryByName(table, question);
+        Map<String, JSONObject> stringJSONObjectMap =  elasearchBuzi.queryByName(table,question,0,question.length()*3);
 
         List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
         MyComparetorSJ mc = new MyComparetorSJ("score");

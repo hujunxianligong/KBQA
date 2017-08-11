@@ -76,7 +76,7 @@ public class SocialQA extends ChatQA {
         value.add("同事");value.add("伙伴");
         edgeMapping.put("属于",value);
         value=new Vector<String>();
-        value.add("合作");value.add("协作"); value.add("作者");
+        value.add("合作");value.add("协作"); value.add("作者");value.add("发表");
         edgeMapping.put("发表",value);
 
         MyComparetor mc = new MyComparetor("questSimilar");
@@ -91,7 +91,7 @@ public class SocialQA extends ChatQA {
             }
         }
         if(maxNode!=null) {
-            Map<String,Map<String,Set<String>>> hehe=new HashMap<>();
+            Map<String,Map<String,Set<String>>> reSultMaps=new HashMap<>();
             Set<Map.Entry<String, Vector<String>>> entries = edgeMapping.entrySet();
             for (Map.Entry<String, Vector<String>> entry : entries) {
                 Vector<String> value1 = entry.getValue();
@@ -118,17 +118,17 @@ public class SocialQA extends ChatQA {
                                 }
                             }
                         }
-                        hehe.put(entry.getKey(),hashmap);
+                        reSultMaps.put(entry.getKey(),hashmap);
 
                     }
                 }
             }
             System.out.println();
-            for (String s : hehe.keySet()) {
+            for (String s : reSultMaps.keySet()) {
                 switch (s){
                     case "属于":
                         if("author".equals(maxNode.get("type"))){
-                            Map<String, Set<String>> stringSetMap = hehe.get(s);
+                            Map<String, Set<String>> stringSetMap = reSultMaps.get(s);
                             String r1="";
                             for (Map.Entry<String, Set<String>> entry  : stringSetMap.entrySet()) {
                                 String key = entry.getKey();
@@ -142,12 +142,13 @@ public class SocialQA extends ChatQA {
                                 }
                                 r1= r1.substring(0, r1.length() - 1) + "。";
                             }
+                            sb.append(r1);
                         }
 
                         break;
                     case "发表":
                         if("author".equals(maxNode.get("type"))){
-                            Map<String, Set<String>> stringSetMap = hehe.get(s);
+                            Map<String, Set<String>> stringSetMap = reSultMaps.get(s);
                             String r2="";
                             for (Map.Entry<String, Set<String>> entry : stringSetMap.entrySet()) {
                                 String key = entry.getKey();
@@ -162,18 +163,22 @@ public class SocialQA extends ChatQA {
                                 }
                                 r2= r2.substring(0, r2.length() - 1) + "。";
                             }
+                            sb.append(r2);
                         }else if("paper".equals(maxNode.get("type"))){
-                            Map<String, Set<String>> stringSetMap = hehe.get(s);
+                            Map<String, Set<String>> stringSetMap = reSultMaps.get(s);
                             String r3="";
                             for (Map.Entry<String, Set<String>> entry : stringSetMap.entrySet()) {
                                 String key = entry.getKey();
-                                Set<String> values = entry.getValue();
-                                r3 += "在《"+key+"》中作者有";//为
-                                for(String value2:values){
-                                    r3+=value2+"、";
+                                if(key.equals(maxNode.get("name").toString())){
+                                    Set<String> values = entry.getValue();
+                                    r3 += "在《"+key+"》中作者有";//为
+                                    for(String value2:values){
+                                        r3+=value2+"、";
+                                    }
+                                    r3= r3.substring(0, r3.length() - 1) + "。";
                                 }
-                                r3= r3.substring(0, r3.length() - 1) + "。";
                             }
+                            sb.append(r3);
                         }
                         break;
                     default:
