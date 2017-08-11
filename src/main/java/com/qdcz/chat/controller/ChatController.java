@@ -21,15 +21,12 @@ public class ChatController {
     @RequestMapping(path = "/ask", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
     public String ask(@RequestParam String question
-            ,@RequestParam String project){
+            ,@RequestParam String project) {
         RequestParameter requestParameter =null;
-        requestParameter =new RequestParameter();
-        requestParameter.label="ytdk_label";
-        requestParameter.relationship=new ArrayList<>();
-        requestParameter.relationship.add("ytdk_relationship");
-        requestParameter.question=question;
         String s = null;
         try {
+            requestParameter =new RequestParameter(project);
+            requestParameter.question=question;
             s = smartQAService.smartQA(requestParameter,project);
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,13 +41,10 @@ public class ChatController {
     public String askOfWeChat(@RequestParam String question,
                               @RequestParam String project){
         RequestParameter requestParameter =null;
-        requestParameter =new RequestParameter();
-        requestParameter.label="ytdk_label";
-        requestParameter.relationship=new ArrayList<>();
-        requestParameter.relationship.add("ytdk_relationship");
-        requestParameter.question=question;
         String s = null;
         try {
+            requestParameter =new RequestParameter(project);
+            requestParameter.question=question;
             s = smartQAService.smartQA(requestParameter,project);
         } catch (Exception e) {
             e.printStackTrace();

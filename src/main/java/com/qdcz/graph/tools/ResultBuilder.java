@@ -29,6 +29,9 @@ public class ResultBuilder {
             Vertex endVertex=new Vertex();
             CommonTool.transMap2Bean(end.asMap(),endVertex);
             List<Relationship> relationships = (List<Relationship>) path.relationships();
+            if(relationships==null||relationships.size()==0){
+                continue;
+            }
             Relationship relationship = relationships.get(relationships.size() - 1);
             String key=startVertex.getName()+"--"+relationship.get("name").asString();
             String content=end.get("content").asString();
