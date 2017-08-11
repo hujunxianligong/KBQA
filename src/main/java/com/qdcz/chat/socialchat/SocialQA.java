@@ -12,12 +12,14 @@ import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 /**
  * Created by star on 17-8-11.
  */
+@Service
 public class SocialQA extends ChatQA {
     @Autowired
     @Qualifier("neo4jCypherService")

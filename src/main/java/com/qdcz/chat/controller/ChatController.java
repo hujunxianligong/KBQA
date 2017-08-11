@@ -13,8 +13,8 @@ import java.util.ArrayList;
 @RestController
 public class ChatController {
 
-
-
+    @Autowired
+    private SmartQAService smartQAService;
 
 
     @CrossOrigin
@@ -28,7 +28,6 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        SmartQAService smartQAService = new SmartQAService(project);
         String s = smartQAService.smartQA(requestParameter);
         return s;
     }
@@ -45,7 +44,6 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        SmartQAService smartQAService = new SmartQAService(project);
         String s = smartQAService.smartQA(requestParameter);
         return s;
     }

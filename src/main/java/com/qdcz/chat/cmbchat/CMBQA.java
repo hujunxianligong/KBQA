@@ -3,12 +3,14 @@ package com.qdcz.chat.cmbchat;
 import com.qdcz.chat.entity.RequestParameter;
 import com.qdcz.chat.interfaces.ChatQA;
 import org.neo4j.driver.v1.types.Path;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 /**
  * Created by star on 17-8-11.
  */
+@Service
 public class CMBQA extends ChatQA {
     @Override
     public Set<Path> MatchPath(List<Map<String, Object>> maps, RequestParameter requestParameter) {

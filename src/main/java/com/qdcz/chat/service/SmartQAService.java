@@ -15,60 +15,27 @@ import java.util.*;
 /**
  * Created by star on 17-8-1.
  */
-
+@Service
 public class SmartQAService {
 
     @Autowired
-    private QuestionPaserService questionPaserService;
+    private SocialQA socialchatQA;
+    @Autowired
+    private CMBQA cmbchatQA;
 
-    private ChatQA chatQA;
-    public SmartQAService(String project){
+
+    public String smartQA(RequestParameter requestParameter,String project)  {//智能问答
+        ChatQA chatQA = null;
         switch (project){
             case "xz":
-                chatQA = new CMBQA();
+                chatQA = cmbchatQA;
                 break;
             case "sk":
-                chatQA = new SocialQA();
+                chatQA = socialchatQA;
                 break;
         }
-    }
 
-
-    public String smartQA(RequestParameter requestParameter)  {//智能问答
-        System.out.println("智能问答提出问题：\t"+requestParameter.question);
-        /*
-        *分词获取分词关键词
-         */
-        List<Term> termLists = chatQA.getltpInfo(requestParameter.question);
-
-        /*
-        *关键词转换为图上信息
-         */
-        List<Term> transGraphInfo = chatQA.transGraphInfo(requestParameter,termLists);
-
-        /*
-        * 搜索图上关键实体
-         */
-        List<Map<String, Object>> maps = chatQA.searchGraphEntity(termLists, requestParameter);
-
-
-        /*
-        *实体匹配路径
-         */
-        Set<Path> paths = chatQA.MatchPath(maps, requestParameter);
-
-
-        /*
-        * 路径解析
-         */
-        StringBuffer resultPath = chatQA.parsePathToResult(paths,maps,requestParameter);
-
-        /*
-        *结果发送
-         */
-        StringBuffer stringBuffer = chatQA.sortResult( requestParameter, resultPath);
-
-        return stringBuffer.toString();
+       return chatQA.smartQA(requestParameter);
     }
 
 
