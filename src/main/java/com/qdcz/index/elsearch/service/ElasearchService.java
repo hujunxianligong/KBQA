@@ -60,7 +60,7 @@ public class ElasearchService implements IIndexService {
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("ytdk_label","银团贷款收费",0,10);
+        instance.queryByName("ytdk_relationship","案例",0,10);
 
 
     }
