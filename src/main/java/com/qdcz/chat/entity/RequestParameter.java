@@ -1,4 +1,4 @@
-package com.qdcz.chat.controller;
+package com.qdcz.chat.entity;
 
 import java.util.*;
 

@@ -97,8 +97,6 @@ public class ElasearchService implements IIndexService {
         return elasearchDAO.queryByName(graphtype,name,0,10);
     }
 
-
-
     @Override
     public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high) {
         return elasearchDAO.queryByName(graphtype,name,range_low,range_high);

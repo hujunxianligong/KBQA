@@ -1,24 +1,17 @@
 package com.qdcz.chat.cmbchat;
 
-import com.qdcz.chat.controller.RequestParameter;
-import com.qdcz.chat.service.QuestionPaserService;
+import com.qdcz.chat.entity.RequestParameter;
+import com.qdcz.chat.interfaces.ChatQA;
 import org.neo4j.driver.v1.types.Path;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Created by hadoop on 17-8-10.
+ * Created by star on 17-8-11.
  */
-public class CmbGraphInfo {
-    @Autowired
-    private QuestionPaserService questionPaserService;
-
-     public Set<Path> matchPath(List<Map<String, Object>> maps , RequestParameter requestParameter){
-
+public class CMBQA extends ChatQA {
+    @Override
+    public Set<Path> MatchPath(List<Map<String, Object>> maps, RequestParameter requestParameter) {
         Set<Path> result= null;
         if(maps.size()==2){
             result = questionPaserService.traversePathBynode(requestParameter,maps);
@@ -86,7 +79,10 @@ public class CmbGraphInfo {
                 result = questionPaserService.traversePathBynode(requestParameter,maps2);
             }
         }
-         questionPaserService=null;
+        questionPaserService=null;
         return result;
     }
+
+
+
 }

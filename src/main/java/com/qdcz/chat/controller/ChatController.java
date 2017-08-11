@@ -1,5 +1,6 @@
 package com.qdcz.chat.controller;
 
+import com.qdcz.chat.entity.RequestParameter;
 import com.qdcz.chat.service.SmartQAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

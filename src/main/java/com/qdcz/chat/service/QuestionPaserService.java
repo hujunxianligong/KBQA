@@ -15,9 +15,8 @@ import com.qdcz.chat.tools.MyComparetorSJ;
 
 import com.qdcz.index.elsearch.service.ElasearchService;
 import com.qdcz.index.interfaces.IIndexService;
-import com.qdcz.chat.controller.RequestParameter;
+import com.qdcz.chat.entity.RequestParameter;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Path;
 
@@ -422,46 +421,9 @@ public class QuestionPaserService
 //        showPaths(sb,paths);
         return paths;
     }
-    /*
-    *对路径进行展示前的解析
-     */
-    public   void  showPaths(StringBuffer sb,Set<Path> parsePaths){
-        ResultBuilder resultBuilder=new ResultBuilder();
-        Map<String,Vector<String>> resultPaths= resultBuilder.cleanRestult(parsePaths);
-        try{
-            JSONObject resultJSon=new JSONObject();
-            for (Map.Entry<String, Vector<String>> entry : resultPaths.entrySet()){
-                JSONArray jsonArray=new JSONArray();
-                String result="";
-                String key = entry.getKey().replace("--","的");
-                Vector<String> value = entry.getValue();
-                result += key+"为";
-                for(String str:value){
-                    try{
-                        JSONObject object = new JSONObject(str);
-                        result="";
-                        jsonArray.put(object.toString());
-                    }catch ( JSONException je){
-//                        je.printStackTrace();
-                        result+=str+"、";
-                    }
-                }
-                if(!"".equals(result)) {
-                    result = result.substring(0, result.length() - 1) + "。";
-                    sb.append(result);
-                }
-                else if(jsonArray.length()>0){
-                    resultJSon.put("title",key);
-                    resultJSon.put("type","Law");
-                    resultJSon.put("data",jsonArray);
-                    sb.append(resultJSon);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ;
-    }
+
+
+
 
     /*
     *深搜路径进行筛选

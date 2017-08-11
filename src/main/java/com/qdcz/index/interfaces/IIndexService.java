@@ -20,8 +20,19 @@ public interface IIndexService {
 
     public JSONObject queryById(IGraphEntity queryEctity);
 
+    /**
+     * 根据字符串长度区间进行查询
+     * @param graphtype
+     * @param name
+     * @param range_low
+     * @param range_high
+     * @return
+     */
     public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high);
 
     @Deprecated
+    /**
+     * 默认为(0,10)
+     */
     public Map<String,JSONObject> queryByName(String graphtype, String name);
 }
