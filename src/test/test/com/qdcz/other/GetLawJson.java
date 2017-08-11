@@ -22,7 +22,7 @@ public class GetLawJson {
         GetLawJson test=new GetLawJson();
 //        test.getLawScenesJson("/home/hadoop/wnd/usr/leagal/建新/场景属性");
 //        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
-//        test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
+        test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
         test.test();
     }
     public void getOneBankThreeHuiDefine(String filePath) throws Exception{
