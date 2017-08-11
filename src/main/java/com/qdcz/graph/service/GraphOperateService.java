@@ -264,6 +264,7 @@ public class GraphOperateService {
                     key_value.put(identity,graphId);
                 } catch (Exception e) {
                     logger.error("批量增点错误："+e.getMessage()+"\n"+str);
+                    throw e;
                 }
             }
             sc.close();
@@ -295,6 +296,7 @@ public class GraphOperateService {
                 } catch (Exception e) {
 
                     logger.error("批量增边错误："+e.getMessage()+"\n"+str);
+                    throw e;
                 }
             }
             sc.close();

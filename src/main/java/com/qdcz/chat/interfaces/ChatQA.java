@@ -3,6 +3,7 @@ package com.qdcz.chat.interfaces;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import com.hankcs.hanlp.utility.Predefine;
 import com.mongodb.util.JSON;
 import com.qdcz.chat.entity.RequestParameter;
 import com.qdcz.chat.service.QuestionPaserService;

@@ -52,9 +52,9 @@ public class StructPaper {
                 String url = splits[8];
 
 
-                if(!all_company.contains("中国科学院")){
-                    continue;
-                }
+//                if(!all_company.contains("中国科学院")){
+//                    continue;
+//                }
 
 
 
@@ -253,13 +253,13 @@ public class StructPaper {
         for (int i = 0;i< nodes_arr.length();i++){
             sb.append(nodes_arr.getJSONObject(i).toString()+"\n");
         }
-        CommonTool.printFile(sb.toString().getBytes(),"/media/star/Doc/工作文档/微信-论文项目/vertex.txt");
+        CommonTool.printFile(sb.toString().getBytes(),"/media/star/Doc/工作文档/微信-论文项目/vertex_all.txt");
         sb.delete(0,sb.length());
 
         for (int i = 0;i< edges_arr.length();i++){
             sb.append(edges_arr.getJSONObject(i).toString()+"\n");
         }
-        CommonTool.printFile(sb.toString().getBytes(),"/media/star/Doc/工作文档/微信-论文项目/edges.txt");
+        CommonTool.printFile(sb.toString().getBytes(),"/media/star/Doc/工作文档/微信-论文项目/edges_all.txt");
         sb.delete(0,sb.length());
 
 

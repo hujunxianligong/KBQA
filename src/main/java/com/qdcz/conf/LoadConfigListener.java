@@ -1,5 +1,6 @@
 package com.qdcz.conf;
 
+import com.hankcs.hanlp.utility.Predefine;
 import com.qdcz.mongo.conf.MongoConfiguration;
 import com.qdcz.graph.neo4jcypher.conf.Neo4jConfiguration;
 import com.qdcz.index.elsearch.conf.ELKConfig;
@@ -18,16 +19,14 @@ import java.io.IOException;
 public class LoadConfigListener implements ServletContextListener {
 
 
-    public String getSource_dir() {
-        return source_dir;
-    }
-
-    public void setSource_dir(String source_dir) {
-        this.source_dir = source_dir;
-    }
 
     @Value("${source_dir}")
     private String source_dir;
+
+
+
+    @Value("${hanlp_path}")
+    private String hanlp_path;
 
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
@@ -38,6 +37,7 @@ public class LoadConfigListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         try {
+            Predefine.HANLP_PROPERTIES_PATH = hanlp_path+"hanlp.properties";
             //------------加载neo4j的配置------------
             System.out.println("------------加载neo4j的配置------------");
             Neo4jConfiguration neo4jConfiger=new Neo4jConfiguration();
@@ -59,6 +59,19 @@ public class LoadConfigListener implements ServletContextListener {
             e.printStackTrace();
         }
     }
+    public String getSource_dir() {
+        return source_dir;
+    }
 
+    public void setSource_dir(String source_dir) {
+        this.source_dir = source_dir;
+    }
+    public String getHanlp_path() {
+        return hanlp_path;
+    }
+
+    public void setHanlp_path(String hanlp_path) {
+        this.hanlp_path = hanlp_path;
+    }
 
 }
