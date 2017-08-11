@@ -2,6 +2,7 @@ package com.qdcz.chat.cmbchat;
 
 import com.qdcz.chat.entity.RequestParameter;
 import com.qdcz.chat.interfaces.ChatQA;
+import com.qdcz.chat.tools.Levenshtein;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,12 @@ public class CMBQA extends ChatQA {
             float second=0;
             float secScore=0;
             Map<String, Object> edgeNode=null;
+            Levenshtein lt=new Levenshtein();
             //对候选边/节点进行筛选，分别挑选最高分数的node作为对应类型的代表
             for(Map<String, Object> node:maps){
                 if(node!=null) {
-                    float diffLocation= Float.parseFloat(""+ node.get("questSimilar"));
+                    float diffLocation=lt.getSimilarityRatio(node.get("name").toString(),requestParameter.question);
+                    node.put("questSimilar",diffLocation);
                     float score=Float.parseFloat(""+ node.get("score"));
                     if ("edge".equals(node.get("typeOf"))) { //边
                         if (diffLocation > second) {

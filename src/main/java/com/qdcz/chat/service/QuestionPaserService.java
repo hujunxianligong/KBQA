@@ -396,8 +396,8 @@ public class QuestionPaserService
         Set<Path>  unDealPaths=new HashSet<>();
         ArrayList<Map.Entry<String, JSONObject>> startMapList;
         if(edge!=null) {
-            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName());//获取点名称索引相关集合
-            Map<String, JSONObject> edgeSilimarMaps = elasearchBuzi.queryByName(requestParameter.relationship.get(0), edge.getName());
+            Map<String, JSONObject> startMaps = elasearchBuzi.queryByName(requestParameter.label, vertex.getName(),0,vertex.getName().length()*2+1);//获取点名称索引相关集合
+            Map<String, JSONObject> edgeSilimarMaps = elasearchBuzi.queryByName(requestParameter.relationship.get(0), edge.getName(),0,edge.getName().length()*2+1);
             ArrayList<Map.Entry<String, JSONObject>> entryArrayList = new ArrayList<>(edgeSilimarMaps.entrySet());
             for (Map.Entry<String, JSONObject> JSONObjectEntry : entryArrayList) {//边名称索引结果解析末点
                 JSONObject value = JSONObjectEntry.getValue();
