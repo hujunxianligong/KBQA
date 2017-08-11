@@ -6,6 +6,7 @@ import com.qdcz.common.XMLUtil;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,37 +16,73 @@ import java.util.Map;
 @XmlRootElement(name = "xml")
 public class GraphDatabase {
     public static void main(String[] args) {
-//        Graph graph = new Graph();
-//        graph.setName("dfd");
-//
-//        Map<String,Graph> graphs = new HashMap<>();
-//        graphs.put("mm",graph);
-//
-//        GraphDatabase graphDatabase =  new GraphDatabase();
-//        graphDatabase.setGraphs(graphs);
 
-        GraphDatabase graphDatabase= (GraphDatabase) XMLUtil.convertXmlFileToObject(GraphDatabase.class,"/media/star/Soft/WorkSpace/KBQA/src/main/resources/database.xml");
+        GraphDatabase graphDatabase= (GraphDatabase) XMLUtil.convertXmlFileToObject(GraphDatabase.class,"/media/star/Soft/WorkSpace/KBQA/src/main/resources/dev/database.xml");
         System.out.println(XMLUtil.convertToXml(graphDatabase));
     }
 
-    private Map<String,Graph> graphs;
+    private Graphs graphs;
 
-    public Map<String, Graph> getGraphs() {
+    private Projects projects;
+
+
+
+    public Projects getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Projects projects) {
+        this.projects = projects;
+    }
+
+
+    public Graphs getGraphs() {
         return graphs;
     }
 
-    public void setGraphs(Map<String, Graph> graphs) {
+    public void setGraphs(Graphs graphs) {
         this.graphs = graphs;
     }
 
 
-    //    private List<Graph> graph;
-//
-//    public List<Graph> getGraph() {
-//        return graph;
-//    }
-//
-//    public void setGraph(List<Graph> graph) {
-//        this.graph = graph;
-//    }
+    /**
+     * 获取graphmap,便于检索
+     * @return
+     */
+    public Map<String,Graph> getGraphMap(){
+        Map<String,Graph> graphMap =  new HashMap<>();
+
+        for (Graph graph:graphs.getGraph()) {
+            graphMap.put(graph.getName(),graph);
+        }
+        return graphMap;
+    }
+
+    /**
+     * 获取projectmap，便于检索
+     * @return
+     */
+    public Map<String,List<Graph>> getProjectMap(){
+        Map<String,List<Graph>> projectMap =  new HashMap<>();
+
+        for (Project project:projects.getProject()) {
+            String project_name = project.getProject_name();
+            List<Graph> project_graphs = new ArrayList<>();
+            for (String graphName:project.getGraphs().getGraph_name()) {
+                for (Graph graph:graphs.getGraph()) {
+                    if(graphName.equals(graph.getName())){
+                        project_graphs.add(graph);
+                        break;
+                    }
+                }
+            }
+            projectMap.put(project_name,project_graphs);
+
+        }
+        return projectMap;
+    }
+
+
+
+
 }

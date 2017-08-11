@@ -39,7 +39,7 @@ public class ConnManager {
                     databaseName, pass.toCharArray());
             MongoClient new_client = new MongoClient(new ServerAddress(host, port),
                     Arrays.asList(credential),myOptions);
-            clients.put(databaseName, new_client);
+//            clients.put(databaseName, new_client);
             return new_client;
         }
     }

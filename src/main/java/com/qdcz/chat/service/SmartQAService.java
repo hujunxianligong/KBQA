@@ -1,6 +1,7 @@
 package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
+import com.qdcz.chat.allchat.AllChatQA;
 import com.qdcz.chat.cmbchat.CMBQA;
 import com.qdcz.chat.interfaces.ChatQA;
 import com.qdcz.chat.entity.RequestParameter;
@@ -23,6 +24,8 @@ public class SmartQAService {
     @Autowired
     private CMBQA cmbchatQA;
 
+    @Autowired
+    private AllChatQA allChatQA;
 
     public String smartQA(RequestParameter requestParameter,String project)  {//智能问答
         ChatQA chatQA = null;
@@ -32,6 +35,9 @@ public class SmartQAService {
                 break;
             case "sk":
                 chatQA = socialchatQA;
+                break;
+            case "all":
+                chatQA = allChatQA;
                 break;
         }
 

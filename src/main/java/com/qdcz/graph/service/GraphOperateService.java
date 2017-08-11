@@ -164,15 +164,7 @@ public class GraphOperateService {
         indexBuzi.addOrUpdateIndex(vertex);
 
 
-        for (Graph graph:DatabaseConfiguration.Graphs.values()){
-            if(vertex.getLabel().equals(graph.getLabel())){
-                edge.setRelationShip(graph.getRelationship());
-            }
-        }
-
-        if(edge.getRelationShip().isEmpty()){
-            throw new Exception("新增点边时未找到对应的边库"+vertex.getLabel());
-        }
+        edge.setRelationShip(DatabaseConfiguration.getRelationshipByLabel(vertex.getLabel()));
 
 
         edge.setTo(vertexId);
