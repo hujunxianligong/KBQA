@@ -1,8 +1,5 @@
 package com.qdcz.chat.controller;
 
-import com.qdcz.chat.tools.MyComparetor;
-import org.neo4j.driver.v1.types.Path;
-
 import java.util.*;
 
 /**

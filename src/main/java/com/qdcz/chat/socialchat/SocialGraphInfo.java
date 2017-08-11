@@ -1,14 +1,11 @@
 package com.qdcz.chat.socialchat;
 
-import com.hankcs.hanlp.seg.common.Term;
 import com.qdcz.chat.controller.RequestParameter;
-import com.qdcz.chat.service.QuestionPaserService;
 import com.qdcz.chat.tools.MyComparetor;
 import com.qdcz.common.CommonTool;
 import com.qdcz.entity.Vertex;
 import com.qdcz.graph.interfaces.IGraphBuzi;
 import com.qdcz.graph.tools.ResultBuilder;
-import com.unboundid.util.json.JSONObject;
 import org.json.JSONArray;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;

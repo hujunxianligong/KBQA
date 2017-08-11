@@ -19,10 +19,8 @@ import com.qdcz.chat.controller.RequestParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 
-import org.neo4j.driver.v1.types.Relationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -65,6 +63,14 @@ public class QuestionPaserService
         instance.findDefine(requestParameter);
     }
 
+    /**
+     * 分词获取搜索点
+     * @param node
+     * @param maxScore
+     * @param table
+     * @param question
+     * @return
+     */
     private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
         String type="node";
         Levenshtein lt=new Levenshtein();
@@ -104,6 +110,14 @@ public class QuestionPaserService
         }
         return node;
     }
+
+
+    /**
+     * 组织问题搜索点
+     * @param requestParameter
+     * @param question
+     * @return
+     */
     public  Map<String, Object> getNode(RequestParameter requestParameter,String question){
         float maxScore = 0;
        JSONObject node =null;
@@ -121,6 +135,12 @@ public class QuestionPaserService
 
         return stringObjectMap;
     }
+
+    /**
+     * 匹配相关度最高的点
+     * @param maps
+     * @return
+     */
     public Map<String, Object> getCloestMaps(List<Map<String, Object>> maps){
         Map<String, Object> result=null;
         float max=0;
@@ -262,6 +282,14 @@ public class QuestionPaserService
         return paths;
     }
 
+    /**
+     * 获取边与边的路径
+     * @param requestParameter
+     * @param edge1
+     * @param edge2
+     * @return
+     */
+    @Deprecated
     private  Set<Path> getByEdgeAndEdgeName(RequestParameter requestParameter,Map<String, Object> edge1,Map<String, Object> edge2){
         Set<Path>  unDealPaths=new HashSet<>();
         Edge fromEdge=new Edge();

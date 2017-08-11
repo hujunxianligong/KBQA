@@ -25,6 +25,12 @@ public class HighService {
     private QuestionPaserService questionPaserService;
     @Autowired
     private  SocialGraphInfo socialGraphInfo;
+
+    /**
+     * 分词
+     * @param question
+     * @return
+     */
     private List<Term> getltpInfo(String question){
         StandardTokenizer.SEGMENT.enableAllNamedEntityRecognize(false);
         List<Term> termList = NLPTokenizer.segment(question);
@@ -49,6 +55,7 @@ public class HighService {
         CommonTool.removeDuplicateWithOrder(termList);
         return termList;
     }
+
 
     private List<Term> transGraphInfo(RequestParameter requestParameter,List<Term> termLists){
 
