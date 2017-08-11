@@ -75,6 +75,7 @@ public class ResultBuilder {
                         if (centreNodeObj == null) {
                             centreNodeObj = resultobj;
                         }
+                        resultobj.put("content","");
                         nodesJarry.put(resultobj);
                     }
                     nodeIds.add(node.id() + "");
