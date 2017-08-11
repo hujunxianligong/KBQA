@@ -21,9 +21,9 @@ import java.util.*;
  */
 @Service
 public abstract class ChatQA {
-
     @Autowired
     public QuestionPaserService questionPaserService;
+
 
     public abstract Set<Path> MatchPath(List<Map<String, Object>> maps , RequestParameter requestParameter);
 
