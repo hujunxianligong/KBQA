@@ -53,7 +53,7 @@ public class QuestionPaserService
         vertex.setId("55");
         vertex.setContent("");
         vertex.setLabel("ytdk_label");
-        RequestParameter requestParameter=new RequestParameter();
+        RequestParameter requestParameter=new RequestParameter(null);
         requestParameter.label="ytdk_label";
         requestParameter.question="何为银团贷款";
         QuestionPaserService instance=  new QuestionPaserService();
@@ -74,7 +74,7 @@ public class QuestionPaserService
         String type="node";
         Levenshtein lt=new Levenshtein();
 
-        Map<String, JSONObject> stringJSONObjectMap =  elasearchBuzi.queryByName(table,question,0,question.length()*3);
+        Map<String, JSONObject> stringJSONObjectMap =  elasearchBuzi.queryByName(table,question,0,question.length()*3+1);
 
         List<Map.Entry<String, JSONObject>> maps = new ArrayList<Map.Entry<String, JSONObject>>(stringJSONObjectMap.entrySet());
         MyComparetorSJ mc = new MyComparetorSJ("score");
@@ -104,7 +104,7 @@ public class QuestionPaserService
                 }
             }
         }
-        if(node!=null){
+        if(node!=null&&!node.has("typeOf")){
             node.put("typeOf",type);
         }
         return node;
@@ -120,10 +120,14 @@ public class QuestionPaserService
     public  Map<String, Object> getNode(RequestParameter requestParameter,String question){
         float maxScore = 0;
        JSONObject node =null;
-
-
         node = neetNode(node, maxScore, requestParameter.label, question);
+        if(node!=null) {
+            maxScore = Float.parseFloat(node.getDouble("score") + "");
+        }
         node = neetNode(node, maxScore, requestParameter.relationship.get(0), question);
+        if(node!=null) {
+            maxScore = Float.parseFloat(node.getDouble("score") + "");
+        }
         Map<String, Object> stringObjectMap =null;
         if(node!=null){
             node.put("label",requestParameter.label);
@@ -145,8 +149,9 @@ public class QuestionPaserService
         float max=0;
         for(Map<String, Object> node:maps){
             if(node!=null) {
-                String name = null;
-                float   diffLocation= (float) node.get("questSimilar");
+
+
+                float   diffLocation= Float.parseFloat( node.get("questSimilar")+"");
                 if (diffLocation > max) {
                     max = diffLocation ;
                     result =node;

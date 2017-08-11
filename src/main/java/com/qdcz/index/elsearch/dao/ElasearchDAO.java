@@ -142,7 +142,7 @@ public class ElasearchDAO implements IIndexDAO {
 
         //获取查询结果集
         SearchHits searchHits = response.getHits();
-        System.out.println(searchHits.totalHits);
+        //System.out.println(searchHits.totalHits);
         Map<String,JSONObject> result= new HashMap<>();
         //遍历结果
         for(SearchHit hit:searchHits){
