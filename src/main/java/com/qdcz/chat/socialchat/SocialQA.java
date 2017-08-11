@@ -60,6 +60,9 @@ public class SocialQA extends ChatQA {
 
     @Override
     public StringBuffer parsePathToResult(Set<Path> paths, List<Map<String, Object>> maps, RequestParameter requestParameter) {
+        if(paths==null){
+            return new StringBuffer();
+        }
         StringBuffer sb=new StringBuffer();
         ResultBuilder resultBuilder = new ResultBuilder();
         List list = new ArrayList(paths);
@@ -75,7 +78,7 @@ public class SocialQA extends ChatQA {
         }
         Map<String,Vector<String>> edgeMapping=new HashMap<>();
         Vector<String> value=new Vector<String>();
-        value.add("同事");value.add("伙伴");
+        value.add("同事");value.add("伙伴");value.add("哪些");
         edgeMapping.put("属于",value);
         value=new Vector<String>();
         value.add("合作");value.add("协作"); value.add("作者");value.add("发表");
@@ -145,6 +148,21 @@ public class SocialQA extends ChatQA {
                                 r1= r1.substring(0, r1.length() - 1) + "。";
                             }
                             sb.append(r1);
+                        }else if("com".equals(maxNode.get("type"))){
+                            Map<String, Set<String>> stringSetMap = reSultMaps.get(s);
+                            String r0="";
+                            for (Map.Entry<String, Set<String>> entry  : stringSetMap.entrySet()) {
+                                String key = entry.getKey();
+                                Set<String> values = entry.getValue();
+                                if(key.equals(maxNode.get("name"))){
+                                    r0 += "在"+key+"的人员有";//为
+                                    for(String value2:values){
+                                        r0+=value2+"、";
+                                    }
+                                    r0= r0.substring(0, r0.length() - 1) + "。";
+                                }
+                            }
+                            sb.append(r0);
                         }
 
                         break;
@@ -155,13 +173,22 @@ public class SocialQA extends ChatQA {
                             for (Map.Entry<String, Set<String>> entry : stringSetMap.entrySet()) {
                                 String key = entry.getKey();
                                 Set<String> values = entry.getValue();
-
-                                r2 += "在《"+key+"》中合作过的成员有";//为
-                                for(String value2:values){
-                                    if(value2.equals(maxNode.get("name"))){
-                                        continue;
+                                if(requestParameter.question.contains(s)){
+                                    for(String value2:values){
+                                        if(value2.equals(maxNode.get("name"))){
+                                            r2+=value2+"发表过的《"+key+"》、";
+                                            break;
+                                        }
                                     }
-                                    r2+=value2+"、";
+                                }
+                                else{
+                                    r2 += "在《"+key+"》中合作过的成员有";//为
+                                    for(String value2:values){
+                                        if(value2.equals(maxNode.get("name"))){
+                                            continue;
+                                        }
+                                        r2+=value2+"、";
+                                    }
                                 }
                                 r2= r2.substring(0, r2.length() - 1) + "。";
                             }

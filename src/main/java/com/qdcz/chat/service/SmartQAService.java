@@ -27,7 +27,7 @@ public class SmartQAService {
     @Autowired
     private AllChatQA allChatQA;
 
-    public String smartQA(RequestParameter requestParameter,String project)  {//智能问答
+    public String smartQA(RequestParameter requestParameter,String project) throws Exception {//智能问答
         ChatQA chatQA = null;
         switch (project){
             case "xz":

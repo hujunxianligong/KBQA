@@ -519,33 +519,36 @@ public class QuestionPaserService
     private String turingDataParser(String str ){
             JSONObject obj=new JSONObject( str);
             int code =obj.getInt("code");
+            String result="";
             if(code==100000){
-                return obj.getString("text");
+                result= obj.getString("text");
             }else if(code==200000){
-                return obj.getString("text")+" "+obj.getString("url");
+                result= obj.getString("text")+" "+obj.getString("url");
             }else if(code==302000){
                 JSONArray list = obj.getJSONArray("list");
-                String result ="";
                 result+=obj.getString("text")+"<br>";
                 for(int i=0;i<list.length();i++){
                     JSONObject content=list.getJSONObject(i);
                     String s = content.getString("article") + "&nbsp;" + content.getString("source") + "&nbsp;" + content.getString("detailurl")+"<br>";
                     result+= s;
                 }
-                return result;
             }else if(code==308000){
                 JSONArray list = obj.getJSONArray("list");
-                String result ="";
                 result+=obj.getString("text")+"<br>";
                 for(int i=0;i<list.length();i++){
                     JSONObject content=list.getJSONObject(i);
                     String s = content.getString("name") + "&nbsp;" + content.getString("info") + "&nbsp;" + content.getString("detailurl")+"<br>";
                     result+= s;
                 }
-                return result;
             }else{
-                return "还在学习中，请多多关照哦！^-^";
+                result= "还在学习中，请多多关照哦！^-^";
             }
+        JSONArray dataArray= new JSONArray();
+            JSONObject resultObj=new JSONObject();
+            resultObj.put("type","Turing");
+            dataArray.put(result);
+            resultObj.put("data",dataArray);
+        return resultObj.toString();
 
     }
 }

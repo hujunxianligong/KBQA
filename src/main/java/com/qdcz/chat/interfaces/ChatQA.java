@@ -3,6 +3,7 @@ package com.qdcz.chat.interfaces;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NLPTokenizer;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+import com.mongodb.util.JSON;
 import com.qdcz.chat.entity.RequestParameter;
 import com.qdcz.chat.service.QuestionPaserService;
 import com.qdcz.common.CommonTool;
@@ -27,7 +28,7 @@ public abstract class ChatQA {
 
     public abstract Set<Path> MatchPath(List<Map<String, Object>> maps , RequestParameter requestParameter);
 
-    public String smartQA(RequestParameter requestParameter)  {//智能问答
+    public String smartQA(RequestParameter requestParameter) throws Exception {//智能问答
         System.out.println("智能问答提出问题：\t"+requestParameter.question);
         /*
         *分词获取分词关键词
@@ -116,23 +117,29 @@ public abstract class ChatQA {
     }
 
 
-    public StringBuffer sortResult(RequestParameter requestParameter,StringBuffer pathResult){
-        StringBuffer finalResult=new StringBuffer();
-        if(!"".equals(pathResult.toString())){
-            return pathResult;
-        }
-        //应急处理阶段
-        String str = null;
-        try {//定义获取
+    public StringBuffer sortResult(RequestParameter requestParameter,StringBuffer pathResult) throws Exception {
+
+        String str = pathResult.toString();
+        if("".equals(str)) {
+            //应急处理阶段--正则定义
             str = questionPaserService.findDefine(requestParameter);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        if(str==null||"".equals(str)) {
-            finalResult.append(questionPaserService.requestTuring(requestParameter.question));
+
+
+        //组装结果
+        if (str == null || "".equals(str)) {
+            str=questionPaserService.requestTuring(requestParameter.question);
         }else{
-            finalResult.append(str);
+            JSONObject resultobj=new JSONObject();
+            resultobj.put("type","Graph");
+            JSONArray dataArray=new JSONArray();
+            dataArray.put(str);
+            resultobj.put("data",dataArray);
+            str=resultobj.toString();
         }
+
+        StringBuffer finalResult=new StringBuffer();
+        finalResult.append(str);
         return finalResult;
     }
 
@@ -141,7 +148,7 @@ public abstract class ChatQA {
         StringBuffer sb=new StringBuffer();
         ResultBuilder resultBuilder=new ResultBuilder();
         Map<String,Vector<String>> resultPaths= resultBuilder.cleanRestult(paths);
-        try{
+
             JSONObject resultJSon=new JSONObject();
             for (Map.Entry<String, Vector<String>> entry : resultPaths.entrySet()){
                 JSONArray jsonArray=new JSONArray();
@@ -170,9 +177,6 @@ public abstract class ChatQA {
                     sb.append(resultJSon);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return sb;
     }
 }
