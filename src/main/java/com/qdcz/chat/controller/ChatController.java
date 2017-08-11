@@ -13,12 +13,6 @@ import java.util.ArrayList;
 @RestController
 public class ChatController {
 
-    @Autowired
-    private SmartQAService smartQAService;
-
-
-
-
 
 
 
@@ -26,13 +20,15 @@ public class ChatController {
     @CrossOrigin
     @RequestMapping(path = "/ask", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
-    public String ask(@RequestParam String question){
+    public String ask(@RequestParam String question
+            ,@RequestParam String project){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
         requestParameter.label="shkx_label";
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
+        SmartQAService smartQAService = new SmartQAService(project);
         String s = smartQAService.smartQA(requestParameter);
         return s;
     }
@@ -41,13 +37,15 @@ public class ChatController {
     @CrossOrigin
     @RequestMapping(path = "/askFromWeChat", method = {RequestMethod.POST,RequestMethod.GET})
     @ResponseBody
-    public String askOfWeChat(@RequestParam String question){
+    public String askOfWeChat(@RequestParam String question,
+                              @RequestParam String project){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
         requestParameter.label="ytdk_label";
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
+        SmartQAService smartQAService = new SmartQAService(project);
         String s = smartQAService.smartQA(requestParameter);
         return s;
     }

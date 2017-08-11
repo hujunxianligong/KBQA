@@ -1,9 +1,11 @@
 package com.qdcz.chat.service;
 
 import com.hankcs.hanlp.seg.common.Term;
+import com.qdcz.chat.cmbchat.CMBQA;
 import com.qdcz.chat.interfaces.ChatQA;
 import com.qdcz.chat.entity.RequestParameter;
 
+import com.qdcz.chat.socialchat.SocialQA;
 import org.neo4j.driver.v1.types.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,20 +16,20 @@ import java.util.*;
  * Created by star on 17-8-1.
  */
 
-@Service
 public class SmartQAService {
 
     @Autowired
     private QuestionPaserService questionPaserService;
 
     private ChatQA chatQA;
-    public SmartQAService(Class<ChatQA> clazz){
-        try {
-            chatQA = clazz.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+    public SmartQAService(String project){
+        switch (project){
+            case "xz":
+                chatQA = new CMBQA();
+                break;
+            case "sk":
+                chatQA = new SocialQA();
+                break;
         }
     }
 
