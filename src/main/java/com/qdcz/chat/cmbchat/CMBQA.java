@@ -12,6 +12,7 @@ import java.util.*;
  */
 @Service
 public class CMBQA extends ChatQA {
+
     @Override
     public Set<Path> MatchPath(List<Map<String, Object>> maps, RequestParameter requestParameter) {
         Set<Path> result= null;
@@ -81,7 +82,6 @@ public class CMBQA extends ChatQA {
                 result = questionPaserService.traversePathBynode(requestParameter,maps2);
             }
         }
-        questionPaserService=null;
         return result;
     }
 

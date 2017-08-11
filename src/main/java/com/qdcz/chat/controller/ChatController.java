@@ -24,11 +24,16 @@ public class ChatController {
             ,@RequestParam String project){
         RequestParameter requestParameter =null;
         requestParameter =new RequestParameter();
-        requestParameter.label="shkx_label";
+        requestParameter.label="ytdk_label";
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = smartQAService.smartQA(requestParameter,project);
+        String s = null;
+        try {
+            s = smartQAService.smartQA(requestParameter,project);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return s;
     }
 
@@ -44,7 +49,12 @@ public class ChatController {
         requestParameter.relationship=new ArrayList<>();
         requestParameter.relationship.add("ytdk_relationship");
         requestParameter.question=question;
-        String s = smartQAService.smartQA(requestParameter,project);
+        String s = null;
+        try {
+            s = smartQAService.smartQA(requestParameter,project);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return s;
     }
 
