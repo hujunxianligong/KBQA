@@ -23,7 +23,7 @@ public class GetLawJson {
 //        test.getLawScenesJson("/home/hadoop/wnd/usr/leagal/建新/场景属性");
 //        test.getVertexEdge("/home/hadoop/wnd/usr/leagal/建新/点边关系");
         test.getOneBankThreeHuiDefine("/home/hadoop/wnd/usr/leagal/一行三会数据/概念-整理完毕-分类.csv");
-        test.test();
+        //test.test();
     }
     public void getOneBankThreeHuiDefine(String filePath) throws Exception{
         FileReader re =  new FileReader(filePath);
@@ -47,23 +47,25 @@ public class GetLawJson {
                 node1.put("name",name);
                 UUID uid =UUID.nameUUIDFromBytes((root+name).getBytes());
                 node1.put("identity",uid );
+                node1.put("type", "");
+                node1.put("content", "");
                 if(!set.contains(uid)){
                     set.add(uid);
                     GetVertexesEdges.write( node1.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
                 }
-                node1.put("type", "");
-                node1.put("content", new JSONObject());
+
                 JSONObject node2=new JSONObject();
+                UUID uid2 = UUID.nameUUIDFromBytes((root+define).getBytes());
                 node2.put("root",root);
                 node2.put("name",define);
-                node2.put("identity", UUID.nameUUIDFromBytes((root+define).getBytes()));
+                node2.put("identity",uid2);
                 node2.put("type", "");
-                node2.put("content", new JSONObject());
+                node2.put("content","");
                 JSONObject edge=new JSONObject();
                 edge.put("root",root);
-                edge.put("from",name);
-                edge.put("to",define);
-                edge.put("relation","定义");
+                edge.put("from",uid);
+                edge.put("to",uid2);
+                edge.put("name","定义");
                 GetVertexesEdges.write(node2.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/vertex.txt");
                 GetVertexesEdges.write(edge.toString()+"\n","/home/hadoop/wnd/usr/leagal/一行三会数据/edges.txt");
             }else{
