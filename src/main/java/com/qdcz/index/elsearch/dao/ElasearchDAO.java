@@ -124,7 +124,7 @@ public class ElasearchDAO implements IIndexDAO {
 
 
     @Override
-    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high) {
+    public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high,int size) {
         QueryBuilder matchQuery = QueryBuilders
                 .boolQuery()
                 .must(QueryBuilders.matchQuery("name",name))
@@ -132,7 +132,7 @@ public class ElasearchDAO implements IIndexDAO {
 
         // 搜索数据
         SearchResponse response = client.prepareSearch(index).setTypes(graphtype).setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                .setQuery(matchQuery)
+                .setQuery(matchQuery).setSize(size)
                 .execute().actionGet();
 
 

@@ -60,7 +60,7 @@ public class ElasearchService implements IIndexService {
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("shkx_label","中国科学院地球化学研究",11,13);
+        instance.queryByName("ytdk_label","银团贷款收费",0,10);
 
 
     }
@@ -94,11 +94,11 @@ public class ElasearchService implements IIndexService {
 
     @Override
     public Map<String,JSONObject> queryByName(String graphtype, String name) {
-        return elasearchDAO.queryByName(graphtype,name,0,10);
+        return elasearchDAO.queryByName(graphtype,name,0,10,15);
     }
 
     @Override
     public Map<String,JSONObject> queryByName(String graphtype, String name,int range_low,int range_high) {
-        return elasearchDAO.queryByName(graphtype,name,range_low,range_high);
+        return elasearchDAO.queryByName(graphtype,name,range_low,range_high,15);
     }
 }

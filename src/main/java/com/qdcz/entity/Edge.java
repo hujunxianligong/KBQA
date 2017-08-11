@@ -72,7 +72,7 @@ public class Edge implements IGraphEntity,Relationship{
             obj.put("to",to);
             obj.put("root",root);
             obj.put("name",name);
-
+            obj.put("name_length",name.length());
 
         return obj;
     }
