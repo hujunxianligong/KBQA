@@ -103,6 +103,7 @@ public class GraphControler {
 
                     break;
                 case "checkByNameAndDepth":
+
                     int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
 
                     result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
