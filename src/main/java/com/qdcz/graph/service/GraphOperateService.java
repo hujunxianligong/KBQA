@@ -204,12 +204,34 @@ public class GraphOperateService {
     /**
      * 根据精准name查图
      * @param name
-     * @param depth
+     * @param graphNames
      * @return
      */
-    public String exactMatchQuery(String name,int depth){
-
-        return null;
+    public String exactMatchQuery(String name,JSONArray graphNames,int depth){
+        ResultBuilder resultBuilder= new ResultBuilder();
+        JSONObject result=new JSONObject();
+        for(int i=0;i<graphNames.length();i++){
+            String graphName = graphNames.getString(i);
+            try {
+                Graph graph = DatabaseConfiguration.getGraph(graphName);
+                String label = graph.getLabel();
+                Vertex vertex=new Vertex();
+                vertex.setLabel(label);
+                vertex.setName(name);
+                List<Path> paths=null;
+                try {
+                    paths = graphBuzi.bfExtersion(vertex, depth);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                JSONObject object = resultBuilder.graphResult(paths);
+                result = resultBuilder.mergeResult(result, object);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        result = resultBuilder.reDupResult(result);
+        return result.toString();
     }
 
     /**
@@ -218,32 +240,30 @@ public class GraphOperateService {
      * @return
      */
     public String indexMatchingQuery(String keyword,JSONArray graphNames)  {
+        JSONObject result=new JSONObject();
+        ResultBuilder resultBuilder= new ResultBuilder();
         for(int i=0;i<graphNames.length();i++){
             String graphName = graphNames.getString(i);
             try {
                 Graph graph = DatabaseConfiguration.getGraph(graphName);
                 String label = graph.getLabel();
-
                 Set<Map.Entry<String, JSONObject>> entries = indexBuzi.queryByName(label, keyword, keyword.length() - 1, keyword.length() * 3 + 1).entrySet();
                 for (Map.Entry<String, JSONObject> entry : entries) {
-
                     JSONObject value = entry.getValue();
                     Map map= CommonTool.jsonToMap(value);
                     Vertex vertex=new Vertex();
                     CommonTool.transMap2Bean(map,vertex);
-                    List<Path> paths = graphBuzi.bfExtersion(vertex, 2);
-                    ResultBuilder resultBuilder= new ResultBuilder();
-                    JSONObject object = resultBuilder.graphResult(paths);
+                    List<Path> paths = graphBuzi.bfExtersion(vertex, 3);
 
+                    JSONObject object = resultBuilder.graphResult(paths);
+                    result= resultBuilder.mergeResult(result, object);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-
-
-        return null;
+        result = resultBuilder.reDupResult(result);
+        return result.toString();
     }
 
 
