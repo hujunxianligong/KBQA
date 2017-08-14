@@ -322,7 +322,7 @@ public class GraphOperateService {
         return indexBuzi.queryById(edge).toString();
     }
 
-    public void delVertexByPath(String vetexsPath, String label) {
+    public void delVertexByPath(String vertexsPath, String label) {
         //TODO
     }
 }

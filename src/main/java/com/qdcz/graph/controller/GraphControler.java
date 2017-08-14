@@ -6,6 +6,7 @@ import com.qdcz.graph.service.GraphOperateService;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,21 +29,21 @@ public class GraphControler {
 
 
     @RequestMapping(path = "/bluckadd", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean testadd(@RequestParam String vetexsPath,
+    public boolean testadd(@RequestParam String vertexsPath,
                            @RequestParam String label,
                            @RequestParam String edgesPath,
                            @RequestParam String relationship){
-        logger.info("bluckadd——vetexsPath:"+vetexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
+        logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
 
 
-        return newTrasa.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
+        return newTrasa.addVertexsByPath(vertexsPath,label,edgesPath,relationship);
     }
     @RequestMapping(path = "/testdel", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean testdek(@RequestParam String vetexsPath,
+    public boolean testdek(@RequestParam String vertexsPath,
                            @RequestParam String label){
 
         //TODO
-        newTrasa.delVertexByPath(vetexsPath,label);
+        newTrasa.delVertexByPath(vertexsPath,label);
         return false;
     }
 
@@ -91,6 +92,8 @@ public class GraphControler {
                 case "checkByName":
                     //通过名称查询
 
+                    JSONArray graph_Byname = obj.getJSONArray("graph");
+
                     vertex.setLabel("ytdk_label");
                     edge.setRelationShip("ytdk_relationship");
 
@@ -110,6 +113,10 @@ public class GraphControler {
                     break;
                 case "checkByIndex":
                     //TODO  暂时调用
+
+
+                    JSONArray graph_byIndex = obj.getJSONArray("graph");
+
                     vertex.setLabel("shkx_label");
                     edge.setRelationShip("shkx_relationship");
                     result = newTrasa.exactMatchQuery(vertex,3);
@@ -140,7 +147,6 @@ public class GraphControler {
                     break;
                 case "changeNode":
                     //修改节点
-
 
                     result = newTrasa.changeVertex(vertex);
 
