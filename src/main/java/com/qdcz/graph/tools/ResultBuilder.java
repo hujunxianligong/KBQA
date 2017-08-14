@@ -157,4 +157,20 @@ public class ResultBuilder {
         }
         return  results;
     }
+
+    //对结果集去重组合
+    public JSONObject reDupResult(JSONObject merge){
+        JSONObject result=new JSONObject();
+
+        if(merge.has("nodes")){
+            JSONArray jsonArray = reDuplicatesArray(merge.getJSONArray("nodes"));
+            result.put("nodes",jsonArray);
+        }
+        if(merge.has("edges")) {
+            JSONArray jsonArray1 = reDuplicatesArray(merge.getJSONArray("edges"));
+            result.put("edges", jsonArray1);
+        }
+
+        return result;
+    }
 }

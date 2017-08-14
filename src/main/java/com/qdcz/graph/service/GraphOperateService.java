@@ -31,6 +31,7 @@ import java.util.*;
 @Service
 public class GraphOperateService {
     private Logger logger =  LogManager.getLogger(GraphOperateService.class.getSimpleName());
+
     @Autowired
     @Qualifier("elasearchService")
     private IIndexService indexBuzi;
@@ -42,6 +43,7 @@ public class GraphOperateService {
 
     public static void main(String[] args) {
         LoadConfigListener loadConfigListener = new LoadConfigListener();
+        loadConfigListener.setSource_dir("/dev/");
         loadConfigListener.contextInitialized(null);
 
 
@@ -55,7 +57,9 @@ public class GraphOperateService {
         String edgesPath = "/media/star/Doc/工作文档/智能小招/edges.txt";
         String relationship = "gra";
 
-        instance.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
+    //    instance.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
+
+        instance.indexMatchingQuery("银团贷款业务","xz");
     }
 
 
@@ -187,7 +191,7 @@ public class GraphOperateService {
 
         List<Path> paths=null;
         try {
-            paths = graphBuzi.bfExtersion(vertex, 3);
+            paths = graphBuzi.bfExtersion(vertex, depth);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,11 +204,34 @@ public class GraphOperateService {
     /**
      * 根据精准name查图
      * @param name
-     * @param depth
+     * @param graphNames
      * @return
      */
-    public String exactMatchQuery(String name,int depth){
-        return null;
+    public String exactMatchQuery(String name,JSONArray graphNames,int depth){
+        ResultBuilder resultBuilder= new ResultBuilder();
+        JSONObject result=new JSONObject();
+        for(int i=0;i<graphNames.length();i++){
+            String graphName = graphNames.getString(i);
+            try {
+                Graph graph = DatabaseConfiguration.getGraph(graphName);
+                String label = graph.getLabel();
+                Vertex vertex=new Vertex();
+                vertex.setLabel(label);
+                vertex.setName(name);
+                List<Path> paths=null;
+                try {
+                    paths = graphBuzi.bfExtersion(vertex, depth);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                JSONObject object = resultBuilder.graphResult(paths);
+                result = resultBuilder.mergeResult(result, object);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        result = resultBuilder.reDupResult(result);
+        return result.toString();
     }
 
     /**
@@ -212,8 +239,31 @@ public class GraphOperateService {
      * @param keyword
      * @return
      */
-    public String indexMatchingQuery(String keyword){
-        return null;
+    public String indexMatchingQuery(String keyword,JSONArray graphNames)  {
+        JSONObject result=new JSONObject();
+        ResultBuilder resultBuilder= new ResultBuilder();
+        for(int i=0;i<graphNames.length();i++){
+            String graphName = graphNames.getString(i);
+            try {
+                Graph graph = DatabaseConfiguration.getGraph(graphName);
+                String label = graph.getLabel();
+                Set<Map.Entry<String, JSONObject>> entries = indexBuzi.queryByName(label, keyword, keyword.length() - 1, keyword.length() * 3 + 1).entrySet();
+                for (Map.Entry<String, JSONObject> entry : entries) {
+                    JSONObject value = entry.getValue();
+                    Map map= CommonTool.jsonToMap(value);
+                    Vertex vertex=new Vertex();
+                    CommonTool.transMap2Bean(map,vertex);
+                    List<Path> paths = graphBuzi.bfExtersion(vertex, 3);
+
+                    JSONObject object = resultBuilder.graphResult(paths);
+                    result= resultBuilder.mergeResult(result, object);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        result = resultBuilder.reDupResult(result);
+        return result.toString();
     }
 
 
