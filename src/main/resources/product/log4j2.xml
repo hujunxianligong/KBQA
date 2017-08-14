@@ -3,7 +3,7 @@
 <configuration status="warn"  monitorInterval="300">
     <Properties>
         <!-- 配置日志文件输出目录 -->
-        <Property name="LOG_HOME">${sys:user.home}/tmp</Property>
+        <Property name="LOG_HOME">${sys:user.home}/wnd/tmp</Property>
     </Properties>
     <appenders>
         <console name="Console" target="SYSTEM_OUT">
