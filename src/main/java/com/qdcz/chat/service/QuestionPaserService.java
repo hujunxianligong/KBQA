@@ -70,7 +70,8 @@ public class QuestionPaserService
      * @param question
      * @return
      */
-    private  JSONObject neetNode(JSONObject node,float maxScore,String table,String question){
+    private  JSONObject findNode(JSONObject node,float maxScore,String table,String question){
+
         String type="node";
         Levenshtein lt=new Levenshtein();
 
@@ -120,11 +121,11 @@ public class QuestionPaserService
     public  Map<String, Object> getNode(RequestParameter requestParameter,String question){
         float maxScore = 0;
        JSONObject node =null;
-        node = neetNode(node, maxScore, requestParameter.label, question);
+        node =  findNode(node, maxScore, requestParameter.label, question);
         if(node!=null) {
             maxScore = Float.parseFloat(node.getDouble("score") + "");
         }
-        node = neetNode(node, maxScore, requestParameter.relationship.get(0), question);
+        node =  findNode(node, maxScore, requestParameter.relationship.get(0), question);
         if(node!=null) {
             maxScore = Float.parseFloat(node.getDouble("score") + "");
         }
