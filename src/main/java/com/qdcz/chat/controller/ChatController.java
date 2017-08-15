@@ -30,6 +30,7 @@ public class ChatController {
             s = smartQAService.smartQA(requestParameter,project);
         } catch (Exception e) {
             e.printStackTrace();
+            s=e.getMessage();
         }
         return s;
     }

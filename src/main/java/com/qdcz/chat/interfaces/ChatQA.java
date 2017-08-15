@@ -131,14 +131,16 @@ public abstract class ChatQA {
         if (str == null || "".equals(str)) {
             str=questionPaserService.requestTuring(requestParameter.question);
         }else{
-            JSONObject resultobj=new JSONObject();
-            resultobj.put("type","Graph");
-            JSONArray dataArray=new JSONArray();
-            dataArray.put(str);
-            resultobj.put("data",dataArray);
-            str=resultobj.toString();
+            try{
+                JSONObject object = new JSONObject(str);
+            }catch (JSONException e){
+                JSONObject resultobj=new JSONObject();
+                resultobj.put("type","Graph");
+                JSONArray dataArray=new JSONArray();
+                dataArray.put(str);
+                str=resultobj.toString();
+            }
         }
-
         StringBuffer finalResult=new StringBuffer();
         finalResult.append(str);
         return finalResult;
