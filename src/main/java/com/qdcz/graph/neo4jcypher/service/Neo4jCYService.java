@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
 import org.neo4j.driver.v1.types.Relationship;
@@ -113,7 +114,19 @@ public class Neo4jCYService implements IGraphBuzi {
     public Vertex checkVertexByIdentity(String label, String identity) {
         return neo4jCYDAO.checkVertexByIdentity(label,identity);
     }
+    @Override
+    public List<Path> checkGraphById(long id,int depth) {
+        String sql ="MATCH path = (n )-[r*0.."+depth+"]-(relateNode) WHERE id(n)="+id+"  return path";
+        StatementResult execute = neo4jCYDAO.execute(sql);
+        List<Path> segments=new ArrayList<>();
+        while ( execute.hasNext() ) {
 
+            Value path = execute.next().get("path");
+            segments.add( path.asPath());
+            //    System.out.println(path);
+        }
+        return segments;
+    }
     @Override
     public Map<String, Vertex> checkVertexByEdgeId(long id) {
         Map<String, Vertex> result=new HashMap<>();

@@ -109,7 +109,7 @@ public class GraphControler {
 
                     int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
 
-                    result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
+//                    result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
 
                     break;
                 case "checkByIndex":

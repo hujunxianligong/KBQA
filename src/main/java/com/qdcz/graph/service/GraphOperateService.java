@@ -59,7 +59,7 @@ public class GraphOperateService {
 
     //    instance.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
 
-        instance.indexMatchingQuery("银团贷款业务","xz");
+//        instance.indexMatchingQuery("银团贷款业务","xz");
     }
 
 
@@ -274,7 +274,17 @@ public class GraphOperateService {
      * @return
      */
     public String getGraphById(Long id,int depth){
-        return null;
+        List<Path> paths=null;
+        try {
+            paths = graphBuzi.checkGraphById(id, depth);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ResultBuilder resultBuilder=new ResultBuilder();
+        JSONObject result = resultBuilder.graphResult(paths);
+        resultBuilder=null;
+        return result.toString();
+
     }
 
     /**
