@@ -72,8 +72,6 @@ public interface IGraphDAO {
      * @return
      */
     public Path dfExection(long fromId, long toId, int depth);
-
-
     /**
      * 根据identity查询系统点信息
      * @param label

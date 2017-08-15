@@ -81,7 +81,13 @@ public interface IGraphBuzi {
      * @param identity
      */
     public Vertex checkVertexByIdentity(String label,String  identity);
-
+    /**
+     * 根据 id与广搜结果
+     * @param id
+     * @param depth
+     * @return
+     */
+    public List<Path> checkGraphById(long id,int depth);
     /**
      * 根据边id查询边首尾点
      * @param id
