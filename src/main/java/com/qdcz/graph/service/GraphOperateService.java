@@ -59,7 +59,7 @@ public class GraphOperateService {
 
     //    instance.addVertexsByPath(vetexsPath,label,edgesPath,relationship);
 
-        instance.indexMatchingQuery("银团贷款业务","xz");
+//        instance.indexMatchingQuery("银团贷款业务","xz");
     }
 
 
@@ -247,12 +247,13 @@ public class GraphOperateService {
             try {
                 Graph graph = DatabaseConfiguration.getGraph(graphName);
                 String label = graph.getLabel();
-                Set<Map.Entry<String, JSONObject>> entries = indexBuzi.queryByName(label, keyword, keyword.length() - 1, keyword.length() * 3 + 1).entrySet();
+                Set<Map.Entry<String, JSONObject>> entries = indexBuzi.queryByName(label, keyword, 0, keyword.length() * 3 + 1).entrySet();
                 for (Map.Entry<String, JSONObject> entry : entries) {
                     JSONObject value = entry.getValue();
                     Map map= CommonTool.jsonToMap(value);
                     Vertex vertex=new Vertex();
                     CommonTool.transMap2Bean(map,vertex);
+                    vertex.setLabel(label);
                     List<Path> paths = graphBuzi.bfExtersion(vertex, 3);
 
                     JSONObject object = resultBuilder.graphResult(paths);

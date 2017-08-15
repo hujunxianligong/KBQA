@@ -125,7 +125,21 @@ public class ResultBuilder {
         if(!obj1.has("edges")){
             obj1.put("edges",new JSONArray());
         }
+        if(!obj2.has("nodes")){
+            obj2.put("nodes",new JSONArray());
+        }
+        if(!obj2.has("edges")){
+            obj2.put("edges",new JSONArray());
+        }
+        if(obj1.has("center")){
+            jsonObject.put("center",obj1.getString("center"));
+        }
+        if(obj2.has("center")){
+            jsonObject.put("center",obj2.getString("center"));
+        }
         jsonObject.put("nodes", mergeArray( obj1.getJSONArray("nodes"),obj2.getJSONArray("nodes")));
+
+
         jsonObject.put("edges", mergeArray( obj1.getJSONArray("edges"),obj2.getJSONArray("edges")));
 
         return jsonObject;
@@ -169,6 +183,10 @@ public class ResultBuilder {
         if(merge.has("edges")) {
             JSONArray jsonArray1 = reDuplicatesArray(merge.getJSONArray("edges"));
             result.put("edges", jsonArray1);
+        }
+
+        if(merge.has("center")){
+            result.put("center", merge.getString("center"));
         }
 
         return result;

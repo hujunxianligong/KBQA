@@ -93,23 +93,24 @@ public class GraphControler {
                     //通过名称查询
 
                     JSONArray graph_Byname = obj.getJSONArray("graph");
+//
+//                    vertex.setLabel("ytdk_label");
+//                    edge.setRelationShip("ytdk_relationship");
 
-                    vertex.setLabel("ytdk_label");
-                    edge.setRelationShip("ytdk_relationship");
-
-
+//                    JSONArray graph_Byname =  new JSONArray();
+//                    graph_Byname.put("ytdkyw");
 
 //                    int layer = Integer.parseInt(obj.getString("layer"));
                     int layer =3;
 
-                    result = newTrasa.exactMatchQuery(vertex,layer);
+                    result = newTrasa.exactMatchQuery(vertex.getName(),graph_Byname,layer);
 
                     break;
                 case "checkByNameAndDepth":
 
-                    int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
-
-                    result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
+//                    int depth=Integer.parseInt(obj.getJSONObject("info").getString("layer"));
+//
+//                    result = newTrasa.exactMatchQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"),depth);
 
                     break;
                 case "checkByIndex":
@@ -117,16 +118,24 @@ public class GraphControler {
 
 
                     JSONArray graph_byIndex = obj.getJSONArray("graph");
+//
+//                    vertex.setLabel("shkx_label");
+//                    edge.setRelationShip("shkx_relationship");
 
-                    vertex.setLabel("shkx_label");
-                    edge.setRelationShip("shkx_relationship");
-                    result = newTrasa.exactMatchQuery(vertex,3);
+
+//                    JSONArray graph_Byname_index =  new JSONArray();
+//                    graph_Byname_index.put("ytdkyw");
+
+
+
+                    result = newTrasa.indexMatchingQuery(vertex.getName(),graph_byIndex);
 
 //                    result = newTrasa.indexMatchingQuery(obj.getJSONObject("info").getJSONObject("node").getString("name"));
 
                     break;
                 case "checkById":
-                    //TODO  应该要改成通过名称多层搜索
+
+
 
                     result=newTrasa.getGraphById(Long.parseLong(obj.getString("id")),Integer.parseInt(obj.getString("depth")));
 
