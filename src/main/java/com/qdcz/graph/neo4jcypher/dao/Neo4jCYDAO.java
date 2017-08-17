@@ -36,6 +36,17 @@ public class Neo4jCYDAO implements IGraphDAO{
         }
         return run;
     }
+    public StatementResult transactionExecute(String sql){
+        StatementResult run=null;
+        try ( Session session = driver.session() )
+        {
+
+            Transaction transaction = session.beginTransaction();
+             run = transaction.run(sql);
+            transaction.success();
+        }
+        return  run;
+    }
     @Override
     public String addVertex(Vertex vertex) {
 //        String addString=
@@ -198,9 +209,14 @@ public class Neo4jCYDAO implements IGraphDAO{
     }
 
     @Override
-    public List<Path> bfExtersion(Vertex vertex,int depth) throws Exception {
+    public List<Path> bfExtersion(Vertex vertex,int depth,boolean direct) throws Exception {
+        String sql=null;
+        if(direct){
+            sql ="MATCH path = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]->(relateNode) return path";
+        }else{
+            sql ="MATCH path = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return path";
 
-        String sql ="MATCH path = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return path";
+        }
        // "MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*0.."+depth+"]-(relateNode) return p, nodes(p),relationships(p),labels(n), extract (rel in rels(p) | type(rel) ) as types";
        //"MATCH p = (n:"+vertex.getLabel()+"{name:'"+vertex.getName()+"'})-[r:"+vertex.getRelationship()+"*1.."+depth+"]-(relateNode) return nodes(p),relateNode,n";
        //"MATCH p = (n:"+vertex.getLabel()+" {name:'"+vertex.getName()+"'})-[r*1.."+depth+"]->(relateNode) return nodes(p),relationships(p)";
@@ -245,5 +261,17 @@ public class Neo4jCYDAO implements IGraphDAO{
         }
         return vertex;
     }
+    @Override
+    public List<Path> checkGraphById(long id,int depth) {
+        String sql ="MATCH path = (n )-[r*0.."+depth+"]-(relateNode) WHERE id(n)="+id+"  return path";
+        StatementResult execute = execute(sql);
+        List<Path> segments=new ArrayList<>();
+        while ( execute.hasNext() ) {
 
+            Value path = execute.next().get("path");
+            segments.add( path.asPath());
+            //    System.out.println(path);
+        }
+        return segments;
+    }
 }

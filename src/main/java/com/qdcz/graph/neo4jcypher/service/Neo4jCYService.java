@@ -49,6 +49,8 @@ public class Neo4jCYService implements IGraphBuzi {
         edge.setId(2181l+"");
         instance.bfExtersion(vertex,1);
       //  instance.dfExection(19,22,4);
+        instance.batchInsertEdge("hehe_rel","edge.csv");
+      //  instance.batchInsertVertex("hehe","vertex.csv");
     }
 
 
@@ -72,7 +74,29 @@ public class Neo4jCYService implements IGraphBuzi {
 
         return neo4jCYDAO.changeVertex(vertex);
     }
+    public void batchInsertVertex(String label,String filepath){
+        String sql=null;
+            sql="USING PERIODIC COMMIT 1000 " +
+                    "LOAD CSV WITH HEADERS FROM \"file:///" + filepath + "\" AS line  " +
+                    "MERGE (p:"+label+"{root:line.root,name:line.name,type:line.type,content:line.content,identity:line.identity}) return id(p)";
 
+        StatementResult execute = neo4jCYDAO.execute(sql);
+        while(execute.hasNext()){
+            Record next = execute.next();
+            next.toString();
+        }
+
+    }
+    public void batchInsertEdge(String relatinship,String filepath){
+        String sql=null;
+            sql="USING PERIODIC COMMIT 1000 " +
+                    "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
+                    " MATCH (m  ) MATCH (n ) where id(m)=apoc.number.parseInt(line.from_id) AND id(n)=apoc.number.parseInt(line.to_id) " +
+                    " MERGE (m)-[r:"+relatinship+"{from:line.from_id,root:line.root,name:line.name,to:line.to_id}]->(n)";
+
+        neo4jCYDAO.execute(sql);
+
+    }
     @Override
     public List<IGraphEntity> deleteVertex(Vertex vertex) {
         return neo4jCYDAO.deleteVertex(vertex);
@@ -93,11 +117,21 @@ public class Neo4jCYService implements IGraphBuzi {
         return neo4jCYDAO.deleteEdge(edge);
     }
 
+
+    public List<Path> undirectedBfExtersion(Vertex vertex, int depth){
+        List<Path> paths =new ArrayList<>();
+        try {
+            paths = neo4jCYDAO.bfExtersion(vertex, depth,true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paths;
+    }
     @Override
     public List<Path> bfExtersion(Vertex vertex, int depth) {
         List<Path> paths =new ArrayList<>();
         try {
-             paths = neo4jCYDAO.bfExtersion(vertex, depth);
+             paths = neo4jCYDAO.bfExtersion(vertex, depth,false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,16 +150,8 @@ public class Neo4jCYService implements IGraphBuzi {
     }
     @Override
     public List<Path> checkGraphById(long id,int depth) {
-        String sql ="MATCH path = (n )-[r*0.."+depth+"]-(relateNode) WHERE id(n)="+id+"  return path";
-        StatementResult execute = neo4jCYDAO.execute(sql);
-        List<Path> segments=new ArrayList<>();
-        while ( execute.hasNext() ) {
 
-            Value path = execute.next().get("path");
-            segments.add( path.asPath());
-            //    System.out.println(path);
-        }
-        return segments;
+        return neo4jCYDAO.checkGraphById(id,depth);
     }
     @Override
     public Map<String, Vertex> checkVertexByEdgeId(long id) {
