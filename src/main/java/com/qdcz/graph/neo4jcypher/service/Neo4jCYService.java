@@ -50,7 +50,7 @@ public class Neo4jCYService implements IGraphBuzi {
         instance.bfExtersion(vertex,1);
       //  instance.dfExection(19,22,4);
         instance.batchInsertEdge("hehe_rel","edge.csv");
-      //  instance.batchInsertVertex("hehe","vertex.csv");
+     //   instance.batchInsertVertex("hehe","vertex.csv");
     }
 
 
@@ -74,28 +74,40 @@ public class Neo4jCYService implements IGraphBuzi {
 
         return neo4jCYDAO.changeVertex(vertex);
     }
-    public void batchInsertVertex(String label,String filepath){
+    public Map batchInsertVertex(String label,String filepath){
+        Map<String,String> mapsResult=new HashMap<>();
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///" + filepath + "\" AS line  " +
-                    "MERGE (p:"+label+"{root:line.root,name:line.name,type:line.type,content:line.content,identity:line.identity}) return id(p)";
+                    "MERGE (p:"+label+"{root:line.root,name:line.name,type:line.type,content:line.content}) return line.identity,id(p)";
 
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
             Record next = execute.next();
-            next.toString();
+            String id = next.get("id(p)").toString();
+            String identity = next.get("line.identity").toString();
+            mapsResult.put(identity,id);
+            System.out.println();
         }
-
+        return  mapsResult;
     }
-    public void batchInsertEdge(String relatinship,String filepath){
+    public Map batchInsertEdge(String relatinship,String filepath){
+        Map<String,String> mapsResult=new HashMap<>();
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
                     " MATCH (m  ) MATCH (n ) where id(m)=apoc.number.parseInt(line.from_id) AND id(n)=apoc.number.parseInt(line.to_id) " +
-                    " MERGE (m)-[r:"+relatinship+"{from:line.from_id,root:line.root,name:line.name,to:line.to_id}]->(n)";
+                    " MERGE (m)-[r:"+relatinship+"{from:line.from_id,root:line.root,name:line.name,to:line.to_id}]->(n) return line.identity,id(r)";
 
-        neo4jCYDAO.execute(sql);
-
+        StatementResult execute = neo4jCYDAO.execute(sql);
+        while(execute.hasNext()){
+            Record next = execute.next();
+            String id = next.get("id(r)").toString();
+            String identity = next.get("line.identity").toString();
+            mapsResult.put(identity,id);
+            System.out.println();
+        }
+        return  mapsResult;
     }
     @Override
     public List<IGraphEntity> deleteVertex(Vertex vertex) {
