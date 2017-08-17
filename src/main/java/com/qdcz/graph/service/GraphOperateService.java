@@ -288,9 +288,81 @@ public class GraphOperateService {
 
     }
 
+
+
     /**
      *批量导入或删除数据节点
      */
+    public boolean addVertexsByPath2( String vertexfilePath,String nodeLabel,String edgefilePath,String edgeRelationship){//批量导入／删除数据节点
+
+        FileReader re = null;
+        try {
+            Map<String,String> node_value =  new HashMap<>();
+            Scanner sc= new Scanner(new File(vertexfilePath));
+            String str = null;
+
+
+
+
+            while(sc.hasNext()){
+                str = sc.nextLine();
+                try {
+                    String[] splits = str.split(",");
+
+                    indexBuzi.bluckByFile(nodeLabel,vertexfilePath+"vertex.txt");
+
+                } catch (Exception e) {
+                    logger.error("批量增点错误："+e.getMessage()+"\n"+str);
+                    throw e;
+                }
+            }
+            sc.close();
+
+
+
+            sc= new Scanner(new File(edgefilePath));
+            str = null;
+            while(sc.hasNext()){
+                str = sc.nextLine();
+                try {
+                    JSONObject obj = new JSONObject(str);
+//                    Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
+//                    Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
+
+//                    String from  = key_value.get(obj.getString("from"));
+//                    String to =  key_value.get(obj.getString("to"));
+//                    String name =  obj.getString("name");
+//                    String root =  obj.getString("root");
+//
+//                    Edge edge=new Edge(name, root, from, to, edgeRelationship);
+//
+//                    String graphId = graphBuzi.addEdges(edge);
+//
+//                    edge.setId(graphId);
+//
+//                    indexBuzi.addOrUpdateIndex(edge);
+
+                } catch (Exception e) {
+
+                    logger.error("批量增边错误："+e.getMessage()+"\n"+str);
+                    throw e;
+                }
+            }
+            sc.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("完毕！");
+        return true;
+    }
+
+
+
+    /**
+     *批量导入或删除数据节点
+     */
+    @Deprecated
     public boolean addVertexsByPath( String vertexfilePath,String nodeLabel,String edgefilePath,String edgeRelationship){//批量导入／删除数据节点
 
         FileReader re = null;
@@ -302,16 +374,11 @@ public class GraphOperateService {
                 str = sc.nextLine();
                 try {
                     JSONObject obj = new JSONObject(str);
-                    String type = obj.getString("type").trim();
-                    String root = obj.getString("root").trim();
-                    String content = obj.getString("content").trim();
-                    String name = obj.getString("name").trim();
                     String identity = obj.getString("identity").trim();
 
 
-                    Vertex v = new Vertex(name, root, nodeLabel, type );
-                    v.setContent(content);
-
+                    Vertex v = new Vertex(obj);
+                    v.setLabel(nodeLabel);
 
 
                     String graphId = graphBuzi.addVertex(v);

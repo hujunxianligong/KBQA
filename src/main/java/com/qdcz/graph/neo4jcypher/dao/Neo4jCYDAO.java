@@ -67,6 +67,9 @@ public class Neo4jCYDAO implements IGraphDAO{
         return id+"";
     }
 
+
+
+
     @Override
     public String changeVertex(Vertex vertex) {
         String changeString = "match (n:"+vertex.getLabel()
@@ -76,7 +79,7 @@ public class Neo4jCYDAO implements IGraphDAO{
 
         long id=0l;
         Map<String, Object> parameters=new HashMap();
-        parameters.put("id",vertex.getId());
+        parameters.put("id",Long.parseLong(vertex.getId()));
         parameters.put("name",vertex.getName());
         parameters.put("identity",vertex.getIdentity());
         parameters.put("root",vertex.getRoot());
@@ -141,6 +144,9 @@ public class Neo4jCYDAO implements IGraphDAO{
         System.out.println();
         return results;
     }
+
+
+
 
 
     @Override

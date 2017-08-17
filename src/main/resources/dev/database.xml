@@ -14,6 +14,12 @@
             <label>shkx_label</label>
             <relationship>shkx_relationship</relationship>
         </graph>
+        <graph>
+            <name>licom</name>
+            <title>上市公司分析</title>
+            <label>licom_label</label>
+            <relationship>licom_relationship</relationship>
+        </graph>
 
     </graphs>
 

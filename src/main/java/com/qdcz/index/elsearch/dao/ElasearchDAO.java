@@ -16,10 +16,9 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 /**
  * Created by star on 17-8-3.
@@ -53,6 +52,29 @@ public class ElasearchDAO implements IIndexDAO {
     }
 
 
+
+    public void bluckByFile(String type,String path) throws Exception {
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
+        Scanner sc = new Scanner(new File(path));
+        int count = 1;
+        while(sc.hasNext()){
+            String line =  sc.nextLine();
+            JSONObject obj = new JSONObject(line);
+            String id = obj.getString("_id");
+            obj.remove("_id");
+
+            bulkRequest.add(client.prepareIndex(index,type).setId(id).setSource(obj.toString()));
+            if (count%100==0) {
+                BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+                if (bulkResponse.hasFailures()){
+                    System.out.println("Bulk add index failures"+bulkResponse.buildFailureMessage());
+                }
+            }
+            System.out.println("100");
+            count++;
+        }
+        bulkRequest.execute().actionGet();
+    }
 
     @Override
     public void bulkIndex(IGraphEntity... entities) {

@@ -28,6 +28,20 @@ public class GraphControler {
 
 
 
+    @RequestMapping(path = "/bluckadd2", method = {RequestMethod.POST,RequestMethod.GET})
+    public boolean testadd2(@RequestParam String vertexsPath,
+                           @RequestParam String label,
+                           @RequestParam String edgesPath,
+                           @RequestParam String relationship){
+        logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
+
+
+        return newTrasa.addVertexsByPath2(vertexsPath,label,edgesPath,relationship);
+    }
+
+
+
+
     @RequestMapping(path = "/bluckadd", method = {RequestMethod.POST,RequestMethod.GET})
     public boolean testadd(@RequestParam String vertexsPath,
                            @RequestParam String label,
@@ -81,8 +95,8 @@ public class GraphControler {
 
             type = obj.getString("type");
 
-            vertex.setRoot("社会科学知识库");
-            edge.setRoot("社会科学知识库");
+//            vertex.setRoot("社会科学知识库");
+//            edge.setRoot("社会科学知识库");
 
 
 

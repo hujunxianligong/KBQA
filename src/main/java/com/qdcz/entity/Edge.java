@@ -46,8 +46,8 @@ public class Edge implements IGraphEntity,Relationship{
         if(json.has("to")){
             this.to = json.getString("to");
         }
-        if(json.has("relationShip")){
-            this.relationShip = json.getString("relationShip");
+        if(json.has("relationship")){
+            this.relationShip = json.getString("relationship");
         }
     }
 

@@ -18,6 +18,9 @@ public interface IIndexService {
     public void bulkDelete(IGraphEntity... entities);
 
 
+    public void bluckByFile(String type,String path)throws Exception;
+
+
     public JSONObject queryById(IGraphEntity queryEctity);
 
     /**

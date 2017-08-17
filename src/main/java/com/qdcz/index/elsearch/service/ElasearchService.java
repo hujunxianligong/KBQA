@@ -30,7 +30,7 @@ public class ElasearchService implements IIndexService {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         LoadConfigListener loadConfigListener=new LoadConfigListener();
         loadConfigListener.setSource_dir("/dev/");
         loadConfigListener.contextInitialized(null);
@@ -60,11 +60,13 @@ public class ElasearchService implements IIndexService {
 
 //        System.out.println(instance.queryById(vertex));
 
-        instance.queryByName("ytdk_relationship","案例",0,10);
+//        instance.queryByName("ytdk_label","牵头",0,10);
 
-
+        instance.bluckByFile("licom_label","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.txt");
     }
-
+    public void bluckByFile(String type,String path) throws Exception{
+        elasearchDAO.bluckByFile(type,path);
+    }
     @Override
     public void addOrUpdateIndex(IGraphEntity entity) {
 

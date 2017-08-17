@@ -11,11 +11,11 @@ public class ImportData {
     private static String host_port = "http://localhost:14000/bluckadd?";
     public static void main(String[] args) throws IOException {
 
-        String dir = "/media/star/Doc/工作文档/智能小招/";
+        String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
 
-        String vertexsPath =dir+ "vertex.txt";
-        String graph = "ytdk";
-        String edgesPath = dir+ "edges.txt";
+        String vertexsPath =dir+ "vertex2.txt";
+        String graph = "licom";
+        String edgesPath = dir+ "edges2.txt";
 
         importXZ(graph,vertexsPath,edgesPath);
     }
