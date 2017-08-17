@@ -64,7 +64,7 @@ public interface IGraphDAO {
      * @param depth
      * @return
      */
-    public List<Path> bfExtersion(Vertex vertex,int depth) throws Exception;
+    public List<Path> bfExtersion(Vertex vertex,int depth,boolean direct) throws Exception;
     /**
      * 深度优先遍历
      * @param fromId
@@ -78,5 +78,12 @@ public interface IGraphDAO {
      * @param identity
      */
     public Vertex checkVertexByIdentity(String label,String  identity);
+    /**
+     * 根据 id与广搜结果
+     * @param id
+     * @param depth
+     * @return
+     */
+    public List<Path> checkGraphById(long id,int depth);
 
 }
