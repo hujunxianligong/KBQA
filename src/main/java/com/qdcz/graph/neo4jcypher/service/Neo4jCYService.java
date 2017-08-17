@@ -79,7 +79,7 @@ public class Neo4jCYService implements IGraphBuzi {
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///" + filepath + "\" AS line  " +
-                    "MERGE (p:"+label+"{root:line.root,name:line.name,type:line.type,content:line.content}) return line.identity,id(p)";
+                    "MERGE (p:"+label+"{root:line.root,name:line.name,type:line.type,content:line.content,identity:line.identity}) return line.identity,id(p)";
 
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
@@ -126,8 +126,8 @@ public class Neo4jCYService implements IGraphBuzi {
         return neo4jCYDAO.deleteEdge(edge);
     }
 
-
-    public List<Path> undirectedBfExtersion(Vertex vertex, int depth){
+    @Override
+    public List<Path> directedBfExtersion(Vertex vertex, int depth){
         List<Path> paths =new ArrayList<>();
         try {
             paths = neo4jCYDAO.bfExtersion(vertex, depth,true);
@@ -136,6 +136,8 @@ public class Neo4jCYService implements IGraphBuzi {
         }
         return paths;
     }
+
+
     @Override
     public List<Path> bfExtersion(Vertex vertex, int depth) {
         List<Path> paths =new ArrayList<>();

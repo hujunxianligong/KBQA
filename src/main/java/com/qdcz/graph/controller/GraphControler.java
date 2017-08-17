@@ -117,7 +117,8 @@ public class GraphControler {
 //                    int layer = Integer.parseInt(obj.getString("layer"));
                     int layer =3;
 
-                    result = newTrasa.exactMatchQuery(vertex.getName(),graph_Byname,layer);
+                        result = newTrasa.directedBfExtersion(vertex.getName(),graph_Byname,layer);
+//                    result = newTrasa.exactMatchQuery(vertex.getName(),graph_Byname,layer);
 
                     break;
                 case "checkByNameAndDepth":

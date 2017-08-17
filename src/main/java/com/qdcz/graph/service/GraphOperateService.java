@@ -201,6 +201,51 @@ public class GraphOperateService {
         return result.toString();
     }
 
+
+    /**
+     * 无向搜索
+     * @param name
+     * @param graphNames
+     * @return
+     */
+    public String directedBfExtersion(String name,JSONArray graphNames,int depth){
+        ResultBuilder resultBuilder= new ResultBuilder();
+        JSONObject result=new JSONObject();
+        for(int i=0;i<graphNames.length();i++){
+            String graphName = graphNames.getString(i);
+            try {
+                Graph graph = DatabaseConfiguration.getGraph(graphName);
+                String label = graph.getLabel();
+                Vertex vertex=new Vertex();
+                vertex.setLabel(label);
+                vertex.setName(name);
+                List<Path> paths=null;
+                try {
+                    paths = graphBuzi.directedBfExtersion(vertex, depth);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                JSONObject object = resultBuilder.graphResult(paths);
+                result = resultBuilder.mergeResult(result, object);
+
+
+
+                paths = graphBuzi.bfExtersion(vertex, 1);
+
+                object = resultBuilder.graphResult(paths);
+                result= resultBuilder.mergeResult(result, object);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        result = resultBuilder.reDupResult(result);
+        return result.toString();
+    }
+
+
+
+
     /**
      * 根据精准name查图
      * @param name
@@ -297,58 +342,44 @@ public class GraphOperateService {
 
         FileReader re = null;
         try {
-            Map<String,String> node_value =  new HashMap<>();
-            Scanner sc= new Scanner(new File(vertexfilePath));
-            String str = null;
 
 
+            long time = System.currentTimeMillis();
+
+            try {
+
+                System.out.println("开始导入点");
+                Map<String,String> identity_id = graphBuzi.batchInsertVertex(nodeLabel,"vertex.csv");
 
 
-            while(sc.hasNext()){
-                str = sc.nextLine();
-                try {
-                    String[] splits = str.split(",");
+                System.out.println("开始elasearch中导入点："+(System.currentTimeMillis()-time)/1000+"秒");
+                time = System.currentTimeMillis();
 
-                    indexBuzi.bluckByFile(nodeLabel,vertexfilePath+"vertex.txt");
+                indexBuzi.bluckByFile(nodeLabel,vertexfilePath,identity_id);
 
-                } catch (Exception e) {
-                    logger.error("批量增点错误："+e.getMessage()+"\n"+str);
-                    throw e;
-                }
+            } catch (Exception e) {
+                logger.error("批量增点错误："+e.getMessage()+"\n");
+                throw e;
             }
-            sc.close();
 
 
+            try {
 
-            sc= new Scanner(new File(edgefilePath));
-            str = null;
-            while(sc.hasNext()){
-                str = sc.nextLine();
-                try {
-                    JSONObject obj = new JSONObject(str);
-//                    Vertex vertex1= graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
-//                    Vertex vertex2 = graphBuzi.checkVertexByIdentity(label,obj.getString("identity").replace("\\", "、").trim());
+                System.out.println("开始neo4j导入边："+(System.currentTimeMillis()-time)/1000+"秒");
+                time = System.currentTimeMillis();
 
-//                    String from  = key_value.get(obj.getString("from"));
-//                    String to =  key_value.get(obj.getString("to"));
-//                    String name =  obj.getString("name");
-//                    String root =  obj.getString("root");
-//
-//                    Edge edge=new Edge(name, root, from, to, edgeRelationship);
-//
-//                    String graphId = graphBuzi.addEdges(edge);
-//
-//                    edge.setId(graphId);
-//
-//                    indexBuzi.addOrUpdateIndex(edge);
+                Map<String,String> identity_id = graphBuzi.batchInsertEdge(edgeRelationship,"edges.csv");
 
-                } catch (Exception e) {
+                System.out.println("开始elasearch中导入边："+(System.currentTimeMillis()-time)/1000+"秒");
+                time = System.currentTimeMillis();
 
-                    logger.error("批量增边错误："+e.getMessage()+"\n"+str);
-                    throw e;
-                }
+                indexBuzi.bluckByFile(edgeRelationship,edgefilePath,identity_id);
+
+            } catch (Exception e) {
+
+                logger.error("批量增边错误："+e.getMessage()+"\n");
+                throw e;
             }
-            sc.close();
 
         } catch (Exception e) {
             e.printStackTrace();

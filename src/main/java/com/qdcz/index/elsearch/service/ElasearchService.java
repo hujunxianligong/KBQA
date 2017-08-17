@@ -62,10 +62,10 @@ public class ElasearchService implements IIndexService {
 
 //        instance.queryByName("ytdk_label","牵头",0,10);
 
-        instance.bluckByFile("licom_label","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.txt");
+        instance.bluckByFile("licom_label","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.txt",null);
     }
-    public void bluckByFile(String type,String path) throws Exception{
-        elasearchDAO.bluckByFile(type,path);
+    public void bluckByFile(String type,String path,Map<String,String> key_value) throws Exception{
+        elasearchDAO.bluckByFile(type,path,key_value);
     }
     @Override
     public void addOrUpdateIndex(IGraphEntity entity) {

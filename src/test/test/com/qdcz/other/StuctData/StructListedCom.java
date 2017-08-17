@@ -20,7 +20,7 @@ public class StructListedCom {
 
 
     public void doIt() throws Exception {
-        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/上市公司担保关系分析/someJson"));
+        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/上市公司担保关系分析/大北json"));
         List<JSONObject> vertexs =  new ArrayList<>();
         List<JSONObject> edges =  new ArrayList<>();
         Map<String,String> coms = new HashMap<>();
@@ -28,15 +28,10 @@ public class StructListedCom {
         StringBuffer sb_neo4j = new StringBuffer();
         StringBuffer sb_ela = new StringBuffer();
 
-        long id =10000;
-        Map<String,Long> ids = new HashMap<>();
 
+        CommonTool.printFile("root,name,type,content,identity\n","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.csv",true);
 
-        Set<String> all_edges =  new HashSet<>();
-
-        CommonTool.printFile("id,root,name,type,content,identity\n","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.csv",true);
-
-        CommonTool.printFile("id,root,name,from_id,to_id\n","/media/star/Doc/工作文档/上市公司担保关系分析/edges.csv",true);
+        CommonTool.printFile("root,name,from_id,to_id,identity\n","/media/star/Doc/工作文档/上市公司担保关系分析/edges.csv",true);
 
         while(sc.hasNext()){
             vertexs.clear();
@@ -50,6 +45,10 @@ public class StructListedCom {
 
             if(companyName.endsWith("公")){
                 companyName = companyName+"司";
+            }
+
+            if(companyName.isEmpty()){
+                continue;
             }
 
 
@@ -94,15 +93,8 @@ public class StructListedCom {
                 String name = obj.getString("name").replace(",","，");
                 String content = obj.getString("content").replace(",","，");
                 String identity = obj.getString("identity").replace(",","，");
-                long obj_id = 0;
-                if(ids.containsKey(identity)){
-                    continue;
-                }else{
-                    obj_id = id++;
-                    ids.put(identity,obj_id);
-                }
-                sb_neo4j.append(obj_id+","+root+","+name+","+type+","+content+","+identity+"\n");
-                obj.put("_id",obj_id+"");
+
+                sb_neo4j.append(root+","+name+","+type+","+content+","+identity+"\n");
 
                 sb_ela.append(obj.toString()+"\n");
 
@@ -119,26 +111,14 @@ public class StructListedCom {
                 JSONObject obj = edges.get(i);
                 String root = obj.getString("root").replace(",","，");
                 String name = obj.getString("name").replace(",","，");
-                String from_identity = obj.getString("from").replace(",","，");
-                String to_identity = obj.getString("to").replace(",","，");
+                String from = obj.getString("from").replace(",","，");
+                String to = obj.getString("to").replace(",","，");
+                String identity = UUID.randomUUID().toString();
+                obj.put("identity",identity);
 
-                long from = ids.get(from_identity);
-                long to = ids.get(to_identity);
-
-                if(all_edges.contains(from+"_"+to)){
-                    continue;
-                }
-
-
-
-                long obj_id = id++;
-                obj.put("_id",obj_id+"");
-
-                sb_neo4j.append(obj_id+root+","+name+","+from+","+to+"\n");
+                sb_neo4j.append(root+","+name+","+from+","+to+","+identity+"\n");
                 sb_ela.append(obj.toString()+"\n");
 
-
-                all_edges.add(from+"_"+to);
             }
             CommonTool.printFile(sb_neo4j.toString(),"/media/star/Doc/工作文档/上市公司担保关系分析/edges.csv",true);
             sb_neo4j.delete(0,sb_neo4j.length());

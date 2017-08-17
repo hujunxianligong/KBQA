@@ -16,12 +16,35 @@ import java.util.Map;
 public interface IGraphBuzi {
 
     /**
+     * 批量文件增点
+     * @param label
+     * @param filepath
+     * @return
+     */
+    public Map batchInsertVertex(String label,String filepath);
+
+
+    /**
+     * 批量文件增边
+     * @param relatinship
+     * @param filepath
+     * @return
+     */
+    public Map batchInsertEdge(String relatinship,String filepath);
+    /**
      * 添加点
      * @param vertex
      * @return
      */
     public String addVertex(Vertex vertex);
 
+    /**
+     * 无向搜索
+     * @param vertex
+     * @param depth
+     * @return
+     */
+    public List<Path> directedBfExtersion(Vertex vertex, int depth);
 
     /**
      * 修改点

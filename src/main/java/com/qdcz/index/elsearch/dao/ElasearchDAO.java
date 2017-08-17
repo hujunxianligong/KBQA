@@ -53,24 +53,26 @@ public class ElasearchDAO implements IIndexDAO {
 
 
 
-    public void bluckByFile(String type,String path) throws Exception {
+    public void bluckByFile(String type,String path,Map<String,String> key_value) throws Exception {
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         Scanner sc = new Scanner(new File(path));
         int count = 1;
         while(sc.hasNext()){
             String line =  sc.nextLine();
             JSONObject obj = new JSONObject(line);
-            String id = obj.getString("_id");
-            obj.remove("_id");
+            String identity = obj.getString("identity");
+            if(type.contains("relationship")){
+                obj.remove("identity");
+            }
 
-            bulkRequest.add(client.prepareIndex(index,type).setId(id).setSource(obj.toString()));
+            bulkRequest.add(client.prepareIndex(index,type).setId(key_value.get(identity)).setSource(obj.toString()));
             if (count%100==0) {
                 BulkResponse bulkResponse = bulkRequest.execute().actionGet();
                 if (bulkResponse.hasFailures()){
                     System.out.println("Bulk add index failures"+bulkResponse.buildFailureMessage());
+                    throw new Exception("批量导入elasearch失败"+type);
                 }
             }
-            System.out.println("100");
             count++;
         }
         bulkRequest.execute().actionGet();
