@@ -87,7 +87,6 @@ public class Neo4jCYService implements IGraphBuzi {
             String id = next.get("id(p)").toString();
             String identity = next.get("line.identity").toString();
             mapsResult.put(identity,id);
-            System.out.println();
         }
         return  mapsResult;
     }
@@ -96,16 +95,14 @@ public class Neo4jCYService implements IGraphBuzi {
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
-                    " MATCH (m  ) MATCH (n ) where id(m)=apoc.number.parseInt(line.from_id) AND id(n)=apoc.number.parseInt(line.to_id) " +
-                    " MERGE (m)-[r:"+relatinship+"{from:line.from_id,root:line.root,name:line.name,to:line.to_id}]->(n) return line.identity,id(r)";
-
+                    "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
+                    "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n)}]->(n) return line.identity,id(r);";
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
             Record next = execute.next();
             String id = next.get("id(r)").toString();
             String identity = next.get("line.identity").toString();
             mapsResult.put(identity,id);
-            System.out.println();
         }
         return  mapsResult;
     }
