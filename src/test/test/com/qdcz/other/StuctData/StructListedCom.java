@@ -13,14 +13,40 @@ import java.util.*;
  */
 public class StructListedCom {
     private static String root="上市公司分析";
+    private static String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
+
+    private static String ve_csv = dir+"vertex.csv";
+    private static String ve_txt = dir+"vertex.txt";
+
+    private static String edge_csv = dir+"edges.csv";
+    private static String edge_txt = dir+"edges.txt";
+
+    private static String[] attr_en = {"lim_pub_date","gua_limit","act_occ_date","act_gua_money","gua_type","gua_date","whe_per_end",
+            "whe_rel_guarantee","gua_beg_date","gua_lim_date","gua_whe_overdue","gua_ove_money","whe_rev_guarantee","rel_relation","lis_com_relation"};
+    private static String[] attr_cn = {"披露日期","担保额度","协议签署日","实际担保金额","担保类型","担保期","是否履行完毕",
+            "是否为关联方担保","担保起始日","担保到期日","担保是否逾期","担保逾期金额","是否存在反担保","关联关系","担保方与上市公司的关系"};
+
+
+
     public static void main(String[] args) throws Exception {
         StructListedCom instance = new StructListedCom();
         instance.doIt();
     }
 
+public boolean verifyName(String name){
+
+        if(name.isEmpty() || name.length()>35 || name.length()<5 || name.matches(".*\\d+.*")
+                || name.contains("√")|| name.contains("□") || name.contains("%") || name.contains("---")){
+
+            return false;
+        }else{
+            return true;
+        }
+}
+
 
     public void doIt() throws Exception {
-        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/上市公司担保关系分析/大北json"));
+        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/上市公司担保关系分析/someJson"));
         List<JSONObject> vertexs =  new ArrayList<>();
         List<JSONObject> edges =  new ArrayList<>();
         Map<String,String> coms = new HashMap<>();
@@ -29,9 +55,11 @@ public class StructListedCom {
         StringBuffer sb_ela = new StringBuffer();
 
 
-        CommonTool.printFile("root,name,type,content,identity\n","/media/star/Doc/工作文档/上市公司担保关系分析/vertex.csv",true);
 
-        CommonTool.printFile("root,name,from_id,to_id,identity\n","/media/star/Doc/工作文档/上市公司担保关系分析/edges.csv",true);
+
+        CommonTool.printFile("root,name,type,content,identity\n",ve_csv,true);
+
+        CommonTool.printFile("root,name,from_id,to_id,identity\n",edge_csv,true);
 
         while(sc.hasNext()){
             vertexs.clear();
@@ -47,7 +75,7 @@ public class StructListedCom {
                 companyName = companyName+"司";
             }
 
-            if(companyName.isEmpty()){
+            if(!verifyName(companyName)){
                 continue;
             }
 
@@ -83,891 +111,231 @@ public class StructListedCom {
             //关联担保情况（rel_guarantee)
 //            getrel_guarantee(one_com.getJSONArray("rel_guarantee"),companyName,vertexs,edges,coms,danbaos);
 
-
-
-
-            for (int i = 0;i< vertexs.size();i++){
-                JSONObject obj = vertexs.get(i);
-                String type = obj.getString("type").replace(",","，");
-                String root =obj.getString("root").replace(",","，");
-                String name = obj.getString("name").replace(",","，");
-                String content = obj.getString("content").replace(",","，");
-                String identity = obj.getString("identity").replace(",","，");
-
-                sb_neo4j.append(root+","+name+","+type+","+content+","+identity+"\n");
-
-                sb_ela.append(obj.toString()+"\n");
-
-
-            }
-            CommonTool.printFile(sb_neo4j.toString(),"/media/star/Doc/工作文档/上市公司担保关系分析/vertex.csv",true);
-            sb_neo4j.delete(0,sb_neo4j.length());
-
-            CommonTool.printFile(sb_ela.toString(),"/media/star/Doc/工作文档/上市公司担保关系分析/vertex.txt",true);
-            sb_ela.delete(0,sb_ela.length());
-
-
-            for (int i = 0;i< edges.size();i++){
-                JSONObject obj = edges.get(i);
-                String root = obj.getString("root").replace(",","，");
-                String name = obj.getString("name").replace(",","，");
-                String from = obj.getString("from").replace(",","，");
-                String to = obj.getString("to").replace(",","，");
-                String identity = UUID.randomUUID().toString();
-                obj.put("identity",identity);
-
-                sb_neo4j.append(root+","+name+","+from+","+to+","+identity+"\n");
-                sb_ela.append(obj.toString()+"\n");
-
-            }
-            CommonTool.printFile(sb_neo4j.toString(),"/media/star/Doc/工作文档/上市公司担保关系分析/edges.csv",true);
-            sb_neo4j.delete(0,sb_neo4j.length());
-            CommonTool.printFile(sb_ela.toString(),"/media/star/Doc/工作文档/上市公司担保关系分析/edges.txt",true);
-            sb_ela.delete(0,sb_ela.length());
-
+            printData(sb_neo4j,sb_ela,vertexs,edges);
 
         }
         sc.close();
     }
 
+    private void printData(StringBuffer sb_neo4j,StringBuffer sb_ela,List<JSONObject> vertexs,List<JSONObject> edges){
+        for (int i = 0;i< vertexs.size();i++){
+            JSONObject obj = vertexs.get(i);
+            String type = obj.getString("type").replace(",","，");
+            String root =obj.getString("root").replace(",","，");
+            String name = obj.getString("name").replace(",","，");
+            String content = obj.getString("content").replace(",","，");
+            String identity = obj.getString("identity").replace(",","，");
+
+            if(type.equals("com")){
+                System.out.println(name);
+            }
+
+            sb_neo4j.append(root+","+name+","+type+","+content+","+identity+"\n");
+
+            sb_ela.append(obj.toString()+"\n");
+
+
+        }
+        CommonTool.printFile(sb_neo4j.toString(),ve_csv,true);
+        sb_neo4j.delete(0,sb_neo4j.length());
+
+        CommonTool.printFile(sb_ela.toString(),ve_txt,true);
+        sb_ela.delete(0,sb_ela.length());
+
+
+        for (int i = 0;i< edges.size();i++){
+            JSONObject obj = edges.get(i);
+            String root = obj.getString("root").replace(",","，");
+            String name = obj.getString("name").replace(",","，");
+            String from = obj.getString("from").replace(",","，");
+            String to = obj.getString("to").replace(",","，");
+            String identity = UUID.randomUUID().toString();
+            obj.put("identity",identity);
+
+            sb_neo4j.append(root+","+name+","+from+","+to+","+identity+"\n");
+            sb_ela.append(obj.toString()+"\n");
+
+        }
+        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
+        sb_neo4j.delete(0,sb_neo4j.length());
+        CommonTool.printFile(sb_ela.toString(),edge_txt,true);
+        sb_ela.delete(0,sb_ela.length());
+    }
+
+
     private void getrel_guarantee(JSONArray rel_guarantee, String companyName, List<JSONObject> vertexs, List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos) throws Exception {
         String com_identity = coms.get(companyName);
 
 
-        for (int i = 0;i<rel_guarantee.length();i++){
-            JSONObject obj = rel_guarantee.getJSONObject(i);
-
-            String gua_obj_name = obj.getString("gua_obj_name");
-            String lim_pub_date = obj.getString("lim_pub_date");
-            String gua_limit = obj.getString("gua_limit");
-            String act_occ_date = obj.getString("act_occ_date");
-            String act_gua_money = obj.getString("act_gua_money");
-            String gua_type = obj.getString("gua_type");
-            String gua_date = obj.getString("gua_date");
-            String whe_per_end = obj.getString("whe_per_end");
-            String whe_rel_guarantee = obj.getString("whe_rel_guarantee");
-
-
-
-
-            String identity = "";
-            if(!coms.containsKey(gua_obj_name)){
-                identity = UUID.randomUUID().toString();
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity);
-                node_COM.put("root",root);
-                node_COM.put("name",gua_obj_name.trim());
-                node_COM.put("type","com");
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-                coms.put(gua_obj_name,identity);
-            }else{
-                identity = coms.get(gua_obj_name);
-            }
-
-
-            String danbao_name = companyName+"_关联担保_"+act_occ_date+"_"+gua_limit+"_"+gua_obj_name+"_"+act_gua_money;
-
-
-            String identity_danbao = "";
-            if(danbaos.containsKey(danbao_name)){
-                throw new Exception("两个担保");
-            }else{
-
-                identity_danbao = UUID.randomUUID().toString();
-
-                JSONObject content_obj = new JSONObject();
-                content_obj.put("lim_pub_date",lim_pub_date);
-                content_obj.put("gua_limit",gua_limit);
-                content_obj.put("act_occ_date",act_occ_date);
-                content_obj.put("act_gua_money",act_gua_money);
-                content_obj.put("gua_type",gua_type);
-                content_obj.put("gua_date",gua_date);
-                content_obj.put("whe_per_end",whe_per_end);
-                content_obj.put("whe_rel_guarantee",whe_rel_guarantee);
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity_danbao);
-                node_COM.put("root",root);
-                node_COM.put("name",danbao_name.trim());
-                node_COM.put("type","out_cre_guarantee");
-//                node_COM.put("content",content_obj.toString());
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-
-
-                if(!lim_pub_date.isEmpty()){
-                    JSONObject lim_pub_date_ve = new JSONObject();
-                    String lim_pub_date_id = UUID.randomUUID().toString();
-                    lim_pub_date_ve.put("identity",lim_pub_date_id);
-                    lim_pub_date_ve.put("root",root);
-                    lim_pub_date_ve.put("name",lim_pub_date.trim());
-                    lim_pub_date_ve.put("type","attribute");
-                    lim_pub_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(lim_pub_date_ve);
-
-                    JSONObject lim_pub_date_ed = new JSONObject();
-                    lim_pub_date_ed.put("root",root);
-                    lim_pub_date_ed.put("from",identity_danbao);
-                    lim_pub_date_ed.put("to",lim_pub_date_id);
-                    lim_pub_date_ed.put("name","披露日期");
-
-                    edges.add(lim_pub_date_ed);
-                }
-
-
-
-
-                if(!gua_limit.isEmpty()){
-                    JSONObject gua_limit_ve = new JSONObject();
-                    String gua_limit_id = UUID.randomUUID().toString();
-                    gua_limit_ve.put("identity",gua_limit_id);
-                    gua_limit_ve.put("root",root);
-                    gua_limit_ve.put("name",gua_limit.trim());
-                    gua_limit_ve.put("type","attribute");
-                    gua_limit_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_limit_ve);
-
-                    JSONObject gua_limit_ed = new JSONObject();
-                    gua_limit_ed.put("root",root);
-                    gua_limit_ed.put("from",identity_danbao);
-                    gua_limit_ed.put("to",gua_limit_id);
-                    gua_limit_ed.put("name","担保额度");
-
-                    edges.add(gua_limit_ed);
-                }
-
-
-                if(!act_occ_date.isEmpty()){
-                    JSONObject act_occ_date_ve = new JSONObject();
-                    String act_occ_date_id = UUID.randomUUID().toString();
-                    act_occ_date_ve.put("identity",act_occ_date_id);
-                    act_occ_date_ve.put("root",root);
-                    act_occ_date_ve.put("name",act_occ_date.trim());
-                    act_occ_date_ve.put("type","attribute");
-                    act_occ_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_occ_date_ve);
-
-                    JSONObject act_occ_date_ed = new JSONObject();
-                    act_occ_date_ed.put("root",root);
-                    act_occ_date_ed.put("from",identity_danbao);
-                    act_occ_date_ed.put("to",act_occ_date_id);
-                    act_occ_date_ed.put("name","协议签署日");
-
-                    edges.add(act_occ_date_ed);
-                }
-
-
-                if(!act_gua_money.isEmpty()){
-                    JSONObject act_gua_money_ve = new JSONObject();
-                    String act_gua_money_id = UUID.randomUUID().toString();
-                    act_gua_money_ve.put("identity",act_gua_money_id);
-                    act_gua_money_ve.put("root",root);
-                    act_gua_money_ve.put("name",act_gua_money.trim());
-                    act_gua_money_ve.put("type","attribute");
-                    act_gua_money_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_gua_money_ve);
-
-                    JSONObject act_gua_money_ed = new JSONObject();
-                    act_gua_money_ed.put("root",root);
-                    act_gua_money_ed.put("from",identity_danbao);
-                    act_gua_money_ed.put("to",act_gua_money_id);
-                    act_gua_money_ed.put("name","实际担保金额");
-
-                    edges.add(act_gua_money_ed);
-                }
-
-
-                if(!gua_type.isEmpty()){
-                    JSONObject gua_type_ve = new JSONObject();
-                    String gua_type_id = UUID.randomUUID().toString();
-                    gua_type_ve.put("identity",gua_type_id);
-                    gua_type_ve.put("root",root);
-                    gua_type_ve.put("name",gua_type.trim());
-                    gua_type_ve.put("type","attribute");
-                    gua_type_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_type_ve);
-
-                    JSONObject gua_type_ed = new JSONObject();
-                    gua_type_ed.put("root",root);
-                    gua_type_ed.put("from",identity_danbao);
-                    gua_type_ed.put("to",gua_type_id);
-                    gua_type_ed.put("name","担保类型");
-
-                    edges.add(gua_type_ed);
-                }
-
-
-                if(!gua_date.isEmpty()){
-                    JSONObject gua_date_ve = new JSONObject();
-                    String gua_date_id = UUID.randomUUID().toString();
-                    gua_date_ve.put("identity",gua_date_id);
-                    gua_date_ve.put("root",root);
-                    gua_date_ve.put("name",gua_date.trim());
-                    gua_date_ve.put("type","attribute");
-                    gua_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_date_ve);
-
-                    JSONObject gua_date_ed = new JSONObject();
-                    gua_date_ed.put("root",root);
-                    gua_date_ed.put("from",identity_danbao);
-                    gua_date_ed.put("to",gua_date_id);
-                    gua_date_ed.put("name","担保期");
-
-                    edges.add(gua_date_ed);
-                }
-
-
-
-
-                if(!whe_per_end.isEmpty()){
-                    JSONObject whe_per_end_ve = new JSONObject();
-                    String whe_per_end_id = UUID.randomUUID().toString();
-                    whe_per_end_ve.put("identity",whe_per_end_id);
-                    whe_per_end_ve.put("root",root);
-                    whe_per_end_ve.put("name",whe_per_end.trim());
-                    whe_per_end_ve.put("type","attribute");
-                    whe_per_end_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_per_end_ve);
-
-                    JSONObject whe_per_end_ed = new JSONObject();
-                    whe_per_end_ed.put("root",root);
-                    whe_per_end_ed.put("from",identity_danbao);
-                    whe_per_end_ed.put("to",whe_per_end_id);
-                    whe_per_end_ed.put("name","是否履行完毕");
-
-                    edges.add(whe_per_end_ed);
-                }
-
-
-                if(!whe_rel_guarantee.isEmpty()){
-                    JSONObject whe_rel_guarantee_ve = new JSONObject();
-                    String whe_rel_guarantee_id = UUID.randomUUID().toString();
-                    whe_rel_guarantee_ve.put("identity",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ve.put("root",root);
-                    whe_rel_guarantee_ve.put("name",whe_rel_guarantee.trim());
-                    whe_rel_guarantee_ve.put("type","attribute");
-                    whe_rel_guarantee_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_rel_guarantee_ve);
-
-                    JSONObject whe_rel_guarantee_ed = new JSONObject();
-                    whe_rel_guarantee_ed.put("root",root);
-                    whe_rel_guarantee_ed.put("from",identity_danbao);
-                    whe_rel_guarantee_ed.put("to",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ed.put("name","是否为关联方担保");
-
-                    edges.add(whe_rel_guarantee_ed);
-                }
-
-
-
-
-//                danbaos.put(danbao_name,identity_danbao);
-            }
-
-
-
-            JSONObject one_edges = new JSONObject();
-            one_edges.put("root",root);
-            one_edges.put("from",identity_danbao);
-            one_edges.put("to",com_identity);
-            one_edges.put("name","担保方");
-
-            edges.add(one_edges);
-
-
-            JSONObject two_edges = new JSONObject();
-            two_edges.put("root",root);
-            two_edges.put("from",identity_danbao);
-            two_edges.put("to",identity);
-            two_edges.put("name","被担保方");
-
-            edges.add(two_edges);
-
-        }
     }
 
     private void getsub_sub_guarantee(JSONArray sub_sub_guarantee, String companyName, List<JSONObject> vertexs, List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos) throws Exception {
         String com_identity = coms.get(companyName);
 
-
         for (int i = 0;i<sub_sub_guarantee.length();i++){
+
+            String danbao_name = "子公司对子公司担保";
             JSONObject obj = sub_sub_guarantee.getJSONObject(i);
-
-            String gua_obj_name = obj.getString("gua_obj_name");
-
-            if(gua_obj_name.endsWith("公")){
-                gua_obj_name = gua_obj_name+"司";
-            }
-
-            String lim_pub_date = obj.getString("lim_pub_date");
-            String gua_limit = obj.getString("gua_limit");
-            String act_occ_date = obj.getString("act_occ_date");
-            String act_gua_money = obj.getString("act_gua_money");
-            String gua_type = obj.getString("gua_type");
-            String gua_date = obj.getString("gua_date");
-            String whe_per_end = obj.getString("whe_per_end");
-            String whe_rel_guarantee = obj.getString("whe_rel_guarantee");
-
-
-
-
-            String identity = "";
-            if(!coms.containsKey(gua_obj_name)){
-                identity = UUID.randomUUID().toString();
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity);
-                node_COM.put("root",root);
-                node_COM.put("name",gua_obj_name.trim());
-                node_COM.put("type","com");
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-                coms.put(gua_obj_name,identity);
-            }else{
-                identity = coms.get(gua_obj_name);
-            }
-
-
-            String danbao_name = companyName+"_子公司对子公司担保_"+act_occ_date+"_"+gua_limit+"_"+gua_obj_name+"_"+act_gua_money;
-
-            danbao_name = "子公司对子公司担保";
-
-            String identity_danbao = "";
-            if(danbaos.containsKey(danbao_name)){
-                throw new Exception("两个担保");
-            }else{
-
-                identity_danbao = UUID.randomUUID().toString();
-
-                JSONObject content_obj = new JSONObject();
-                content_obj.put("lim_pub_date",lim_pub_date);
-                content_obj.put("gua_limit",gua_limit);
-                content_obj.put("act_occ_date",act_occ_date);
-                content_obj.put("act_gua_money",act_gua_money);
-                content_obj.put("gua_type",gua_type);
-                content_obj.put("gua_date",gua_date);
-                content_obj.put("whe_per_end",whe_per_end);
-                content_obj.put("whe_rel_guarantee",whe_rel_guarantee);
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity_danbao);
-                node_COM.put("root",root);
-                node_COM.put("name",danbao_name.trim());
-                node_COM.put("type","out_cre_guarantee");
-//                node_COM.put("content",content_obj.toString());
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-
-
-                if(!lim_pub_date.isEmpty()){
-                    JSONObject lim_pub_date_ve = new JSONObject();
-                    String lim_pub_date_id = UUID.randomUUID().toString();
-                    lim_pub_date_ve.put("identity",lim_pub_date_id);
-                    lim_pub_date_ve.put("root",root);
-                    lim_pub_date_ve.put("name",lim_pub_date.trim());
-                    lim_pub_date_ve.put("type","attribute");
-                    lim_pub_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(lim_pub_date_ve);
-
-                    JSONObject lim_pub_date_ed = new JSONObject();
-                    lim_pub_date_ed.put("root",root);
-                    lim_pub_date_ed.put("from",identity_danbao);
-                    lim_pub_date_ed.put("to",lim_pub_date_id);
-                    lim_pub_date_ed.put("name","披露日期");
-
-                    edges.add(lim_pub_date_ed);
-                }
-
-
-
-
-                if(!gua_limit.isEmpty()){
-                    JSONObject gua_limit_ve = new JSONObject();
-                    String gua_limit_id = UUID.randomUUID().toString();
-                    gua_limit_ve.put("identity",gua_limit_id);
-                    gua_limit_ve.put("root",root);
-                    gua_limit_ve.put("name",gua_limit.trim());
-                    gua_limit_ve.put("type","attribute");
-                    gua_limit_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_limit_ve);
-
-                    JSONObject gua_limit_ed = new JSONObject();
-                    gua_limit_ed.put("root",root);
-                    gua_limit_ed.put("from",identity_danbao);
-                    gua_limit_ed.put("to",gua_limit_id);
-                    gua_limit_ed.put("name","担保额度");
-
-                    edges.add(gua_limit_ed);
-                }
-
-
-                if(!act_occ_date.isEmpty()){
-                    JSONObject act_occ_date_ve = new JSONObject();
-                    String act_occ_date_id = UUID.randomUUID().toString();
-                    act_occ_date_ve.put("identity",act_occ_date_id);
-                    act_occ_date_ve.put("root",root);
-                    act_occ_date_ve.put("name",act_occ_date.trim());
-                    act_occ_date_ve.put("type","attribute");
-                    act_occ_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_occ_date_ve);
-
-                    JSONObject act_occ_date_ed = new JSONObject();
-                    act_occ_date_ed.put("root",root);
-                    act_occ_date_ed.put("from",identity_danbao);
-                    act_occ_date_ed.put("to",act_occ_date_id);
-                    act_occ_date_ed.put("name","协议签署日");
-
-                    edges.add(act_occ_date_ed);
-                }
-
-
-                if(!act_gua_money.isEmpty()){
-                    JSONObject act_gua_money_ve = new JSONObject();
-                    String act_gua_money_id = UUID.randomUUID().toString();
-                    act_gua_money_ve.put("identity",act_gua_money_id);
-                    act_gua_money_ve.put("root",root);
-                    act_gua_money_ve.put("name",act_gua_money.trim());
-                    act_gua_money_ve.put("type","attribute");
-                    act_gua_money_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_gua_money_ve);
-
-                    JSONObject act_gua_money_ed = new JSONObject();
-                    act_gua_money_ed.put("root",root);
-                    act_gua_money_ed.put("from",identity_danbao);
-                    act_gua_money_ed.put("to",act_gua_money_id);
-                    act_gua_money_ed.put("name","实际担保金额");
-
-                    edges.add(act_gua_money_ed);
-                }
-
-
-                if(!gua_type.isEmpty()){
-                    JSONObject gua_type_ve = new JSONObject();
-                    String gua_type_id = UUID.randomUUID().toString();
-                    gua_type_ve.put("identity",gua_type_id);
-                    gua_type_ve.put("root",root);
-                    gua_type_ve.put("name",gua_type.trim());
-                    gua_type_ve.put("type","attribute");
-                    gua_type_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_type_ve);
-
-                    JSONObject gua_type_ed = new JSONObject();
-                    gua_type_ed.put("root",root);
-                    gua_type_ed.put("from",identity_danbao);
-                    gua_type_ed.put("to",gua_type_id);
-                    gua_type_ed.put("name","担保类型");
-
-                    edges.add(gua_type_ed);
-                }
-
-
-                if(!gua_date.isEmpty()){
-                    JSONObject gua_date_ve = new JSONObject();
-                    String gua_date_id = UUID.randomUUID().toString();
-                    gua_date_ve.put("identity",gua_date_id);
-                    gua_date_ve.put("root",root);
-                    gua_date_ve.put("name",gua_date.trim());
-                    gua_date_ve.put("type","attribute");
-                    gua_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_date_ve);
-
-                    JSONObject gua_date_ed = new JSONObject();
-                    gua_date_ed.put("root",root);
-                    gua_date_ed.put("from",identity_danbao);
-                    gua_date_ed.put("to",gua_date_id);
-                    gua_date_ed.put("name","担保期");
-
-                    edges.add(gua_date_ed);
-                }
-
-
-
-
-                if(!whe_per_end.isEmpty()){
-                    JSONObject whe_per_end_ve = new JSONObject();
-                    String whe_per_end_id = UUID.randomUUID().toString();
-                    whe_per_end_ve.put("identity",whe_per_end_id);
-                    whe_per_end_ve.put("root",root);
-                    whe_per_end_ve.put("name",whe_per_end.trim());
-                    whe_per_end_ve.put("type","attribute");
-                    whe_per_end_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_per_end_ve);
-
-                    JSONObject whe_per_end_ed = new JSONObject();
-                    whe_per_end_ed.put("root",root);
-                    whe_per_end_ed.put("from",identity_danbao);
-                    whe_per_end_ed.put("to",whe_per_end_id);
-                    whe_per_end_ed.put("name","是否履行完毕");
-
-                    edges.add(whe_per_end_ed);
-                }
-
-
-                if(!whe_rel_guarantee.isEmpty()){
-                    JSONObject whe_rel_guarantee_ve = new JSONObject();
-                    String whe_rel_guarantee_id = UUID.randomUUID().toString();
-                    whe_rel_guarantee_ve.put("identity",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ve.put("root",root);
-                    whe_rel_guarantee_ve.put("name",whe_rel_guarantee.trim());
-                    whe_rel_guarantee_ve.put("type","attribute");
-                    whe_rel_guarantee_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_rel_guarantee_ve);
-
-                    JSONObject whe_rel_guarantee_ed = new JSONObject();
-                    whe_rel_guarantee_ed.put("root",root);
-                    whe_rel_guarantee_ed.put("from",identity_danbao);
-                    whe_rel_guarantee_ed.put("to",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ed.put("name","是否为关联方担保");
-
-                    edges.add(whe_rel_guarantee_ed);
-                }
-
-
-
-
-//                danbaos.put(danbao_name,identity_danbao);
-            }
-
-
-
-//            JSONObject one_edges = new JSONObject();
-//            one_edges.put("root",root);
-//            one_edges.put("from",identity_danbao);
-//            one_edges.put("to",com_identity);
-//            one_edges.put("name","担保方");
-//
-//            edges.add(one_edges);
-
-
-            JSONObject two_edges = new JSONObject();
-            two_edges.put("root",root);
-            two_edges.put("from",identity_danbao);
-            two_edges.put("to",identity);
-            two_edges.put("name","担保方");
-
-            edges.add(two_edges);
-
-
-            JSONObject rel_edges = new JSONObject();
-            rel_edges.put("root",root);
-            rel_edges.put("from",com_identity);
-            rel_edges.put("to",identity);
-            rel_edges.put("name","子公司");
-
-            edges.add(rel_edges);
-
+            dealWithOne(companyName,vertexs,edges,coms,danbaos,obj,danbao_name);
         }
     }
 
     private void getcom_sub_guarantee(JSONArray com_sub_guarantee, String companyName, List<JSONObject> vertexs, List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos) throws Exception {
-        String com_identity = coms.get(companyName);
 
 
         for (int i = 0;i<com_sub_guarantee.length();i++){
+
+            String danbao_name = "公司对子公司担保";
             JSONObject obj = com_sub_guarantee.getJSONObject(i);
+            dealWithOne(companyName,vertexs,edges,coms,danbaos,obj,danbao_name);
+        }
+    }
+    private void getout_cre_guarantee(JSONArray out_cre_guarantee, String companyName, List<JSONObject> vertexs, List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos) throws Exception {
+        for (int i = 0;i<out_cre_guarantee.length();i++){
+            String danbao_name = "对外担保";
+            JSONObject obj = out_cre_guarantee.getJSONObject(i);
+            dealWithOne(companyName,vertexs,edges,coms,danbaos,obj,danbao_name);
+        }
+    }
 
-            String gua_obj_name = obj.getString("gua_obj_name");
+    private void dealWithOne(String companyName, List<JSONObject> vertexs,
+                        List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos,
+                        JSONObject obj,String danbao_name) throws Exception {
+        String com_identity = coms.get(companyName);
 
-            if(gua_obj_name.endsWith("公")){
-                gua_obj_name = gua_obj_name+"司";
-            }
+        String gua_obj_name = obj.getString("gua_obj_name");
+        if(gua_obj_name.endsWith("公")){
+            gua_obj_name = gua_obj_name+"司";
+        }
 
-            String lim_pub_date = obj.getString("lim_pub_date");
-            String gua_limit = obj.getString("gua_limit");
-            String act_occ_date = obj.getString("act_occ_date");
-            String act_gua_money = obj.getString("act_gua_money");
-            String gua_type = obj.getString("gua_type");
-            String gua_date = obj.getString("gua_date");
-            String whe_per_end = obj.getString("whe_per_end");
-            String whe_rel_guarantee = obj.getString("whe_rel_guarantee");
-
-
-
-
-            String identity = "";
-            if(!coms.containsKey(gua_obj_name)){
-                identity = UUID.randomUUID().toString();
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity);
-                node_COM.put("root",root);
-                node_COM.put("name",gua_obj_name.trim());
-                node_COM.put("type","com");
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-                coms.put(gua_obj_name,identity);
-            }else{
-                identity = coms.get(gua_obj_name);
-            }
+        if(!verifyName(gua_obj_name)){
+            return;
+        }
 
 
-            String danbao_name = companyName+"_公司对子公司担保_"+act_occ_date+"_"+gua_limit+"_"+gua_obj_name+"_"+act_gua_money;
-
-            danbao_name = "公司对子公司担保";
-
-            String identity_danbao = "";
-            if(danbaos.containsKey(danbao_name)){
-                throw new Exception("两个担保:"+danbao_name );
-            }else{
-
-                identity_danbao = UUID.randomUUID().toString();
-
-                JSONObject content_obj = new JSONObject();
-                content_obj.put("lim_pub_date",lim_pub_date);
-                content_obj.put("gua_limit",gua_limit);
-                content_obj.put("act_occ_date",act_occ_date);
-                content_obj.put("act_gua_money",act_gua_money);
-                content_obj.put("gua_type",gua_type);
-                content_obj.put("gua_date",gua_date);
-                content_obj.put("whe_per_end",whe_per_end);
-                content_obj.put("whe_rel_guarantee",whe_rel_guarantee);
+        String identity = "";
+        if(!coms.containsKey(gua_obj_name)){
+            identity = UUID.randomUUID().toString();
 
 
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity_danbao);
-                node_COM.put("root",root);
-                node_COM.put("name",danbao_name.trim());
-                node_COM.put("type","out_cre_guarantee");
+            JSONObject node_COM = new JSONObject();
+            node_COM.put("identity",identity);
+            node_COM.put("root",root);
+            node_COM.put("name",gua_obj_name.trim());
+            node_COM.put("type","com");
+            node_COM.put("content",new JSONObject().toString());
+
+            vertexs.add(node_COM);
+
+            coms.put(gua_obj_name,identity);
+        }else{
+            identity = coms.get(gua_obj_name);
+        }
+
+
+
+
+
+        String identity_danbao = "";
+        if(danbaos.containsKey(danbao_name)){
+            throw new Exception("两个担保:"+danbao_name);
+        }else{
+
+            identity_danbao = UUID.randomUUID().toString();
+
+
+
+            JSONObject node_COM = new JSONObject();
+            node_COM.put("identity",identity_danbao);
+            node_COM.put("root",root);
+            node_COM.put("name",danbao_name.trim());
+            node_COM.put("type","out_cre_guarantee");
 //                node_COM.put("content",content_obj.toString());
-                node_COM.put("content",new JSONObject().toString());
+            node_COM.put("content",new JSONObject().toString());
 
-                vertexs.add(node_COM);
-
-
-
-                if(!lim_pub_date.isEmpty()){
-                    JSONObject lim_pub_date_ve = new JSONObject();
-                    String lim_pub_date_id = UUID.randomUUID().toString();
-                    lim_pub_date_ve.put("identity",lim_pub_date_id);
-                    lim_pub_date_ve.put("root",root);
-                    lim_pub_date_ve.put("name",lim_pub_date.trim());
-                    lim_pub_date_ve.put("type","attribute");
-                    lim_pub_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(lim_pub_date_ve);
-
-                    JSONObject lim_pub_date_ed = new JSONObject();
-                    lim_pub_date_ed.put("root",root);
-                    lim_pub_date_ed.put("from",identity_danbao);
-                    lim_pub_date_ed.put("to",lim_pub_date_id);
-                    lim_pub_date_ed.put("name","披露日期");
-
-                    edges.add(lim_pub_date_ed);
-                }
+            vertexs.add(node_COM);
 
 
 
 
-                if(!gua_limit.isEmpty()){
-                    JSONObject gua_limit_ve = new JSONObject();
-                    String gua_limit_id = UUID.randomUUID().toString();
-                    gua_limit_ve.put("identity",gua_limit_id);
-                    gua_limit_ve.put("root",root);
-                    gua_limit_ve.put("name",gua_limit.trim());
-                    gua_limit_ve.put("type","attribute");
-                    gua_limit_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_limit_ve);
-
-                    JSONObject gua_limit_ed = new JSONObject();
-                    gua_limit_ed.put("root",root);
-                    gua_limit_ed.put("from",identity_danbao);
-                    gua_limit_ed.put("to",gua_limit_id);
-                    gua_limit_ed.put("name","担保额度");
-
-                    edges.add(gua_limit_ed);
-                }
-
-
-                if(!act_occ_date.isEmpty()){
-                    JSONObject act_occ_date_ve = new JSONObject();
-                    String act_occ_date_id = UUID.randomUUID().toString();
-                    act_occ_date_ve.put("identity",act_occ_date_id);
-                    act_occ_date_ve.put("root",root);
-                    act_occ_date_ve.put("name",act_occ_date.trim());
-                    act_occ_date_ve.put("type","attribute");
-                    act_occ_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_occ_date_ve);
-
-                    JSONObject act_occ_date_ed = new JSONObject();
-                    act_occ_date_ed.put("root",root);
-                    act_occ_date_ed.put("from",identity_danbao);
-                    act_occ_date_ed.put("to",act_occ_date_id);
-                    act_occ_date_ed.put("name","协议签署日");
-
-                    edges.add(act_occ_date_ed);
-                }
-
-
-                if(!act_gua_money.isEmpty()){
-                    JSONObject act_gua_money_ve = new JSONObject();
-                    String act_gua_money_id = UUID.randomUUID().toString();
-                    act_gua_money_ve.put("identity",act_gua_money_id);
-                    act_gua_money_ve.put("root",root);
-                    act_gua_money_ve.put("name",act_gua_money.trim());
-                    act_gua_money_ve.put("type","attribute");
-                    act_gua_money_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_gua_money_ve);
-
-                    JSONObject act_gua_money_ed = new JSONObject();
-                    act_gua_money_ed.put("root",root);
-                    act_gua_money_ed.put("from",identity_danbao);
-                    act_gua_money_ed.put("to",act_gua_money_id);
-                    act_gua_money_ed.put("name","实际担保金额");
-
-                    edges.add(act_gua_money_ed);
-                }
-
-
-                if(!gua_type.isEmpty()){
-                    JSONObject gua_type_ve = new JSONObject();
-                    String gua_type_id = UUID.randomUUID().toString();
-                    gua_type_ve.put("identity",gua_type_id);
-                    gua_type_ve.put("root",root);
-                    gua_type_ve.put("name",gua_type.trim());
-                    gua_type_ve.put("type","attribute");
-                    gua_type_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_type_ve);
-
-                    JSONObject gua_type_ed = new JSONObject();
-                    gua_type_ed.put("root",root);
-                    gua_type_ed.put("from",identity_danbao);
-                    gua_type_ed.put("to",gua_type_id);
-                    gua_type_ed.put("name","担保类型");
-
-                    edges.add(gua_type_ed);
-                }
-
-
-                if(!gua_date.isEmpty()){
-                    JSONObject gua_date_ve = new JSONObject();
-                    String gua_date_id = UUID.randomUUID().toString();
-                    gua_date_ve.put("identity",gua_date_id);
-                    gua_date_ve.put("root",root);
-                    gua_date_ve.put("name",gua_date.trim());
-                    gua_date_ve.put("type","attribute");
-                    gua_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_date_ve);
-
-                    JSONObject gua_date_ed = new JSONObject();
-                    gua_date_ed.put("root",root);
-                    gua_date_ed.put("from",identity_danbao);
-                    gua_date_ed.put("to",gua_date_id);
-                    gua_date_ed.put("name","担保期");
-
-                    edges.add(gua_date_ed);
-                }
-
-
-
-
-                if(!whe_per_end.isEmpty()){
-                    JSONObject whe_per_end_ve = new JSONObject();
-                    String whe_per_end_id = UUID.randomUUID().toString();
-                    whe_per_end_ve.put("identity",whe_per_end_id);
-                    whe_per_end_ve.put("root",root);
-                    whe_per_end_ve.put("name",whe_per_end.trim());
-                    whe_per_end_ve.put("type","attribute");
-                    whe_per_end_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_per_end_ve);
-
-                    JSONObject whe_per_end_ed = new JSONObject();
-                    whe_per_end_ed.put("root",root);
-                    whe_per_end_ed.put("from",identity_danbao);
-                    whe_per_end_ed.put("to",whe_per_end_id);
-                    whe_per_end_ed.put("name","是否履行完毕");
-
-                    edges.add(whe_per_end_ed);
-                }
-
-
-                if(!whe_rel_guarantee.isEmpty()){
-                    JSONObject whe_rel_guarantee_ve = new JSONObject();
-                    String whe_rel_guarantee_id = UUID.randomUUID().toString();
-                    whe_rel_guarantee_ve.put("identity",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ve.put("root",root);
-                    whe_rel_guarantee_ve.put("name",whe_rel_guarantee.trim());
-                    whe_rel_guarantee_ve.put("type","attribute");
-                    whe_rel_guarantee_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_rel_guarantee_ve);
-
-                    JSONObject whe_rel_guarantee_ed = new JSONObject();
-                    whe_rel_guarantee_ed.put("root",root);
-                    whe_rel_guarantee_ed.put("from",identity_danbao);
-                    whe_rel_guarantee_ed.put("to",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ed.put("name","是否为关联方担保");
-
-                    edges.add(whe_rel_guarantee_ed);
-                }
-
-
-
+//            for (int i = 0;i<attr_en.length;i++){
+//                String one_attr_cn = attr_cn[i];
+//                String one_attr_en = attr_en[i];
+//
+//                if(obj.has(one_attr_en) && !obj.getString(one_attr_en).isEmpty()){
+//                    String tmp = obj.getString(one_attr_en);
+//                    JSONObject tmp_ve = new JSONObject();
+//                    String tmp_id = UUID.randomUUID().toString();
+//                    tmp_ve.put("identity",tmp_id);
+//                    tmp_ve.put("root",root);
+//                    tmp_ve.put("name",tmp.trim());
+//                    tmp_ve.put("type","attribute");
+//                    tmp_ve.put("content",new JSONObject().toString());
+//
+//                    vertexs.add(tmp_ve);
+//
+//                    JSONObject tmp_ed = new JSONObject();
+//                    tmp_ed.put("root",root);
+//                    tmp_ed.put("from",identity_danbao);
+//                    tmp_ed.put("to",tmp_id);
+//                    tmp_ed.put("name",one_attr_cn);
+//
+//                    edges.add(tmp_ed);
+//                }
+//            }
 
 //                danbaos.put(danbao_name,identity_danbao);
+        }
+
+
+        if(obj.has("gua_itself") && verifyName(obj.getString("gua_itself"))){
+            String gua_itself = obj.getString("gua_itself");
+
+
+
+
+            JSONObject gua_itself_ve = new JSONObject();
+            String gua_itself_id = UUID.randomUUID().toString();
+            if(coms.containsKey(gua_itself)){
+                gua_itself_id = coms.get(gua_itself);
+            }else{
+                coms.put(gua_itself,gua_itself_id);
             }
 
 
+            gua_itself_ve.put("identity",gua_itself_id);
+            gua_itself_ve.put("root",root);
+            gua_itself_ve.put("name",gua_itself.trim());
+            gua_itself_ve.put("type","com");
+            gua_itself_ve.put("content",new JSONObject().toString());
 
-            JSONObject one_edges = new JSONObject();
-            one_edges.put("root",root);
-            one_edges.put("from",identity_danbao);
-            one_edges.put("to",com_identity);
-            one_edges.put("name","担保方");
-
-            edges.add(one_edges);
-
-
-            JSONObject two_edges = new JSONObject();
-            two_edges.put("root",root);
-            two_edges.put("from",identity_danbao);
-            two_edges.put("to",identity);
-            two_edges.put("name","被担保方");
-
-            edges.add(two_edges);
+            vertexs.add(gua_itself_ve);
 
 
+            com_identity  = gua_itself_id;
+
+        }
 
 
+        JSONObject one_edges = new JSONObject();
+        one_edges.put("root",root);
+        one_edges.put("from",com_identity);
+        one_edges.put("to",identity_danbao);
+        one_edges.put("name","担保方");
 
+        edges.add(one_edges);
+
+
+        JSONObject two_edges = new JSONObject();
+        two_edges.put("root",root);
+        two_edges.put("from",identity);
+        two_edges.put("to",identity_danbao);
+        two_edges.put("name","被担保方");
+
+        edges.add(two_edges);
+
+
+        if(danbao_name.contains("子公司")){
             JSONObject rel_edges = new JSONObject();
             rel_edges.put("root",root);
             rel_edges.put("from",com_identity);
@@ -975,292 +343,10 @@ public class StructListedCom {
             rel_edges.put("name","子公司");
 
             edges.add(rel_edges);
-
-
-
-
         }
+
+
     }
 
 
-    private void getout_cre_guarantee(JSONArray out_cre_guarantee, String companyName, List<JSONObject> vertexs, List<JSONObject> edges, Map<String, String> coms, Map<String, String> danbaos) throws Exception {
-        String com_identity = coms.get(companyName);
-
-
-        for (int i = 0;i<out_cre_guarantee.length();i++){
-            JSONObject obj = out_cre_guarantee.getJSONObject(i);
-
-            String gua_obj_name = obj.getString("gua_obj_name");
-
-
-            if(gua_obj_name.endsWith("公")){
-                gua_obj_name = gua_obj_name+"司";
-            }
-
-
-
-            String lim_pub_date = obj.getString("lim_pub_date");
-            String gua_limit = obj.getString("gua_limit");
-            String act_occ_date = obj.getString("act_occ_date");
-            String act_gua_money = obj.getString("act_gua_money");
-            String gua_type = obj.getString("gua_type");
-            String gua_date = obj.getString("gua_date");
-            String whe_per_end = obj.getString("whe_per_end");
-            String whe_rel_guarantee = obj.getString("whe_rel_guarantee");
-
-
-
-
-            String identity = "";
-            if(!coms.containsKey(gua_obj_name)){
-                identity = UUID.randomUUID().toString();
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity);
-                node_COM.put("root",root);
-                node_COM.put("name",gua_obj_name.trim());
-                node_COM.put("type","com");
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-                coms.put(gua_obj_name,identity);
-            }else{
-                identity = coms.get(gua_obj_name);
-            }
-
-
-            String danbao_name = companyName+"_对外担保_"+act_occ_date+"_"+gua_limit+"_"+gua_obj_name+"_"+act_gua_money;
-
-            danbao_name = "对外担保";
-
-            String identity_danbao = "";
-            if(danbaos.containsKey(danbao_name)){
-                throw new Exception("两个担保:"+danbao_name);
-            }else{
-
-                identity_danbao = UUID.randomUUID().toString();
-
-                JSONObject content_obj = new JSONObject();
-                content_obj.put("lim_pub_date",lim_pub_date);
-                content_obj.put("gua_limit",gua_limit);
-                content_obj.put("act_occ_date",act_occ_date);
-                content_obj.put("act_gua_money",act_gua_money);
-                content_obj.put("gua_type",gua_type);
-                content_obj.put("gua_date",gua_date);
-                content_obj.put("whe_per_end",whe_per_end);
-                content_obj.put("whe_rel_guarantee",whe_rel_guarantee);
-
-
-                JSONObject node_COM = new JSONObject();
-                node_COM.put("identity",identity_danbao);
-                node_COM.put("root",root);
-                node_COM.put("name",danbao_name.trim());
-                node_COM.put("type","out_cre_guarantee");
-//                node_COM.put("content",content_obj.toString());
-                node_COM.put("content",new JSONObject().toString());
-
-                vertexs.add(node_COM);
-
-
-
-                if(!lim_pub_date.isEmpty()){
-                    JSONObject lim_pub_date_ve = new JSONObject();
-                    String lim_pub_date_id = UUID.randomUUID().toString();
-                    lim_pub_date_ve.put("identity",lim_pub_date_id);
-                    lim_pub_date_ve.put("root",root);
-                    lim_pub_date_ve.put("name",lim_pub_date.trim());
-                    lim_pub_date_ve.put("type","attribute");
-                    lim_pub_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(lim_pub_date_ve);
-
-                    JSONObject lim_pub_date_ed = new JSONObject();
-                    lim_pub_date_ed.put("root",root);
-                    lim_pub_date_ed.put("from",identity_danbao);
-                    lim_pub_date_ed.put("to",lim_pub_date_id);
-                    lim_pub_date_ed.put("name","披露日期");
-
-                    edges.add(lim_pub_date_ed);
-                }
-
-
-
-
-                if(!gua_limit.isEmpty()){
-                    JSONObject gua_limit_ve = new JSONObject();
-                    String gua_limit_id = UUID.randomUUID().toString();
-                    gua_limit_ve.put("identity",gua_limit_id);
-                    gua_limit_ve.put("root",root);
-                    gua_limit_ve.put("name",gua_limit.trim());
-                    gua_limit_ve.put("type","attribute");
-                    gua_limit_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_limit_ve);
-
-                    JSONObject gua_limit_ed = new JSONObject();
-                    gua_limit_ed.put("root",root);
-                    gua_limit_ed.put("from",identity_danbao);
-                    gua_limit_ed.put("to",gua_limit_id);
-                    gua_limit_ed.put("name","担保额度");
-
-                    edges.add(gua_limit_ed);
-                }
-
-
-                if(!act_occ_date.isEmpty()){
-                    JSONObject act_occ_date_ve = new JSONObject();
-                    String act_occ_date_id = UUID.randomUUID().toString();
-                    act_occ_date_ve.put("identity",act_occ_date_id);
-                    act_occ_date_ve.put("root",root);
-                    act_occ_date_ve.put("name",act_occ_date.trim());
-                    act_occ_date_ve.put("type","attribute");
-                    act_occ_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_occ_date_ve);
-
-                    JSONObject act_occ_date_ed = new JSONObject();
-                    act_occ_date_ed.put("root",root);
-                    act_occ_date_ed.put("from",identity_danbao);
-                    act_occ_date_ed.put("to",act_occ_date_id);
-                    act_occ_date_ed.put("name","协议签署日");
-
-                    edges.add(act_occ_date_ed);
-                }
-
-
-                if(!act_gua_money.isEmpty()){
-                    JSONObject act_gua_money_ve = new JSONObject();
-                    String act_gua_money_id = UUID.randomUUID().toString();
-                    act_gua_money_ve.put("identity",act_gua_money_id);
-                    act_gua_money_ve.put("root",root);
-                    act_gua_money_ve.put("name",act_gua_money.trim());
-                    act_gua_money_ve.put("type","attribute");
-                    act_gua_money_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(act_gua_money_ve);
-
-                    JSONObject act_gua_money_ed = new JSONObject();
-                    act_gua_money_ed.put("root",root);
-                    act_gua_money_ed.put("from",identity_danbao);
-                    act_gua_money_ed.put("to",act_gua_money_id);
-                    act_gua_money_ed.put("name","实际担保金额");
-
-                    edges.add(act_gua_money_ed);
-                }
-
-
-                if(!gua_type.isEmpty()){
-                    JSONObject gua_type_ve = new JSONObject();
-                    String gua_type_id = UUID.randomUUID().toString();
-                    gua_type_ve.put("identity",gua_type_id);
-                    gua_type_ve.put("root",root);
-                    gua_type_ve.put("name",gua_type.trim());
-                    gua_type_ve.put("type","attribute");
-                    gua_type_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_type_ve);
-
-                    JSONObject gua_type_ed = new JSONObject();
-                    gua_type_ed.put("root",root);
-                    gua_type_ed.put("from",identity_danbao);
-                    gua_type_ed.put("to",gua_type_id);
-                    gua_type_ed.put("name","担保类型");
-
-                    edges.add(gua_type_ed);
-                }
-
-
-                if(!gua_date.isEmpty()){
-                    JSONObject gua_date_ve = new JSONObject();
-                    String gua_date_id = UUID.randomUUID().toString();
-                    gua_date_ve.put("identity",gua_date_id);
-                    gua_date_ve.put("root",root);
-                    gua_date_ve.put("name",gua_date.trim());
-                    gua_date_ve.put("type","attribute");
-                    gua_date_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(gua_date_ve);
-
-                    JSONObject gua_date_ed = new JSONObject();
-                    gua_date_ed.put("root",root);
-                    gua_date_ed.put("from",identity_danbao);
-                    gua_date_ed.put("to",gua_date_id);
-                    gua_date_ed.put("name","担保期");
-
-                    edges.add(gua_date_ed);
-                }
-
-
-
-
-                if(!whe_per_end.isEmpty()){
-                    JSONObject whe_per_end_ve = new JSONObject();
-                    String whe_per_end_id = UUID.randomUUID().toString();
-                    whe_per_end_ve.put("identity",whe_per_end_id);
-                    whe_per_end_ve.put("root",root);
-                    whe_per_end_ve.put("name",whe_per_end.trim());
-                    whe_per_end_ve.put("type","attribute");
-                    whe_per_end_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_per_end_ve);
-
-                    JSONObject whe_per_end_ed = new JSONObject();
-                    whe_per_end_ed.put("root",root);
-                    whe_per_end_ed.put("from",identity_danbao);
-                    whe_per_end_ed.put("to",whe_per_end_id);
-                    whe_per_end_ed.put("name","是否履行完毕");
-
-                    edges.add(whe_per_end_ed);
-                }
-
-
-                if(!whe_rel_guarantee.isEmpty()){
-                    JSONObject whe_rel_guarantee_ve = new JSONObject();
-                    String whe_rel_guarantee_id = UUID.randomUUID().toString();
-                    whe_rel_guarantee_ve.put("identity",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ve.put("root",root);
-                    whe_rel_guarantee_ve.put("name",whe_rel_guarantee.trim());
-                    whe_rel_guarantee_ve.put("type","attribute");
-                    whe_rel_guarantee_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(whe_rel_guarantee_ve);
-
-                    JSONObject whe_rel_guarantee_ed = new JSONObject();
-                    whe_rel_guarantee_ed.put("root",root);
-                    whe_rel_guarantee_ed.put("from",identity_danbao);
-                    whe_rel_guarantee_ed.put("to",whe_rel_guarantee_id);
-                    whe_rel_guarantee_ed.put("name","是否为关联方担保");
-
-                    edges.add(whe_rel_guarantee_ed);
-                }
-
-
-
-
-//                danbaos.put(danbao_name,identity_danbao);
-            }
-
-
-
-            JSONObject one_edges = new JSONObject();
-            one_edges.put("root",root);
-            one_edges.put("from",identity_danbao);
-            one_edges.put("to",com_identity);
-            one_edges.put("name","担保方");
-
-            edges.add(one_edges);
-
-
-            JSONObject two_edges = new JSONObject();
-            two_edges.put("root",root);
-            two_edges.put("from",identity_danbao);
-            two_edges.put("to",identity);
-            two_edges.put("name","被担保方");
-
-            edges.add(two_edges);
-
-        }
-    }
 }

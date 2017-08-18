@@ -66,12 +66,13 @@ public class ElasearchDAO implements IIndexDAO {
             }
 
             bulkRequest.add(client.prepareIndex(index,type).setId(key_value.get(identity)).setSource(obj.toString()));
-            if (count%100==0) {
+            if (count%1000==0) {
                 BulkResponse bulkResponse = bulkRequest.execute().actionGet();
                 if (bulkResponse.hasFailures()){
                     System.out.println("Bulk add index failures"+bulkResponse.buildFailureMessage());
                     throw new Exception("批量导入elasearch失败"+type);
                 }
+                System.out.println("1000");
             }
             count++;
         }

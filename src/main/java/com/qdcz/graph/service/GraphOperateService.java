@@ -355,7 +355,7 @@ public class GraphOperateService {
                 System.out.println("开始elasearch中导入点："+(System.currentTimeMillis()-time)/1000+"秒");
                 time = System.currentTimeMillis();
 
-                indexBuzi.bluckByFile(nodeLabel,vertexfilePath,identity_id);
+//                indexBuzi.bluckByFile(nodeLabel,vertexfilePath,identity_id);
 
             } catch (Exception e) {
                 logger.error("批量增点错误："+e.getMessage()+"\n");
@@ -373,7 +373,7 @@ public class GraphOperateService {
                 System.out.println("开始elasearch中导入边："+(System.currentTimeMillis()-time)/1000+"秒");
                 time = System.currentTimeMillis();
 
-                indexBuzi.bluckByFile(edgeRelationship,edgefilePath,identity_id);
+//                indexBuzi.bluckByFile(edgeRelationship,edgefilePath,identity_id);
 
             } catch (Exception e) {
 
@@ -483,5 +483,9 @@ public class GraphOperateService {
 
     public void delVertexByPath(String vertexsPath, String label) {
         //TODO
+    }
+
+    public boolean bluckaddvertex(String vertexsPath, String label, String edgesPath, String relationship) {
+        return false;
     }
 }

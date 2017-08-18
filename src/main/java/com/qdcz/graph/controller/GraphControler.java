@@ -26,6 +26,17 @@ public class GraphControler {
     private GraphOperateService newTrasa;
 //    @Autowired
 
+    @RequestMapping(path = "/bluckaddvertex", method = {RequestMethod.POST,RequestMethod.GET})
+    public boolean bluckaddvertex(@RequestParam String vertexsPath,
+                            @RequestParam String label,
+                            @RequestParam String edgesPath,
+                            @RequestParam String relationship){
+        logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
+
+
+        return newTrasa.bluckaddvertex(vertexsPath,label,edgesPath,relationship);
+    }
+
 
 
     @RequestMapping(path = "/bluckadd2", method = {RequestMethod.POST,RequestMethod.GET})
