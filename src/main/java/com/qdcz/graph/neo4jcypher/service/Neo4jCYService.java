@@ -95,8 +95,26 @@ public class Neo4jCYService implements IGraphBuzi {
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
-                    "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
+                    "MATCH (m  ) MATCH (n ) where id(m)=line.from_id AND id(n)=line.to_id "+
+                   // "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
                     "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n)}]->(n) return line.identity,id(r);";
+        StatementResult execute = neo4jCYDAO.execute(sql);
+        while(execute.hasNext()){
+            Record next = execute.next();
+            String id = next.get("id(r)").toString();
+            String identity = next.get("line.identity").toString();
+            mapsResult.put(identity,id);
+        }
+        return  mapsResult;
+    }
+    public Map batchInsertEdgeById(String relatinship,String filepath){
+        Map<String,String> mapsResult=new HashMap<>();
+        String sql=null;
+        sql="USING PERIODIC COMMIT 1000 " +
+                "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
+                "MATCH (m  ) MATCH (n ) where id(m)=line.from_id AND id(n)=line.to_id "+
+                // "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
+                "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n)}]->(n) return line.identity,id(r);";
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
             Record next = execute.next();
