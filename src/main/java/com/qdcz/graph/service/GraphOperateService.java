@@ -355,7 +355,7 @@ public class GraphOperateService {
                 System.out.println("开始elasearch中导入点："+(System.currentTimeMillis()-time)/1000+"秒");
                 time = System.currentTimeMillis();
 
-//                indexBuzi.bluckByFile(nodeLabel,vertexfilePath,identity_id);
+                indexBuzi.bluckByFile(nodeLabel,vertexfilePath,identity_id);
 
             } catch (Exception e) {
                 logger.error("批量增点错误："+e.getMessage()+"\n");
@@ -485,7 +485,111 @@ public class GraphOperateService {
         //TODO
     }
 
-    public boolean bluckaddvertex(String vertexsPath, String label, String edgesPath, String relationship) {
+    public boolean bluckAddvertex(String vertexsPath, String nodeLabel) throws IOException {
+        long time = System.currentTimeMillis();
+
+        try {
+
+            System.out.println("开始neo4j中导入点");
+            Map<String,String> identity_id = graphBuzi.batchInsertVertex(nodeLabel,"vertex.csv");
+
+            time = System.currentTimeMillis();
+
+            String path = vertexsPath+"vertex_before.txt";
+
+            Scanner sc = new Scanner(new File(path));
+            FileOutputStream fileOutputStream = new FileOutputStream(vertexsPath+"vertex.txt", true);
+            while(sc.hasNext()){
+                String line = sc.nextLine();
+
+                JSONObject obj = new JSONObject(line);
+                obj.put("id",identity_id.get(obj.getString("identity")));
+
+
+                fileOutputStream.write((obj.toString()+"\n").getBytes());
+                fileOutputStream.flush();
+            }
+            sc.close();
+            fileOutputStream.close();
+
+
+
+//            for(String str:identity_id.keySet()){
+//                System.out.println("MM:"+str+"\t"+identity_id.get(str));
+//            }
+
+
+            String path_ed = vertexsPath+"edges_before.txt";
+            Scanner sc_ed = new Scanner(new File(path_ed));
+            FileOutputStream fileOutputStream_ed = new FileOutputStream(vertexsPath+"edges.txt", true);
+            FileOutputStream fileOutputStream_ed_csv = new FileOutputStream(vertexsPath+"edges.csv", true);
+//            FileOutputStream fileOutputStream_ed_danbao = new FileOutputStream(vertexsPath+"edges_dan.csv", true);
+
+            fileOutputStream_ed_csv.write("root,name,from_id,to_id,identity,weight\n".getBytes());
+//            fileOutputStream_ed_danbao.write("root,name,from_id,to_id,identity,weight\n".getBytes());
+            while(sc_ed.hasNext()){
+                String line = sc_ed.nextLine();
+
+                JSONObject obj = new JSONObject(line);
+                obj.put("from",identity_id.get(obj.getString("from")));
+                obj.put("to",identity_id.get(obj.getString("to")));
+
+
+
+
+                String root = obj.getString("root").replace(",","，");
+                String name = obj.getString("name").replace(",","，");
+                String from = obj.getString("from").replace(",","，");
+                String to = obj.getString("to").replace(",","，");
+                String identity = obj.getString("identity");
+                int weight = obj.getInt("weight");
+
+                String one = root+","+name+","+from+","+to+","+identity+","+weight+"\n";
+                fileOutputStream_ed_csv.write(one.getBytes());
+
+//                if(name.equals("担保")){
+//                    fileOutputStream_ed_danbao.write(one.getBytes());
+//                }
+
+
+                fileOutputStream_ed.write((obj.toString()+"\n").getBytes());
+                fileOutputStream_ed.flush();
+            }
+            sc_ed.close();
+            fileOutputStream_ed.close();
+            fileOutputStream_ed_csv.close();
+//            fileOutputStream_ed_danbao.close();
+
+
+            System.out.println("neo4j导入点完成："+(System.currentTimeMillis()-time)/1000+"秒");
+        } catch (Exception e) {
+            logger.error("批量增点错误："+e.getMessage()+"\n");
+            throw e;
+        }
+
+        return false;
+    }
+
+    public boolean bluckaddedges(String edgesPath, String relationship) {
+        long time = System.currentTimeMillis();
+        try {
+
+            System.out.println("开始neo4j导入边");
+            time = System.currentTimeMillis();
+
+            Map<String,String> identity_id = graphBuzi.batchInsertEdgeById(relationship,"edges.csv");
+
+            System.out.println("导入边完成："+(System.currentTimeMillis()-time)/1000+"秒");
+
+            //TODO
+
+//          indexBuzi.bluckByFile(edgeRelationship,edgefilePath,identity_id);
+
+        } catch (Exception e) {
+
+            logger.error("批量增边错误："+e.getMessage()+"\n");
+            throw e;
+        }
         return false;
     }
 }

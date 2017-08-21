@@ -85,7 +85,7 @@ public class Neo4jCYService implements IGraphBuzi {
         while(execute.hasNext()){
             Record next = execute.next();
             String id = next.get("id(p)").toString();
-            String identity = next.get("line.identity").toString();
+            String identity = next.get("line.identity").asString();
             mapsResult.put(identity,id);
         }
         return  mapsResult;
@@ -95,8 +95,7 @@ public class Neo4jCYService implements IGraphBuzi {
         String sql=null;
             sql="USING PERIODIC COMMIT 1000 " +
                     "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
-                    "MATCH (m  ) MATCH (n ) where id(m)=line.from_id AND id(n)=line.to_id "+
-                   // "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
+                    "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
                     "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n)}]->(n) return line.identity,id(r);";
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
@@ -112,14 +111,14 @@ public class Neo4jCYService implements IGraphBuzi {
         String sql=null;
         sql="USING PERIODIC COMMIT 1000 " +
                 "LOAD CSV WITH HEADERS FROM \"file:///"+filepath+"\" AS line  " +
-                "MATCH (m  ) MATCH (n ) where id(m)=line.from_id AND id(n)=line.to_id "+
-                // "MATCH (m{identity:line.from_id} ) MATCH (n{identity:line.to_id}) " +
-                "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n)}]->(n) return line.identity,id(r);";
+                "MATCH (m  ) MATCH (n ) where id(m)=apoc.number.parseInt(line.from_id) AND id(n)=apoc.number.parseInt(line.to_id) "+
+                "MERGE (m)-[r:"+relatinship+"{from:id(m),root:line.root,name:line.name,to:id(n),weight:apoc.number.parseInt(line.weight)}]->(n) return line.identity,id(r);";
+        System.out.println(sql);
         StatementResult execute = neo4jCYDAO.execute(sql);
         while(execute.hasNext()){
             Record next = execute.next();
             String id = next.get("id(r)").toString();
-            String identity = next.get("line.identity").toString();
+            String identity = next.get("line.identity").asString();
             mapsResult.put(identity,id);
         }
         return  mapsResult;

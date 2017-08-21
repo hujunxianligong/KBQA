@@ -8,13 +8,14 @@ import java.io.IOException;
  * Created by star on 17-8-14.
  */
 public class ImportData {
-    private static String host_port = "http://localhost:14000/bluckadd2?";
+    //bluckaddedges   bluckaddvertex
+    private static String host_port = "http://localhost:14001/bluckaddedges?";
     public static void main(String[] args) throws IOException {
 
         String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
 
-        String vertexsPath =dir+ "vertex.txt";
-        String graph = "licom";
+        String vertexsPath =dir;
+        String graph = "danbao";//licom
         String edgesPath = dir+ "edges.txt";
 
         importXZ(graph,vertexsPath,edgesPath);

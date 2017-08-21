@@ -23,7 +23,7 @@ public interface IGraphBuzi {
      */
     public Map batchInsertVertex(String label,String filepath);
 
-
+public Map batchInsertEdgeById(String relatinship,String filepath);
     /**
      * 批量文件增边
      * @param relatinship

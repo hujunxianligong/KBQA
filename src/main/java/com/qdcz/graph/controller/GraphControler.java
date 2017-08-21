@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Map;
 //import java.util.logging.Logger;
 
@@ -26,15 +27,24 @@ public class GraphControler {
     private GraphOperateService newTrasa;
 //    @Autowired
 
+
+    @RequestMapping(path = "/bluckaddedges", method = {RequestMethod.POST,RequestMethod.GET})
+    public boolean bluckaddedges(
+            @RequestParam String edgesPath,
+            @RequestParam String relationship) throws Exception {
+        logger.info("bluckadd——edgesPath:"+edgesPath+"\trelationship："+relationship);
+
+
+        return newTrasa.bluckaddedges(edgesPath,relationship);
+    }
+
     @RequestMapping(path = "/bluckaddvertex", method = {RequestMethod.POST,RequestMethod.GET})
-    public boolean bluckaddvertex(@RequestParam String vertexsPath,
-                            @RequestParam String label,
-                            @RequestParam String edgesPath,
-                            @RequestParam String relationship){
-        logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label+"\tedgesPath:"+edgesPath+"\trelationship："+relationship);
+    public boolean bluckAddvertex(@RequestParam String vertexsPath,
+                            @RequestParam String label) throws Exception {
+        logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label);
 
 
-        return newTrasa.bluckaddvertex(vertexsPath,label,edgesPath,relationship);
+        return newTrasa.bluckAddvertex(vertexsPath,label);
     }
 
 
