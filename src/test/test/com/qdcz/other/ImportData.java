@@ -9,13 +9,13 @@ import java.io.IOException;
  */
 public class ImportData {
     //bluckaddedges   bluckaddvertex
-    private static String host_port = "http://localhost:14001/bluckaddedges?";
+    private static String host_port = "http://localhost:14000/bluckaddvertex?";
     public static void main(String[] args) throws IOException {
 
-        String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
+        String dir = "/home/hadoop/下载/导入数据/";
 
         String vertexsPath =dir;
-        String graph = "danbao";//licom
+        String graph = "licom";//licom
         String edgesPath = dir+ "edges.txt";
 
         importXZ(graph,vertexsPath,edgesPath);

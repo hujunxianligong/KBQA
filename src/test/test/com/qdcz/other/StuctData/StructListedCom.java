@@ -13,12 +13,12 @@ import java.util.*;
  */
 public class StructListedCom {
     private static String root="上市公司分析";
-    private static String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
+    private static String dir = "/home/hadoop/下载/导入数据/";
 
     private static String ve_csv = dir+"vertex.csv";
     private static String ve_txt = dir+"vertex_before.txt";
 
-//    private static String edge_csv = dir+"edges.csv";
+    private static String edge_csv = dir+"edges.csv";
     private static String edge_txt = dir+"edges_before.txt";
 
     private static String[] attr_en = {"lim_pub_date","gua_limit","act_occ_date","act_gua_money","gua_type","gua_date","whe_per_end",
@@ -28,6 +28,9 @@ public class StructListedCom {
 
 
     private Map<String,Integer> danbao_weight = new HashMap<>();
+
+
+    private static String ed_csv_2 = dir+"edges2.tmp";
 
     public static void main(String[] args) throws Exception {
         StructListedCom instance = new StructListedCom();
@@ -46,14 +49,28 @@ public class StructListedCom {
         if(name.contains("，")){
             name = name.substring(0,name.indexOf("，"));
         }
-        name = name.replace("［注］","").replace("（公司全资子公司）","").replace("[注]","").replace("（包括浙江五家子公司）","");//
+        name = name.replace("［注］","").replace("（公司全资子公司）","").replace("[注]","").replace("（包括浙江五家子公司）","").replaceAll("（","(").replaceAll("）",")");//
         return name;
     }
 
 
     public boolean verifyName(String name){
             boolean flag = true;
-            if(name.isEmpty() || name.length()>35 || name.length()<5 || name.matches(".*\\d+.*")
+//            if(name.length()>35){
+//                if(name.contains("、")){
+//                    String[] split=name.split("、");
+//                    int nameCount = 0;
+//                    for(String eachName : split){
+//                        if(eachName.endsWith("公司")){
+//                            nameCount++;
+//                        }
+//                    }
+//                    if( nameCount ==split.length){
+//                        return true;
+//                    }
+//                }
+//            }
+            if(name.isEmpty() || name.length()>35|| name.length()<5 || name.matches(".*\\d+.*")
                     || name.contains("√")|| name.contains("□") || name.contains("%") || name.contains("---")
                     || name.contains("\"")){
 
@@ -68,7 +85,7 @@ public class StructListedCom {
 
 
     public void doIt() throws Exception {
-        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/上市公司担保关系分析/someJson"));
+        Scanner sc = new Scanner(new File(dir+"someJson"));
         List<JSONObject> vertexs =  new ArrayList<>();
         List<JSONObject> edges =  new ArrayList<>();
         Map<String,String> coms = new HashMap<>();
@@ -81,7 +98,7 @@ public class StructListedCom {
 
         CommonTool.printFile("root,name,type,content,identity,weight\n",ve_csv,false);
 
-//        CommonTool.printFile("root,name,from_id,to_id,identity,weight\n",edge_csv,false);
+        CommonTool.printFile("root,name,from_id,to_id,identity,weight\n",ed_csv_2,false);
 
 
         CommonTool.printFile("",ve_txt,false);
@@ -145,15 +162,18 @@ public class StructListedCom {
         }
 
 
+        StringBuffer sb = new StringBuffer();
         //权重
         for (String da_we : danbao_weight.keySet()) {
             int weight = danbao_weight.get(da_we);
             String from = da_we.split("_")[0];
             String to = da_we.split("_")[1];
+            String type = da_we.split("_")[2];
+
             String name = "担保";
 
             if(from.equals(to)){
-
+                continue;
             }
 
             JSONObject da_edges = new JSONObject();
@@ -168,12 +188,19 @@ public class StructListedCom {
             sb_neo4j.append(root+","+name+","+from+","+to+","+identity+","+weight+"\n");
             sb_ela.append(da_edges.toString()+"\n");
 
+            sb.append(root+","+type+","+from+","+to+","+identity+","+weight+"\n");
+
+
+
         }
 
-//        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
+        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
         sb_neo4j.delete(0,sb_neo4j.length());
         CommonTool.printFile(sb_ela.toString(),edge_txt,true);
         sb_ela.delete(0,sb_ela.length());
+
+        CommonTool.printFile(sb.toString(),ed_csv_2,true);
+        sb.delete(0,sb.length());
 
         sc.close();
     }
@@ -220,9 +247,9 @@ public class StructListedCom {
                 continue;
             }
 
-            if(!name.equals("担保")){
-                continue;
-            }
+//            if(!name.equals("担保")){
+//                continue;
+//            }
 
             String identity = UUID.randomUUID().toString();
             obj.put("identity",identity);
@@ -235,7 +262,7 @@ public class StructListedCom {
         
         
         
-//        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
+        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
         sb_neo4j.delete(0,sb_neo4j.length());
         CommonTool.printFile(sb_ela.toString(),edge_txt,true);
         sb_ela.delete(0,sb_ela.length());
@@ -371,6 +398,10 @@ public class StructListedCom {
                 String one_attr_cn = attr_cn[i];
                 String one_attr_en = attr_en[i];
 
+
+
+//                  conyinur;
+
                 if(obj.has(one_attr_en) && !obj.getString(one_attr_en).isEmpty()){
                     String tmp = obj.getString(one_attr_en);
                     JSONObject tmp_ve = new JSONObject();
@@ -489,7 +520,7 @@ public class StructListedCom {
                 }
 
 
-                String we_name = com_identity+"_"+identity;
+                String we_name = com_identity+"_"+identity+"_"+type;
                 if(danbao_weight.containsKey(we_name)){
                     danbao_weight.put(we_name,danbao_weight.get(we_name)+1);
                 }else{

@@ -521,12 +521,18 @@ public class GraphOperateService {
 
             String path_ed = vertexsPath+"edges_before.txt";
             Scanner sc_ed = new Scanner(new File(path_ed));
+
+            CommonTool.printFile("",vertexsPath+"edges.txt",false);
+            CommonTool.printFile("",vertexsPath+"edges.csv",false);
+            CommonTool.printFile("",vertexsPath+"edges_dan.csv",false);
+
+
             FileOutputStream fileOutputStream_ed = new FileOutputStream(vertexsPath+"edges.txt", true);
             FileOutputStream fileOutputStream_ed_csv = new FileOutputStream(vertexsPath+"edges.csv", true);
-//            FileOutputStream fileOutputStream_ed_danbao = new FileOutputStream(vertexsPath+"edges_dan.csv", true);
+            FileOutputStream fileOutputStream_ed_danbao = new FileOutputStream(vertexsPath+"edges_dan.csv", true);
 
             fileOutputStream_ed_csv.write("root,name,from_id,to_id,identity,weight\n".getBytes());
-//            fileOutputStream_ed_danbao.write("root,name,from_id,to_id,identity,weight\n".getBytes());
+            fileOutputStream_ed_danbao.write("root,name,from_id,to_id,identity,weight\n".getBytes());
             while(sc_ed.hasNext()){
                 String line = sc_ed.nextLine();
 
@@ -547,9 +553,12 @@ public class GraphOperateService {
                 String one = root+","+name+","+from+","+to+","+identity+","+weight+"\n";
                 fileOutputStream_ed_csv.write(one.getBytes());
 
-//                if(name.equals("担保")){
-//                    fileOutputStream_ed_danbao.write(one.getBytes());
-//                }
+                if(name.equals("担保")){
+                    fileOutputStream_ed_danbao.write(one.getBytes());
+                }
+                else{
+                    fileOutputStream_ed_csv.write(one.getBytes());
+                }
 
 
                 fileOutputStream_ed.write((obj.toString()+"\n").getBytes());
@@ -558,7 +567,34 @@ public class GraphOperateService {
             sc_ed.close();
             fileOutputStream_ed.close();
             fileOutputStream_ed_csv.close();
-//            fileOutputStream_ed_danbao.close();
+            fileOutputStream_ed_danbao.close();
+
+
+
+
+            //新担保
+            CommonTool.printFile("",vertexsPath+"edges2.csv",false);
+            FileOutputStream tmp2 = new FileOutputStream(vertexsPath+"edges2.csv", true);
+            tmp2.write("root,name,from_id,to_id,identity,weight\n".getBytes());
+
+            Scanner sc_tmp2 = new Scanner(new File(vertexsPath+"edges2.tmp"));
+            while(sc_tmp2.hasNext()){
+                String line = sc_tmp2.nextLine();
+                String[] dd = line.split(",");
+
+                String fromid = identity_id.get(dd[2]);
+                String toid = identity_id.get(dd[3]);
+
+                String one = dd[0]+","+dd[1]+","+fromid+","+toid+","+dd[4]+","+dd[5]+"\n";
+                tmp2.write(one.getBytes());
+
+
+            }
+            sc_tmp2.close();
+
+
+
+
 
 
             System.out.println("neo4j导入点完成："+(System.currentTimeMillis()-time)/1000+"秒");
