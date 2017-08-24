@@ -9,10 +9,10 @@ import java.io.IOException;
  */
 public class ImportData {
     //bluckaddedges   bluckaddvertex
-    private static String host_port = "http://localhost:14000/bluckaddvertex?";
+    private static String host_port = "http://localhost:14000/bluckaddedges?";
     public static void main(String[] args) throws IOException {
 
-        String dir = "/home/hadoop/下载/导入数据/";
+        String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
 
         String vertexsPath =dir;
         String graph = "licom";//licom

@@ -13,12 +13,12 @@ import java.util.*;
  */
 public class StructListedCom {
     private static String root="上市公司分析";
-    private static String dir = "/home/hadoop/下载/导入数据/";
+    private static String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
 
     private static String ve_csv = dir+"vertex.csv";
     private static String ve_txt = dir+"vertex_before.txt";
 
-    private static String edge_csv = dir+"edges.csv";
+//    private static String edge_csv = dir+"edges.csv";
     private static String edge_txt = dir+"edges_before.txt";
 
     private static String[] attr_en = {"lim_pub_date","gua_limit","act_occ_date","act_gua_money","gua_type","gua_date","whe_per_end",
@@ -98,7 +98,7 @@ public class StructListedCom {
 
         CommonTool.printFile("root,name,type,content,identity,weight\n",ve_csv,false);
 
-        CommonTool.printFile("root,name,from_id,to_id,identity,weight\n",ed_csv_2,false);
+//        CommonTool.printFile("root,name,from_id,to_id,identity,weight\n",ed_csv_2,false);
 
 
         CommonTool.printFile("",ve_txt,false);
@@ -166,9 +166,9 @@ public class StructListedCom {
         //权重
         for (String da_we : danbao_weight.keySet()) {
             int weight = danbao_weight.get(da_we);
-            String from = da_we.split("_")[0];
-            String to = da_we.split("_")[1];
-            String type = da_we.split("_")[2];
+            String from = da_we.split(",")[0];
+            String to = da_we.split(",")[1];
+            String type = da_we.split(",")[2];
 
             String name = "担保";
 
@@ -194,7 +194,7 @@ public class StructListedCom {
 
         }
 
-        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
+//        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
         sb_neo4j.delete(0,sb_neo4j.length());
         CommonTool.printFile(sb_ela.toString(),edge_txt,true);
         sb_ela.delete(0,sb_ela.length());
@@ -214,9 +214,9 @@ public class StructListedCom {
             String content = obj.getString("content").replace(",","，");
             String identity = obj.getString("identity").replace(",","，");
 
-            if(!type.equals("com")){
-                continue;
-            }
+//            if(!type.equals("com")){
+//                continue;
+//            }
 
             if(type.equals("com")){
                 System.out.println(name);
@@ -247,9 +247,6 @@ public class StructListedCom {
                 continue;
             }
 
-//            if(!name.equals("担保")){
-//                continue;
-//            }
 
             String identity = UUID.randomUUID().toString();
             obj.put("identity",identity);
@@ -262,7 +259,7 @@ public class StructListedCom {
         
         
         
-        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
+//        CommonTool.printFile(sb_neo4j.toString(),edge_csv,true);
         sb_neo4j.delete(0,sb_neo4j.length());
         CommonTool.printFile(sb_ela.toString(),edge_txt,true);
         sb_ela.delete(0,sb_ela.length());
@@ -520,7 +517,7 @@ public class StructListedCom {
                 }
 
 
-                String we_name = com_identity+"_"+identity+"_"+type;
+                String we_name = com_identity+","+identity+","+type;
                 if(danbao_weight.containsKey(we_name)){
                     danbao_weight.put(we_name,danbao_weight.get(we_name)+1);
                 }else{
