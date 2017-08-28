@@ -13,8 +13,8 @@ import java.util.*;
  */
 public class StructListedCom {
     private static String root="上市公司分析";
-    private static String dir = "/media/star/Doc/工作文档/上市公司担保关系分析/";
-
+    private static String dir = "/mnt/vol_0/neo4j-community-3.2.1/import/";
+    public static  String inputFile ="2014下半年";
     private static String ve_csv = dir+"vertex.csv";
     private static String ve_txt = dir+"vertex_before.txt";
 
@@ -24,9 +24,10 @@ public class StructListedCom {
     private static String[] attr_en = {"lim_pub_date","gua_limit","act_occ_date","act_gua_money","gua_type","gua_date","whe_per_end",
             "whe_rel_guarantee","gua_beg_date","gua_lim_date","gua_whe_overdue","gua_ove_money","whe_rev_guarantee","rel_relation","lis_com_relation"};
     private static String[] attr_cn = {"披露日期","担保额度","协议签署日","实际担保金额","担保类型","担保期","是否履行完毕",
-            "是否为关联方担保","担保起始日","担保到期日","担保是否逾期","担保逾期金额","是否存在反担保","关联关系","担保方与上市公司的关系"};
+            "是否为关联方担保","担保起始日","担保到期日","担保是否逾期","担保逾期金额","是否存在反担保","关联关系","担保方与上市公司的关系"};//,"年度","季度","总资产","净资产"
 
-
+    private static String[] label_en = {"year","quarterStr","address","allMoney","netAsset"};
+    private static String[] label_cn = {"年度","季度","地域","总资产","净资产"};
     private Map<String,Integer> danbao_weight = new HashMap<>();
 
 
@@ -85,7 +86,7 @@ public class StructListedCom {
 
 
     public void doIt() throws Exception {
-        Scanner sc = new Scanner(new File(dir+"someJson"));
+        Scanner sc = new Scanner(new File(dir+inputFile));
         List<JSONObject> vertexs =  new ArrayList<>();
         List<JSONObject> edges =  new ArrayList<>();
         Map<String,String> coms = new HashMap<>();
@@ -128,8 +129,7 @@ public class StructListedCom {
 
             if(!coms.containsKey(companyName)){
                 String identity = UUID.randomUUID().toString();
-
-
+                //公司
                 JSONObject node_COM = new JSONObject();
                 node_COM.put("identity",identity);
                 node_COM.put("root",root);
@@ -138,7 +138,8 @@ public class StructListedCom {
                 node_COM.put("content",new JSONObject().toString());
 
                 vertexs.add(node_COM);
-
+                //公司属性
+                dealStrInfo( edges,  vertexs,one_com,identity,label_en,label_cn);
                 coms.put(companyName,identity);
             }
 
@@ -389,37 +390,37 @@ public class StructListedCom {
             vertexs.add(node_COM);
 
 
+            dealStrInfo( edges,  vertexs,obj,identity_danbao,attr_en,attr_cn);
 
-
-            for (int i = 0;i<attr_en.length;i++){
-                String one_attr_cn = attr_cn[i];
-                String one_attr_en = attr_en[i];
-
-
-
-//                  conyinur;
-
-                if(obj.has(one_attr_en) && !obj.getString(one_attr_en).isEmpty()){
-                    String tmp = obj.getString(one_attr_en);
-                    JSONObject tmp_ve = new JSONObject();
-                    String tmp_id = UUID.randomUUID().toString();
-                    tmp_ve.put("identity",tmp_id);
-                    tmp_ve.put("root",root);
-                    tmp_ve.put("name",tmp.trim());
-                    tmp_ve.put("type","attribute");
-                    tmp_ve.put("content",new JSONObject().toString());
-
-                    vertexs.add(tmp_ve);
-
-                    JSONObject tmp_ed = new JSONObject();
-                    tmp_ed.put("root",root);
-                    tmp_ed.put("from",identity_danbao);
-                    tmp_ed.put("to",tmp_id);
-                    tmp_ed.put("name",one_attr_cn);
-
-                    edges.add(tmp_ed);
-                }
-            }
+//            for (int i = 0;i<attr_en.length;i++){
+//                String one_attr_cn = attr_cn[i];
+//                String one_attr_en = attr_en[i];
+//
+//
+//
+////                  conyinur;
+//
+//                if(obj.has(one_attr_en) && !obj.getString(one_attr_en).isEmpty()){
+//                    String tmp = obj.getString(one_attr_en);
+//                    JSONObject tmp_ve = new JSONObject();
+//                    String tmp_id = UUID.randomUUID().toString();
+//                    tmp_ve.put("identity",tmp_id);
+//                    tmp_ve.put("root",root);
+//                    tmp_ve.put("name",tmp.trim());
+//                    tmp_ve.put("type","attribute");
+//                    tmp_ve.put("content",new JSONObject().toString());
+//
+//                    vertexs.add(tmp_ve);
+//
+//                    JSONObject tmp_ed = new JSONObject();
+//                    tmp_ed.put("root",root);
+//                    tmp_ed.put("from",identity_danbao);
+//                    tmp_ed.put("to",tmp_id);
+//                    tmp_ed.put("name",one_attr_cn);
+//
+//                    edges.add(tmp_ed);
+//                }
+//            }
 
 //                danbaos.put(danbao_name,identity_danbao);
         }
@@ -528,6 +529,37 @@ public class StructListedCom {
         }
 
     }
+    private  void dealStrInfo( List<JSONObject> edges, List<JSONObject> vertexs,
+                               JSONObject obj,String identity,String[] _en,String[] _cn){
+        for (int i = 0;i<_en.length;i++){
+            String one_attr_cn = _cn[i];
+            String one_attr_en = _en[i];
 
+
+
+//                  conyinur;
+
+            if(obj.has(one_attr_en) && !obj.getString(one_attr_en).isEmpty()){
+                String tmp = obj.getString(one_attr_en);
+                JSONObject tmp_ve = new JSONObject();
+                String tmp_id = UUID.randomUUID().toString();
+                tmp_ve.put("identity",tmp_id);
+                tmp_ve.put("root",root);
+                tmp_ve.put("name",tmp.trim());
+                tmp_ve.put("type","attribute");
+                tmp_ve.put("content",new JSONObject().toString());
+
+                vertexs.add(tmp_ve);
+
+                JSONObject tmp_ed = new JSONObject();
+                tmp_ed.put("root",root);
+                tmp_ed.put("from",identity);
+                tmp_ed.put("to",tmp_id);
+                tmp_ed.put("name",one_attr_cn);
+
+                edges.add(tmp_ed);
+            }
+        }
+    }
 
 }

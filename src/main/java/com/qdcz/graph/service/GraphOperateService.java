@@ -620,14 +620,14 @@ public  String relationshipName(Edge edge,JSONArray graphNames){
         return false;
     }
 
-    public boolean bluckaddedges(String edgesPath, String relationship) {
+    public boolean bluckaddedges(String edgesfile, String relationship) {
         long time = System.currentTimeMillis();
         try {
 
             System.out.println("开始neo4j导入边");
             time = System.currentTimeMillis();
 
-            Map<String,String> identity_id = graphBuzi.batchInsertEdgeById(relationship,"edges.csv");
+            Map<String,String> identity_id = graphBuzi.batchInsertEdgeById(relationship,edgesfile);
 
             System.out.println("导入边完成："+(System.currentTimeMillis()-time)/1000+"秒");
 

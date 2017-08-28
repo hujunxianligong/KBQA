@@ -32,12 +32,12 @@ public class GraphControler {
 
     @RequestMapping(path = "/bluckaddedges", method = {RequestMethod.POST,RequestMethod.GET})
     public boolean bluckaddedges(
-            @RequestParam String edgesPath,
+            @RequestParam String edgesfile,
             @RequestParam String relationship) throws Exception {
-        logger.info("bluckadd——edgesPath:"+edgesPath+"\trelationship："+relationship);
+        logger.info("bluckadd——edgesPath:"+edgesfile+"\trelationship："+relationship);
 
 
-        return newTrasa.bluckaddedges(edgesPath,relationship);
+        return newTrasa.bluckaddedges(edgesfile,relationship);
     }
 
     @RequestMapping(path = "/bluckaddvertex", method = {RequestMethod.POST,RequestMethod.GET})
