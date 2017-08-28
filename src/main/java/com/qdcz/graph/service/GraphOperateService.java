@@ -200,7 +200,43 @@ public class GraphOperateService {
         resultBuilder=null;
         return result.toString();
     }
-
+    /**
+     * 获取结果集合中边的名称列表
+     * @param result
+     * @return
+     */
+    private JSONObject getRelationshipName(JSONObject result){
+        if(result.has("nodes")) {
+            JSONArray jsonArray = result.getJSONArray("nodes");
+            Map maps=new HashMap<Integer,JSONObject>();
+            for(int i=0;i<jsonArray.length();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String type = jsonObject.getString("type");
+                String name =null;
+                if("com".equals(type)){
+                    name = "公司名";
+                }else if("com".equals(type)){
+                    name = "属性";
+                }else
+                {
+                    name=jsonObject.getString("name");
+                }
+                JSONObject typeobj=new JSONObject();
+                typeobj.put("type_en",type);
+                typeobj.put("type_cn",name);
+                if(!maps.containsKey(typeobj.toString().hashCode())){
+                    maps.put(jsonObject.toString().hashCode(),jsonObject);
+                }
+            }
+            JSONArray results=new JSONArray();
+            for (Object value : maps.values()) {
+                //  System.out.println("Value = " + value);
+                results.put(value);
+            }
+            result.put("nodeTypeName",results);
+        }
+        return result;
+    }
 
     /**
      * 无向搜索
@@ -240,6 +276,7 @@ public class GraphOperateService {
             }
         }
         result = resultBuilder.reDupResult(result);
+
         return result.toString();
     }
 
@@ -276,6 +313,7 @@ public class GraphOperateService {
             }
         }
         result = resultBuilder.reDupResult(result);
+        result=getRelationshipName(result);
         return result.toString();
     }
 
@@ -309,6 +347,7 @@ public class GraphOperateService {
             }
         }
         result = resultBuilder.reDupResult(result);
+        result=getRelationshipName(result);
         return result.toString();
     }
 
@@ -328,6 +367,7 @@ public class GraphOperateService {
         }
         ResultBuilder resultBuilder=new ResultBuilder();
         JSONObject result = resultBuilder.graphResult(paths);
+        result=getRelationshipName(result);
         resultBuilder=null;
         return result.toString();
 
