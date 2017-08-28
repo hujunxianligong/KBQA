@@ -480,7 +480,21 @@ public class GraphOperateService {
     public String queryEdgeDetail(Edge edge) {
         return indexBuzi.queryById(edge).toString();
     }
+public  String relationshipName(Edge edge,JSONArray graphNames){
 
+    for(int i=0;i<graphNames.length();i++) {
+        String graphName = graphNames.getString(i);
+        try {
+            Graph graph = DatabaseConfiguration.getGraph(graphName);
+            String label = graph.getRelationship();
+            return  graphBuzi.relationshipName(label).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    return  null;
+}
     public void delVertexByPath(String vertexsPath, String label) {
         //TODO
     }

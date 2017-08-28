@@ -117,4 +117,10 @@ public Map batchInsertEdgeById(String relatinship,String filepath);
      *
      */
     public Map<String,Vertex> checkVertexByEdgeId(long id);
+    /**
+     * 根据边类型返回包含名称
+     * @param relationshipType
+     *
+     */
+    public List<String> relationshipName(String relationshipType);
 }

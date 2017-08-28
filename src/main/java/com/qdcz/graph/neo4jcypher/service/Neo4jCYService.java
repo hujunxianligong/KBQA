@@ -47,10 +47,11 @@ public class Neo4jCYService implements IGraphBuzi {
         Edge edge=new Edge();
         edge.setRelationShip("gra");
         edge.setId(2181l+"");
-        instance.bfExtersion(vertex,1);
+      //  instance.bfExtersion(vertex,1);
       //  instance.dfExection(19,22,4);
-        instance.batchInsertEdge("hehe_rel","edge.csv");
+      //  instance.batchInsertEdge("hehe_rel","edge.csv");
      //   instance.batchInsertVertex("hehe","vertex.csv");
+        instance.relationshipName("licom_relationship");
     }
 
 
@@ -209,7 +210,18 @@ public class Neo4jCYService implements IGraphBuzi {
 
         return result;
     }
-
+    public List<String> relationshipName(String relationshipType){
+        List<String> result=new ArrayList<>();
+        String sql="match()-[r:"+relationshipType+"]->() return distinct(r.name)as names  limit 100";
+        StatementResult execute = neo4jCYDAO.execute(sql);
+        while(execute.hasNext()){
+            Record next = execute.next();
+            String names = next.get("names").asString();
+            result.add(names);
+        }
+        System.out.println(result.toString()+result.size());
+        return result;
+    }
     public void testExtersion(String sql){
         StatementResult execute = neo4jCYDAO.execute(sql);
     }

@@ -20,7 +20,12 @@
             <label>licom_label</label>
             <relationship>licom_relationship</relationship>
         </graph>
-
+        <graph>
+            <name>down_2014</name>
+            <title>2014上市公司担保分析</title>
+            <label>down_2014_label</label>
+            <relationship>down_2014_relationship</relationship>
+        </graph>
     </graphs>
 
     <projects>

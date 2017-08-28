@@ -1,6 +1,8 @@
 package com.qdcz.graph.controller;
 
+import com.qdcz.conf.DatabaseConfiguration;
 import com.qdcz.entity.Edge;
+import com.qdcz.entity.Graph;
 import com.qdcz.entity.Vertex;
 import com.qdcz.graph.service.GraphOperateService;
 
@@ -135,8 +137,8 @@ public class GraphControler {
 //                    JSONArray graph_Byname =  new JSONArray();
 //                    graph_Byname.put("ytdkyw");
 
-//                    int layer = Integer.parseInt(obj.getString("layer"));
-                    int layer =3;
+                    int layer = Integer.parseInt(obj.getString("layer"));
+//                    int layer =3;
 
                         result = newTrasa.directedBfExtersion(vertex.getName(),graph_Byname,layer);
 //                    result = newTrasa.exactMatchQuery(vertex.getName(),graph_Byname,layer);
@@ -239,7 +241,12 @@ public class GraphControler {
                     result = newTrasa.queryEdgeDetail(edge);
 
                     break;
+                case "getEdgeAllName":
+                    //查询边的所有名称
+                     graph_Byname = obj.getJSONArray("graph");
 
+                    result = newTrasa.relationshipName(edge,graph_Byname);
+                    break;
                 default:
                     logger.error("error type:"+type);
                     result = "failure";

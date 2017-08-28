@@ -14,7 +14,6 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class})
 public class App {
     public static void main(String[] args){
-
         SpringApplication.run(App.class, args);
     }
 }
