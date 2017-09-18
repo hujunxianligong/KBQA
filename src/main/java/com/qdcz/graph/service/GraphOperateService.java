@@ -215,7 +215,7 @@ public class GraphOperateService {
                 String name =null;
                 if("com".equals(type)){
                     name = "公司名";
-                }else if("com".equals(type)){
+                }else if("attribute".equals(type)){
                     name = "属性";
                 }else
                 {
@@ -225,7 +225,7 @@ public class GraphOperateService {
                 typeobj.put("type_en",type);
                 typeobj.put("type_cn",name);
                 if(!maps.containsKey(typeobj.toString().hashCode())){
-                    maps.put(jsonObject.toString().hashCode(),jsonObject);
+                    maps.put(typeobj.toString().hashCode(),typeobj);
                 }
             }
             JSONArray results=new JSONArray();
@@ -276,7 +276,7 @@ public class GraphOperateService {
             }
         }
         result = resultBuilder.reDupResult(result);
-
+        result=getRelationshipName(result);
         return result.toString();
     }
 

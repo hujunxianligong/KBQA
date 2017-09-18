@@ -14,7 +14,7 @@ import java.util.*;
 public class StructListedCom {
     private static String root="上市公司分析";
     private static String dir = "/mnt/vol_0/neo4j-community-3.2.1/import/";
-    public static  String inputFile ="2014下半年";
+    public static  String inputFile ="test";
     private static String ve_csv = dir+"vertex.csv";
     private static String ve_txt = dir+"vertex_before.txt";
 
@@ -26,8 +26,8 @@ public class StructListedCom {
     private static String[] attr_cn = {"披露日期","担保额度","协议签署日","实际担保金额","担保类型","担保期","是否履行完毕",
             "是否为关联方担保","担保起始日","担保到期日","担保是否逾期","担保逾期金额","是否存在反担保","关联关系","担保方与上市公司的关系"};//,"年度","季度","总资产","净资产"
 
-    private static String[] label_en = {"year","quarterStr","address","allMoney","netAsset"};
-    private static String[] label_cn = {"年度","季度","地域","总资产","净资产"};
+    private static String[] label_en = {"year","quarterStr","address","allMoney","netAsset","debtRatio"};
+    private static String[] label_cn = {"年度","季度","地域","总资产","净资产","资产负债率"};
     private Map<String,Integer> danbao_weight = new HashMap<>();
 
 
@@ -50,7 +50,13 @@ public class StructListedCom {
         if(name.contains("，")){
             name = name.substring(0,name.indexOf("，"));
         }
-        name = name.replace("［注］","").replace("（公司全资子公司）","").replace("[注]","").replace("（包括浙江五家子公司）","").replaceAll("（","(").replaceAll("）",")");//
+        if(name.contains("变更后:")){
+            String[] split = name.split("变更后:");
+            if(split.length>1){
+                name= name.split("变更后:")[1];
+            }
+        }
+        name = name.replace("［注］","").replace("，本公司控股子公司","").replace("（公司全资子公司）","").replace("[注]","").replace("（包括浙江五家子公司）","").replaceAll("（","(").replaceAll("）",")");//
         return name;
     }
 
@@ -347,6 +353,9 @@ public class StructListedCom {
         if(gua_obj_name.equals(companyName)){
             return;
         }
+        if("0.0万元".equals(obj.get("gua_limit"))&&"0.0万元".equals(obj.get("act_gua_money"))){
+            return;
+        }
 
 
         gua_obj_name = changeName(gua_obj_name);
@@ -422,7 +431,7 @@ public class StructListedCom {
 //                }
 //            }
 
-//                danbaos.put(danbao_name,identity_danbao);
+//            danbaos.put(danbao_name,identity_danbao);
         }
 
 

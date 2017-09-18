@@ -19,6 +19,8 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by hadoop on 17-6-30.
@@ -136,7 +138,17 @@ public class CommonTool {
             }
         }
     }
-
+    public static String get_one_match(String content, String regex) {
+        String matched = "";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(content);
+        while (m.find()) {
+            matched = m.group();
+            if(!matched.isEmpty())
+                break;
+        }
+        return matched;
+    }
 
     public static void printFile(String s, String outPath, Boolean append) {
 
