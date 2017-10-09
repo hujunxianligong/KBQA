@@ -216,7 +216,7 @@ public class GraphControler {
 
                     break;
                 case "deleteEdge":
-                    //修改边
+                    //删除边
 
 
                     result = newTrasa.deleteEgde(edge);
@@ -230,13 +230,13 @@ public class GraphControler {
 
                     break;
                 case "queryNodeDetail":
-                    //新增边和终点
+                    //查看点的详情
 
                     result = newTrasa.queryNodeDetail(vertex);
 
                     break;
                 case "queryEdgeDetail":
-                    //新增边和终点
+                    //查看边的详情
 
                     result = newTrasa.queryEdgeDetail(edge);
 
