@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class StructWikiData {
     public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/wiki图项目/filter.json"));
+        Scanner sc = new Scanner(new File("/media/star/Doc/工作文档/wiki图项目/filter4.json"));
 
 
         String vertex_csv = "/media/star/Doc/工作文档/wiki图项目/vertex.csv";
@@ -30,27 +30,43 @@ public class StructWikiData {
 
         String root = "wiki数据";
 
-        Writer vertexWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(vertex_csv), true), "gbk"));
+        Writer vertexWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(vertex_csv), true), "utf-8"));
         vertexWriter.write("root,name,type,content,identity\n");
 
-        Writer edgesWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(vertex_csv), true), "gbk"));
-
-
-
-
+        Writer edgesWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(edges_txt), true), "utf-8"));
 
 
         Map<String,String> map = new HashMap<>();
+        int m = 0;
         while(sc.hasNext()){
             String line = sc.nextLine();
-            JSONObject obj = new JSONObject(line);
-
+            JSONObject obj = null;
+            try {
+                obj = new JSONObject(line);
+            }catch (Exception e){
+                continue;
+            }
             if(!obj.has("label")){
                 continue;
             }
 
 
-            String label = obj.getString("label").trim();
+
+            String label = obj.getString("label").replace(",","，").replace("\"","").trim();
+            if(label.isEmpty()){
+                continue;
+            }
+//            if(label.replaceAll("(，| |'|:|\\(|\\))","").matches("\\w+") || label.matches(".*\\d+.*")){
+//                System.out.println("过滤一条");
+//                continue;
+//            }
+
+
+            if(label.matches(".*\\w+.*") || label.matches(".*\\d+.*")){
+//                System.out.println("过滤一条");
+                continue;
+            }
+            System.out.println(m++);
 
             String identity = "";
             if(map.containsKey(label)){
@@ -74,57 +90,59 @@ public class StructWikiData {
 
 
             if(obj.has("id")){
-                String id = obj.getString("id");
-                JSONObject node_id = new JSONObject();
-                String id_identity = UUID.randomUUID().toString();
-                node_id.put("identity",id_identity);
-                node_id.put("root","wiki数据");
-                node_id.put("name",id);
-                node_id.put("type","id");
-                node_id.put("content",new JSONObject().toString());
+                String id = obj.getString("id").replace(",","，").replace("\"","");
+                if(id.length() > 2) {
+                    JSONObject node_id = new JSONObject();
+                    String id_identity = UUID.randomUUID().toString();
+                    node_id.put("identity", id_identity);
+                    node_id.put("root", "wiki数据");
+                    node_id.put("name", id);
+                    node_id.put("type", "id");
+                    node_id.put("content", new JSONObject().toString());
+
+                    vertexWriter.write(root + "," + id + "," + "id" + "," + new JSONObject().toString() + "," + id_identity + "\n");
+
+                    JSONObject edges = new JSONObject();
+                    edges.put("root", root);
+                    edges.put("from", identity);
+                    edges.put("weight", 1);
+                    edges.put("to", id_identity);
+                    edges.put("identity", UUID.randomUUID().toString());
+                    edges.put("name", "id");
 
 
-
-                vertexWriter.write(root+","+id+","+"id"+","+new JSONObject().toString()+","+id_identity+"\n");
-
-
-
-                JSONObject edges = new JSONObject();
-                edges.put("root",root);
-                edges.put("from",identity);
-                edges.put("to",id_identity);
-                edges.put("name","id");
-
-
-                edgesWriter.write(edges.toString()+"\n");
+                    edgesWriter.write(edges.toString() + "\n");
+                }
             }
 
 
             if(obj.has("desc")){
-                String desc = obj.getString("desc");
-                JSONObject node_desc = new JSONObject();
-                String desc_identity = UUID.randomUUID().toString();
-                node_desc.put("identity",desc_identity);
-                node_desc.put("root","wiki数据");
-                node_desc.put("name",desc);
-                node_desc.put("type","desc");
-                node_desc.put("content",new JSONObject().toString());
+                String desc = obj.getString("desc").replace(",","，").replace("\"","");
+                if(desc.length()>2) {
+                    JSONObject node_desc = new JSONObject();
+                    String desc_identity = UUID.randomUUID().toString();
+                    node_desc.put("identity", desc_identity);
+                    node_desc.put("root", "wiki数据");
+                    node_desc.put("name", desc);
+                    node_desc.put("type", "desc");
+                    node_desc.put("content", new JSONObject().toString());
 
 
-                vertexWriter.write(root+","+desc+","+"desc"+","+new JSONObject().toString()+","+desc_identity+"\n");
+                    vertexWriter.write(root + "," + desc + "," + "desc" + "," + new JSONObject().toString() + "," + desc_identity + "\n");
 
 
-
-                JSONObject edges = new JSONObject();
-                edges.put("root",root);
-                edges.put("from",identity);
-                edges.put("to",desc_identity);
-                edges.put("name","desc");
-
-
-                edgesWriter.write(edges.toString()+"\n");
+                    JSONObject edges = new JSONObject();
+                    edges.put("root", root);
+                    edges.put("from", identity);
+                    edges.put("weight", 1);
+                    edges.put("to", desc_identity);
+                    edges.put("identity", UUID.randomUUID().toString());
+                    edges.put("name", "desc");
 
 
+                    edgesWriter.write(edges.toString() + "\n");
+
+                }
 
             }
 
@@ -132,31 +150,32 @@ public class StructWikiData {
                 JSONArray arr = obj.getJSONArray("aliases");
                 for (int i = 0;i<arr.length();i++){
                     JSONObject one_aliases = arr.getJSONObject(i);
-                    String value = one_aliases.getString("value");
+                    String value = one_aliases.getString("value").replace(",","，").replace("\"","");
+                    if(value.length()>2) {
+
+                        JSONObject node_value = new JSONObject();
+                        String value_identity = UUID.randomUUID().toString();
+                        node_value.put("identity", value_identity);
+                        node_value.put("root", "wiki数据");
+                        node_value.put("name", value);
+                        node_value.put("type", "aliases");
+                        node_value.put("content", new JSONObject().toString());
 
 
-                    JSONObject node_value = new JSONObject();
-                    String value_identity = UUID.randomUUID().toString();
-                    node_value.put("identity",value_identity);
-                    node_value.put("root","wiki数据");
-                    node_value.put("name",value);
-                    node_value.put("type","aliases");
-                    node_value.put("content",new JSONObject().toString());
+                        vertexWriter.write(root + "," + value + "," + "aliases" + "," + new JSONObject().toString() + "," + value_identity + "\n");
 
 
-
-                    vertexWriter.write(root+","+value+","+"aliases"+","+new JSONObject().toString()+","+value_identity+"\n");
-
-
-
-                    JSONObject edges = new JSONObject();
-                    edges.put("root",root);
-                    edges.put("from",identity);
-                    edges.put("to",value_identity);
-                    edges.put("name","aliases");
+                        JSONObject edges = new JSONObject();
+                        edges.put("root", root);
+                        edges.put("from", identity);
+                        edges.put("weight", 1);
+                        edges.put("to", value_identity);
+                        edges.put("identity", UUID.randomUUID().toString());
+                        edges.put("name", "aliases");
 
 
-                    edgesWriter.write(edges.toString()+"\n");
+                        edgesWriter.write(edges.toString() + "\n");
+                    }
 
                 }
 
@@ -165,5 +184,7 @@ public class StructWikiData {
 
         }
         sc.close();
+        edgesWriter.close();
+        vertexWriter.close();
     }
 }

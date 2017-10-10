@@ -46,7 +46,7 @@ public class GraphControler {
         logger.info("bluckadd——vetexsPath:"+vertexsPath+"\tlabel:"+label);
 
 
-        return newTrasa.bluckAddvertex(vertexsPath,label);
+        return newTrasa.bluckAddvertexWiki(vertexsPath,label);
     }
 
 

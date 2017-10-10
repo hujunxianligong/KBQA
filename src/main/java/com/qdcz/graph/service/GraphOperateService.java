@@ -14,6 +14,7 @@ import com.qdcz.entity.Vertex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.driver.v1.types.Path;
@@ -223,7 +224,7 @@ public class GraphOperateService {
                 }
                 JSONObject typeobj=new JSONObject();
                 typeobj.put("type_en",type);
-                typeobj.put("type_cn",name);
+                typeobj.put("type_cn",type);
                 if(!maps.containsKey(typeobj.toString().hashCode())){
                     maps.put(typeobj.toString().hashCode(),typeobj);
                 }
@@ -266,7 +267,7 @@ public class GraphOperateService {
 
 
 
-                paths = graphBuzi.bfExtersion(vertex, 1);
+                paths = graphBuzi.bfExtersion(vertex, depth);
 
                 object = resultBuilder.graphResult(paths);
                 result= resultBuilder.mergeResult(result, object);
@@ -538,6 +539,71 @@ public  String relationshipName(Edge edge,JSONArray graphNames){
     public void delVertexByPath(String vertexsPath, String label) {
         //TODO
     }
+
+
+    public boolean bluckAddvertexWiki(String vertexsPath, String nodeLabel) throws IOException {
+        long time = System.currentTimeMillis();
+
+        try {
+
+            System.out.println("开始neo4j中导入点");
+            Map<String,String> identity_id = graphBuzi.batchInsertVertex(nodeLabel,"vertex.csv");
+
+            time = System.currentTimeMillis();
+
+
+            String path_ed = vertexsPath+"edges.txt";
+            Scanner sc_ed = new Scanner(new File(path_ed));
+
+            CommonTool.printFile("",vertexsPath+"edges.csv",false);
+
+            FileOutputStream fileOutputStream_ed_csv = new FileOutputStream(vertexsPath+"edges.csv", true);
+
+            fileOutputStream_ed_csv.write("root,name,from_id,to_id,identity,weight\n".getBytes());
+            while(sc_ed.hasNext()){
+                String line = sc_ed.nextLine();
+
+                JSONObject obj = new JSONObject(line);
+                String from_id=identity_id.get(obj.getString("from"));
+                obj.put("from",from_id);
+                String to_id=identity_id.get(obj.getString("to"));
+                obj.put("to",identity_id.get(obj.getString("to")));
+
+
+
+                try{
+                    String root = obj.getString("root").replace(",","，");
+                    String name = obj.getString("name").replace(",","，");
+                    String from = obj.getString("from").replace(",","，");
+                    String to = obj.getString("to").replace(",","，");
+                    String identity = obj.getString("identity");
+                    int weight = obj.getInt("weight");
+                    String one = root+","+name+","+from+","+to+","+identity+","+weight+"\n";
+                    fileOutputStream_ed_csv.write(one.getBytes());
+                }catch (JSONException je){
+                    je.printStackTrace();
+                }
+
+
+
+
+
+            }
+            sc_ed.close();
+            fileOutputStream_ed_csv.close();
+
+
+            System.out.println("neo4j导入点完成："+(System.currentTimeMillis()-time)/1000+"秒");
+        } catch (Exception e) {
+            logger.error("批量增点错误："+e.getMessage()+"\n");
+            throw e;
+        }
+
+        return false;
+    }
+
+
+
 
     public boolean bluckAddvertex(String vertexsPath, String nodeLabel) throws IOException {
         long time = System.currentTimeMillis();
