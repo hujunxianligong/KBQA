@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 /**
  * Created by hadoop on 17-10-9.
+ * //测试导入数据级格式是否正确
  */
 public class testRead {
     public static void main(String[] args) throws FileNotFoundException {
