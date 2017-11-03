@@ -41,7 +41,7 @@ public class StructListedCom {
 
 
 
-    public String changeName(String name){
+    public static String changeName(String name){
 
         if(name.endsWith("公")){
             name = name+"司";
@@ -61,7 +61,7 @@ public class StructListedCom {
     }
 
 
-    public boolean verifyName(String name){
+    public static boolean verifyName(String name){
             boolean flag = true;
 //            if(name.length()>35){
 //                if(name.contains("、")){

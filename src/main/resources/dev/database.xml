@@ -21,11 +21,60 @@
             <relationship>licom_relationship</relationship>
         </graph>
         <graph>
+            <name>up_2013</name>
+            <title>2013上市公司担保分析</title>
+            <label>up_2013_label</label>
+            <relationship>up_2013_relationship</relationship>
+        </graph>
+        <graph>
+            <name>down_2013</name>
+            <title>2013上市公司担保分析</title>
+            <label>down_2013_label</label>
+            <relationship>down_2013_relationship</relationship>
+        </graph>
+        <graph>
+            <name>up_2014</name>
+            <title>2014上市公司担保分析</title>
+            <label>up_2014_label</label>
+            <relationship>up_2014_relationship</relationship>
+        </graph>
+        <graph>
             <name>down_2014</name>
             <title>2014上市公司担保分析</title>
             <label>down_2014_label</label>
             <relationship>down_2014_relationship</relationship>
         </graph>
+        <graph>
+            <name>up_2015</name>
+            <title>2015上市公司担保分析</title>
+            <label>up_2015_label</label>
+            <relationship>up_2015_relationship</relationship>
+        </graph>
+        <graph>
+            <name>down_2015</name>
+            <title>2015上市公司担保分析</title>
+            <label>down_2015_label</label>
+            <relationship>down_2015_relationship</relationship>
+        </graph>
+        <graph>
+            <name>up_2016</name>
+            <title>2016上市公司担保分析</title>
+            <label>up_2016_label</label>
+            <relationship>up_2016_relationship</relationship>
+        </graph>
+        <graph>
+            <name>down_2016</name>
+            <title>2016上市公司担保分析</title>
+            <label>down_2016_label</label>
+            <relationship>down_2016_relationship</relationship>
+        </graph>
+        <graph>
+            <name>up_2017</name>
+            <title>2017上市公司担保分析</title>
+            <label>up_2017_label</label>
+            <relationship>up_2017_relationship</relationship>
+        </graph>
+
     </graphs>
 
     <projects>

@@ -280,5 +280,17 @@ public class CommonTool {
         }
         return list;
     }
+    public static Vector<String> get_all_match(String content, String regex) {
+        Vector all = new Vector();
+        String matched = "";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(content);
 
+        while(m.find()) {
+            matched = m.group();
+            all.add(matched);
+        }
+
+        return all;
+    }
 }

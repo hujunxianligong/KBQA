@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class ImportData {
     //bluckaddedges   bluckaddvertex
-    private static String host_port = "http://localhost:14000/bluckaddedges?";
+    private static String host_port = "http://localhost:14000/bluckaddvertex?";
     public static void main(String[] args) throws Exception {
 
         String dir = "/mnt/vol_0/neo4j-community-3.2.1/import/";
@@ -27,7 +27,7 @@ public class ImportData {
         String vertexsPath =dir;
         if(graph!=null){
             if(host_port.contains("bluckaddvertex")){
-                instance.doIt();
+//                instance.doIt();
                 importXZ(graph,vertexsPath,"vertex.csv");
             }
             if(host_port.contains("bluckaddedges")){

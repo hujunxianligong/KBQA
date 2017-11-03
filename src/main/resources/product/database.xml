@@ -14,7 +14,19 @@
             <label>shkx_label</label>
             <relationship>shkx_relationship</relationship>
         </graph>
+        <graph>
+            <name>wikidata</name>
+            <title>wiki图谱</title>
+            <label>wikidata_label</label>
+            <relationship>wikidata_relationship</relationship>
+        </graph>
 
+        <graph>
+            <name>businessinfo</name>
+            <title>工商图谱</title>
+            <label>businessinfo_label</label>
+            <relationship>businessinfo_relationship</relationship>
+        </graph>
     </graphs>
 
     <projects>
@@ -28,6 +40,18 @@
             <project_name>sk</project_name>
             <graphs>
                 <graph_name>shkx</graph_name>
+            </graphs>
+        </project>
+        <project>
+            <project_name>wiki</project_name>
+            <graphs>
+                <graph_name>wikidata</graph_name>
+            </graphs>
+        </project>
+        <project>
+            <project_name>businessinfo</project_name>
+            <graphs>
+                <graph_name>businessinfo</graph_name>
             </graphs>
         </project>
         <project>
